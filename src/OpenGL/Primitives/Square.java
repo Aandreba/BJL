@@ -4,7 +4,7 @@ import OpenGL.Mesh.Mesh;
 import OpenGL.Shader.Shader;
 
 public class Square extends Mesh {
-    public Square(Shader shader) throws Exception {
+    /*public Square() throws Exception {
         super(new float[] {
                 -1, 0, 0,
                 -1, -1, 0,
@@ -13,7 +13,21 @@ public class Square extends Mesh {
         }, new int[] {
                 0, 1, 3,
                 3, 1, 2
-        }, shader);
+        });
+
+        this.draw();
+    }*/
+
+    public Square() throws Exception {
+        super(new float[] {
+                -1, 1, 0,
+                -1, -1, 0,
+                0, -1, 0,
+                0, 0, 0
+        }, new int[] {
+                0, 1, 3,
+                3, 1, 2
+        });
 
         this.draw();
     }

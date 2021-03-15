@@ -59,6 +59,10 @@ public abstract class Matrix {
 
     public abstract double get (int row, int col);
 
+    public float getFloat (int row, int col) {
+        return (float)get(row, col);
+    }
+
     public Vector get (int row) {
         return new Vector(cols) {
             @Override
@@ -517,6 +521,32 @@ public abstract class Matrix {
 
     // Transposed
     public Matrix transposed () {
+        return new Matrix(cols, rows) {
+            @Override
+            public double get(int row, int col) {
+                return Matrix.this.get(col, row);
+            }
+        };
+    }
+
+    // Determinant
+    public double determinant () {
+        int k = Math.min(rows, cols);
+        double sum = 1;
+        double minus = 1;
+
+        for (int i=0;i<k;i++) {
+            sum *= get(i,i);
+            minus *= get(i, getco) // TODO
+        }
+
+        return sum - minus;
+    }
+
+    // Inverted
+    public StatMatrix inverted () {
+        float det = determinant();
+
         return new Matrix(cols, rows) {
             @Override
             public double get(int row, int col) {

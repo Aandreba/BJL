@@ -1,24 +1,23 @@
 package OpenGL.Shader;
 
 import Extras.Files;
-import Matrix.Matrix;
-import OpenGL.Extras.Matrix4;
+import Extras.Sys;
+import OpenGL.Extras.Matrix.Matrix4;
+import OpenGL.Extras.Vector.Vector3;
+import org.lwjgl.opengl.GL40;
 import org.lwjgl.system.MemoryStack;
 
 import java.io.File;
 import java.nio.FloatBuffer;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
-import static org.lwjgl.opengl.GL30.*;
 
 public class Shader {
     final private int id;
     private int vertex;
     private int fragment;
+
     private final Map<String, Integer> uniforms;
 
     public Shader () throws Exception {
@@ -26,8 +25,14 @@ public class Shader {
         if (this.id == 0) {
             throw new Exception("Could not create Shader");
         }
-
         this.uniforms = new HashMap<>();
+
+        this.createVertexShader(new File("src/OpenGL/Shader/GLCode/vertex.vert"));
+        this.createFragmentShader(new File("src/OpenGL/Shader/GLCode/fragment.frag"));
+
+        this.createUniform("project");
+        this.createUniform("view");
+        this.createUniform("transform");
     }
 
     public void createVertexShader (String code) throws Exception {
@@ -75,13 +80,8 @@ public class Shader {
         uniforms.put(uniformName, uniformLocation);
     }
 
-    public void setUniform (String uniformName, Matrix4 value) {
-        // Dump the matrix into a float buffer
-        try (MemoryStack stack = MemoryStack.stackPush()) {
-            FloatBuffer fb = stack.mallocFloat(16);
-            fb.put(value.toVector().toFloatArray());
-            glUniformMatrix4fv(uniforms.get(uniformName), false, fb);
-        }
+    public void setUniformMatrix4 (String uniformName, Matrix4 value) {
+        glUniformMatrix4fv(uniforms.get(uniformName), true, value.toVector().toFloatArray());
     }
 
     public void link () throws Exception {

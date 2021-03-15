@@ -31,6 +31,10 @@ public abstract class Vector {
 
     public abstract double get (int pos);
 
+    public float getFloat (int pos) {
+        return (float)get(pos);
+    }
+
     public double getFirst () {
         return get(0);
     }
@@ -159,6 +163,21 @@ public abstract class Vector {
             @Override
             public double get(int pos) {
                 return Vector.this.get(pos) * b.get(pos);
+            }
+        };
+    }
+
+    public Vector mul (Matrix b) {
+        return new Vector (length) {
+            @Override
+            public double get(int pos) {
+                double sum = 0;
+
+                for (int i=0;i<b.getCols();i++) {
+                    sum += Vector.this.get(i) * b.get(pos, i);
+                }
+
+                return sum;
             }
         };
     }

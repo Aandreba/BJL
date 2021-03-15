@@ -1,8 +1,13 @@
 #version 400
 
+uniform mat4 project, view, transform;
+
 in vec3 vp;
-uniform mat4 projection;
+in vec3 inColor;
+
+out vec3 exColor;
 
 void main () {
-    gl_Position = projection * vec4(vp, 1.0f);
+    gl_Position = project * view * transform * vec4(vp, 1.0);
+    exColor = inColor;
 }

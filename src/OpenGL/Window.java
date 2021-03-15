@@ -1,7 +1,7 @@
 package OpenGL;
 
-import OpenGL.Mesh.Mesh;
-import Units.Angle;
+import OpenGL.Extras.Matrix.StatMatrix4;;
+import OpenGL.Extras.MouseMovement;
 import Units.Time;
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.*;
@@ -10,22 +10,22 @@ import org.lwjgl.system.*;
 import java.awt.*;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
-import java.util.List;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
-public abstract class Window extends ArrayList<Mesh> implements Runnable {
-    final private long id;
+public abstract class Window extends ArrayList<GameObject> implements Runnable {
+    final public long id;
 
     final public String title;
     private int width, height;
     private boolean resized, vSync;
     private Color bkgColor;
 
-    public Camera mainCamera;
+    final public Camera mainCamera;
+    final public MouseMovement cameraMovement;
 
     public Window (String title, int width, int height, boolean vSync) {
         super();
@@ -35,13 +35,14 @@ public abstract class Window extends ArrayList<Mesh> implements Runnable {
         this.height = height;
         this.resized = false;
         this.vSync = vSync;
-        this.mainCamera = new Camera(this, new Angle(90, Angle.Type.Degrees), 0.01f, 1000f);
+        this.mainCamera = new Camera();
 
         GLFWErrorCallback.createPrint(System.err).set();
 
         if (!glfwInit()) {
             throw new IllegalStateException("Unable to initialize GLFW");
         }
+
         glfwDefaultWindowHints();
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // the window will stay hidden after creation
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // the window will be resizable
@@ -65,10 +66,12 @@ public abstract class Window extends ArrayList<Mesh> implements Runnable {
 
         // Setup a key callback. It will be called every time a key is pressed, repeated or released.
         glfwSetKeyCallback(this.id, (window, key, scancode, action, mods) -> {
-            if ( key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE )
+            if ( key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE ) {
                 glfwSetWindowShouldClose(window, true); // We will detect this in the rendering loop
+            }
         });
 
+        this.cameraMovement = new MouseMovement(this);
         this.pushFrame();
     }
 
@@ -103,6 +106,7 @@ public abstract class Window extends ArrayList<Mesh> implements Runnable {
         glfwShowWindow(this.id);
 
         GL.createCapabilities();
+        glEnable(GL_DEPTH_TEST);
     }
 
     public abstract void update (Time deltaTime);
@@ -144,9 +148,13 @@ public abstract class Window extends ArrayList<Mesh> implements Runnable {
         return glfwWindowShouldClose(this.id);
     }
 
+    public StatMatrix4 getProjectionMatrix () {
+        return this.mainCamera.getProjectionMatrix(this);
+    }
+
     public void render () {
-        for (Mesh mesh: this) {
-            mesh.render(this);
+        for (GameObject object: this) {
+            object.render(this);
         }
     }
 
@@ -169,6 +177,7 @@ public abstract class Window extends ArrayList<Mesh> implements Runnable {
             deltaTime = new Time(thisTime - lastTime, Time.Type.Nanoseconds);
 
             clear();
+            cameraMovement.update();
             update(deltaTime);
             render();
             updateFrame();
@@ -189,8 +198,8 @@ public abstract class Window extends ArrayList<Mesh> implements Runnable {
     }
 
     public void cleanup () {
-        for (Mesh mesh: this) {
-            mesh.cleanup();
+        for (GameObject object: this) {
+            object.cleanup();
         }
     }
 }
