@@ -76,14 +76,7 @@ public class Camera extends Transform {
     }
 
     public Matrix4 getViewMatrix () {
-        return new Matrix4() {
-            @Override
-            public double get(int row, int col) {
-                double x = Math.pow(translationMatrix.mul(rotationMatrix).get(row, col), -1);
-                return x == Double.POSITIVE_INFINITY ? 0 : x;
-            }
-        };
-        //return translationMatrix.mul(rotationMatrix);
+        return translationMatrix.mul(rotationMatrix);
     }
 
     public void move (float x, float y, float z) {
