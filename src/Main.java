@@ -13,11 +13,15 @@ import java.awt.*;
 public class Main {
     public static void main (String[] args) throws Exception {
         Window window = new Window("Hello world", 1024, 1024, false) {
+            MouseMovement camera = new MouseMovement(this);
+
             @Override
             public void update (Time delta) {
-                double time = delta.getValue();
+                camera.update(delta);
 
+                double time = delta.getValue();
                 GameObject square = get(0);
+
                 square.transform.rotation.set(0, square.transform.rotation.get(0) + time);
                 square.transform.rotation.set(1, square.transform.rotation.get(1) + time);
                 square.transform.rotation.set(2, square.transform.rotation.get(2) + time);

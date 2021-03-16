@@ -2,6 +2,7 @@ package OpenGL.Extras;
 
 import OpenGL.Transform;
 import OpenGL.Window;
+import Units.Time;
 import org.lwjgl.glfw.GLFW;
 
 import java.awt.event.MouseEvent;
@@ -30,7 +31,7 @@ public class MouseMovement {
         this.window = window;
         this.transform = transform;
 
-        float pi = 2 * (float)Math.PI;
+        float pi = (float)Math.PI;
         glfwSetCursorPosCallback(window.id, (handle, xpos, ypos) -> {
             float x = (float)xpos - (window.getWidth() / 2f);
             float y = (float)ypos - (window.getHeight() / 2f);
@@ -38,8 +39,8 @@ public class MouseMovement {
             float deltaX = (x - lastMousePosX) * pi / window.getWidth();
             float deltaY = (y - lastMousePosY) * pi / window.getWidth();
 
-            transform.rotation.addY(deltaX);
-            transform.rotation.addX(deltaY);
+            transform.rotation.addY(-deltaX);
+            transform.rotation.addX(-deltaY);
 
             lastMousePosX = x;
             lastMousePosY = y;
@@ -70,36 +71,38 @@ public class MouseMovement {
     }
 
     public MouseMovement (Window window, Transform transform) {
-        this(GLFW_KEY_W, GLFW_KEY_S, GLFW_KEY_D, GLFW_KEY_A, GLFW_KEY_SPACE, GLFW_KEY_LEFT_SHIFT, 0.1f, window, transform);
+        this(GLFW_KEY_W, GLFW_KEY_S, GLFW_KEY_D, GLFW_KEY_A, GLFW_KEY_SPACE, GLFW_KEY_LEFT_SHIFT, 1f, window, transform);
     }
 
     public MouseMovement (Window window) {
         this (window, window.mainCamera);
     }
 
-    public void update () {
+    public void update (Time delta) {
+        float sec = (float) delta.getValue();
+
         if (moveForward) {
-            transform.position.addZ(speed);
+            transform.position.addZ(-speed * sec);
         }
 
         if (moveBackward) {
-            transform.position.addZ(-speed);
+            transform.position.addZ(speed * sec);
         }
 
         if (moveRight) {
-            transform.position.addX(-speed);
+            transform.position.addX(speed * sec);
         }
 
         if (moveLeft) {
-            transform.position.addX(speed);
+            transform.position.addX(-speed * sec);
         }
 
         if (moveUp) {
-            transform.position.addY(-speed);
+            transform.position.addY(speed * sec);
         }
 
         if (moveDown) {
-            transform.position.addY(speed);
+            transform.position.addY(-speed * sec);
         }
     }
 }

@@ -25,7 +25,6 @@ public abstract class Window extends ArrayList<GameObject> implements Runnable {
     private Color bkgColor;
 
     final public Camera mainCamera;
-    final public MouseMovement cameraMovement;
 
     public Window (String title, int width, int height, boolean vSync) {
         super();
@@ -71,7 +70,6 @@ public abstract class Window extends ArrayList<GameObject> implements Runnable {
             }
         });
 
-        this.cameraMovement = new MouseMovement(this);
         this.pushFrame();
     }
 
@@ -177,7 +175,6 @@ public abstract class Window extends ArrayList<GameObject> implements Runnable {
             deltaTime = new Time(thisTime - lastTime, Time.Type.Nanoseconds);
 
             clear();
-            cameraMovement.update();
             update(deltaTime);
             render();
             updateFrame();
