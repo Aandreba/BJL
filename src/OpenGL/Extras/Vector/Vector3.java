@@ -11,7 +11,7 @@ public abstract class Vector3 extends Vector {
         return get(0);
     }
 
-    public double xf () {
+    public float xf () {
         return getFloat(0);
     }
 
@@ -19,7 +19,7 @@ public abstract class Vector3 extends Vector {
         return get(1);
     }
 
-    public double yf () {
+    public float yf () {
         return getFloat(1);
     }
 
@@ -27,8 +27,80 @@ public abstract class Vector3 extends Vector {
         return get(2);
     }
 
-    public double zf () {
+    public float zf () {
         return getFloat(2);
+    }
+
+    public Vector3 sum (Vector3 b) {
+        return new Vector3 () {
+            @Override
+            public double get(int pos) {
+                return Vector3.this.get(pos) + b.get(pos);
+            }
+        };
+    }
+
+    public Vector3 sum (double b) {
+        return new Vector3 () {
+            @Override
+            public double get(int pos) {
+                return Vector3.this.get(pos) + b;
+            }
+        };
+    }
+
+    public Vector3 subtr (Vector3 b) {
+        return new Vector3 () {
+            @Override
+            public double get(int pos) {
+                return Vector3.this.get(pos) - b.get(pos);
+            }
+        };
+    }
+
+    public Vector3 subtr (double b) {
+        return new Vector3 () {
+            @Override
+            public double get(int pos) {
+                return Vector3.this.get(pos) - b;
+            }
+        };
+    }
+
+    public Vector3 mul (Vector3 b) {
+        return new Vector3 () {
+            @Override
+            public double get(int pos) {
+                return Vector3.this.get(pos) * b.get(pos);
+            }
+        };
+    }
+
+    public Vector3 mul (double b) {
+        return new Vector3 () {
+            @Override
+            public double get(int pos) {
+                return Vector3.this.get(pos) * b;
+            }
+        };
+    }
+
+    public Vector3 div (Vector3 b) {
+        return new Vector3 () {
+            @Override
+            public double get(int pos) {
+                return Vector3.this.get(pos) / b.get(pos);
+            }
+        };
+    }
+
+    public Vector3 div (double b) {
+        return new Vector3 () {
+            @Override
+            public double get(int pos) {
+                return Vector3.this.get(pos) / b;
+            }
+        };
     }
 
     @Override

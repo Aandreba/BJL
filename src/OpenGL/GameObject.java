@@ -1,5 +1,6 @@
 package OpenGL;
 
+import OpenGL.Extras.Vector.Vector3;
 import OpenGL.Mesh.Mesh;
 import OpenGL.Shader.Shader;
 
@@ -25,6 +26,21 @@ public class GameObject {
         this.mesh = mesh;
         this.shader = shader;
         this.transform = transform;
+    }
+
+    public GameObject (Mesh mesh, Shader shader, Vector3 pos, Vector3 rot, float scale) {
+        this(mesh, shader);
+
+        this.transform = new Transform();
+        if (pos != null) {
+            this.transform.setPosition(pos);
+        }
+
+        if (rot != null) {
+            this.transform.setRotation(rot);
+        }
+
+        this.transform.setScale(scale);
     }
 
     public GameObject (Mesh mesh, Shader shader) {

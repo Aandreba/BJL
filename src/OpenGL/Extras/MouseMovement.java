@@ -1,7 +1,10 @@
 package OpenGL.Extras;
 
+import Extras.Mathe;
+import OpenGL.Extras.Vector.StatVector3;
 import OpenGL.Transform;
 import OpenGL.Window;
+import Units.Angle;
 import Units.Time;
 import org.lwjgl.glfw.GLFW;
 
@@ -81,28 +84,16 @@ public class MouseMovement {
     public void update (Time delta) {
         float sec = (float) delta.getValue();
 
-        if (moveForward) {
-            transform.position.addZ(-speed * sec);
-        }
+        float forward = (moveForward ? -1 : 0) + (moveBackward ? 1 : 0);
+        float right = (moveRight ? 1 : 0) + (moveLeft ? -1 : 0);
+        float up = (moveUp ? 1 : 0) + (moveDown ? -1 : 0);
 
-        if (moveBackward) {
-            transform.position.addZ(speed * sec);
-        }
+        transform.translate(StatVector3.forward.toRelative().mul(forward * sec));
+        transform.translate(StatVector3.right.toRelative().mul(right * sec)); // TODO
+        //transform.translate(StatVector3.up.toRelative().mul(up * sec));
 
-        if (moveRight) {
-            transform.position.addX(speed * sec);
-        }
-
-        if (moveLeft) {
-            transform.position.addX(-speed * sec);
-        }
-
-        if (moveUp) {
-            transform.position.addY(speed * sec);
-        }
-
-        if (moveDown) {
-            transform.position.addY(-speed * sec);
+        if (forward != 0 || right != 0 || up != 0) {
+            System.out.println();
         }
     }
 }

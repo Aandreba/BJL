@@ -2,6 +2,7 @@ package OpenGL;
 
 import OpenGL.Extras.Matrix.Matrix4;
 import OpenGL.Extras.Vector.StatVector3;
+import OpenGL.Extras.Vector.Vector3;
 import Units.Angle;
 
 public class Transform {
@@ -95,10 +96,22 @@ public class Transform {
         this.rotationMatrix = rotationXMatrix.mul(rotationYMatrix).mul(rotationZMatrix);
     }
 
-    public void setScale (float scale) {
-        this.scale.set(0, scale);
-        this.scale.set(1, scale);
-        this.scale.set(2, scale);
+    public void setPosition (float x, float y, float z) {
+        this.position.set(0, x);
+        this.position.set(1, y);
+        this.position.set(2, z);
+    }
+
+    public void setPosition (Vector3 pos) {
+        this.position.set(0, pos.get(0));
+        this.position.set(1, pos.get(1));
+        this.position.set(2, pos.get(2));
+    }
+
+    public void setRotation (Vector3 rot) {
+        this.rotation.set(0, rot.get(0));
+        this.rotation.set(1, rot.get(1));
+        this.rotation.set(2, rot.get(2));
     }
 
     public Angle getRotationX () {
@@ -123,6 +136,29 @@ public class Transform {
 
     public void setRotationZ (Angle angle) {
         this.rotation.set(2, angle.getValue());
+    }
+
+    public void setScale (float scale) {
+        this.scale.set(0, scale);
+        this.scale.set(1, scale);
+        this.scale.set(2, scale);
+    }
+
+    public void translate (Vector3 trans) {
+        float sinY = (float) getRotationY().sin();
+        float cosY = (float) getRotationY().cos();
+
+        Vector3 x = new StatVector3(cosY, 0, -sinY).toRelative().mul(trans.x());
+        Vector3 y = new StatVector3(0, 1, 0).toRelative().mul(trans.y());
+        Vector3 z = new StatVector3(sinY, 0, cosY).toRelative().mul(trans.z());
+
+        float X = x.xf() + y.xf() + z.xf();
+        float Y = x.yf() + y.yf() + z.yf();
+        float Z = x.zf() + y.zf() + z.zf();
+
+        this.position.addX(X);
+        this.position.addY(Y);
+        this.position.addZ(Z);
     }
 
     public Matrix4 getMatrix () {

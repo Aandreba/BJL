@@ -5,6 +5,14 @@ import OpenGL.Extras.Matrix.StatMatrix4;
 import Vector.StatVector;
 
 public class StatVector3 extends StatVector {
+    final public static StatVector3 forward = new StatVector3(0, 0, 1);
+    final public static StatVector3 backward = new StatVector3(0, 0, -1);
+    final public static StatVector3 right = new StatVector3(1, 0, 0);
+    final public static StatVector3 left = new StatVector3(-1, 0, 0);
+    final public static StatVector3 up = new StatVector3(0, 1, 0);
+    final public static StatVector3 down = new StatVector3(0, -1, 0);
+    final public static StatVector3 zero = new StatVector3(0, 0, 0);
+
     public StatVector3 () {
         super(3);
     }
@@ -38,7 +46,7 @@ public class StatVector3 extends StatVector {
     }
 
     @Override
-    public StatVector3 clone() {
+    public StatVector3 toStatic() {
         StatVector3 ret = new StatVector3();
 
         for (int i=0;i<3;i++) {
