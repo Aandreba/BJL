@@ -19,6 +19,116 @@ public class StatVector2 extends StatVector {
         set(1, y);
     }
 
+    // Vector2
+    public Vector2 sum (Vector2 b) {
+        return new Vector2 () {
+            @Override
+            public double get(int pos) {
+                return StatVector2.this.get(pos) + b.get(pos);
+            }
+        };
+    }
+
+    public Vector2 sum (double b) {
+        return new Vector2 () {
+            @Override
+            public double get(int pos) {
+                return StatVector2.this.get(pos) + b;
+            }
+        };
+    }
+
+    public Vector2 subtr (Vector2 b) {
+        return new Vector2 () {
+            @Override
+            public double get(int pos) {
+                return StatVector2.this.get(pos) - b.get(pos);
+            }
+        };
+    }
+
+    public Vector2 subtr (double b) {
+        return new Vector2 () {
+            @Override
+            public double get(int pos) {
+                return StatVector2.this.get(pos) - b;
+            }
+        };
+    }
+
+    public Vector2 mul (Vector2 b) {
+        return new Vector2 () {
+            @Override
+            public double get(int pos) {
+                return StatVector2.this.get(pos) * b.get(pos);
+            }
+        };
+    }
+
+    public Vector2 mul (double b) {
+        return new Vector2 () {
+            @Override
+            public double get(int pos) {
+                return StatVector2.this.get(pos) * b;
+            }
+        };
+    }
+
+    public Vector2 div (Vector2 b) {
+        return new Vector2 () {
+            @Override
+            public double get(int pos) {
+                return StatVector2.this.get(pos) / b.get(pos);
+            }
+        };
+    }
+
+    public Vector2 div (double b) {
+        return new Vector2 () {
+            @Override
+            public double get(int pos) {
+                return StatVector2.this.get(pos) / b;
+            }
+        };
+    }
+
+    // StatVector2
+    public Vector2 sum (StatVector2 b) {
+        return new Vector2 () {
+            @Override
+            public double get(int pos) {
+                return StatVector2.this.get(pos) + b.get(pos);
+            }
+        };
+    }
+
+    public Vector2 subtr (StatVector2 b) {
+        return new Vector2 () {
+            @Override
+            public double get(int pos) {
+                return StatVector2.this.get(pos) - b.get(pos);
+            }
+        };
+    }
+
+    public Vector2 mul (StatVector2 b) {
+        return new Vector2 () {
+            @Override
+            public double get(int pos) {
+                return StatVector2.this.get(pos) * b.get(pos);
+            }
+        };
+    }
+
+    public Vector2 div (StatVector2 b) {
+        return new Vector2 () {
+            @Override
+            public double get(int pos) {
+                return StatVector2.this.get(pos) / b.get(pos);
+            }
+        };
+    }
+
     public Vector2 toRelative () {
         return new Vector2() {
             @Override

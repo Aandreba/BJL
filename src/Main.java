@@ -1,27 +1,70 @@
+import Extras.Rand;
 import Matrix.RelMatrix;
+import OpenGL.Extras.Gravity.Gravity;
+import OpenGL.Extras.Gravity.Newton;
+import OpenGL.Extras.Gravity.Normal;
 import OpenGL.Extras.Move.KeyMouse;
+import OpenGL.Extras.Vector.StatVector3;
 import OpenGL.GameObject;
 import OpenGL.Input.Buttons.KeyCode;
 import OpenGL.Mesh.Mesh;
 import OpenGL.Primitives.Sphere;
+import OpenGL.Rigidbody;
 import OpenGL.Shader.DefaultShader;
 import OpenGL.Window;
+import Units.Mass;
 import Units.Time;
 import Vector.RelVector;
 
 import java.awt.*;
+import java.util.ArrayList;
 
 public class Main {
     public static void main (String[] args) throws Exception {
+        ArrayList<Rigidbody> rbs = new ArrayList<>();
+        Gravity gravity = new Newton();
+
         Window window = new Window("Hello world", 1024, 1024, false) {
             KeyMouse move = new KeyMouse(this);
-            KeyMouse moveObj = new KeyMouse(this, get(0).transform, 1, KeyCode.Up, KeyCode.Down, KeyCode.Right, KeyCode.Left, null, null);
+
+            @Override
+            public boolean add(GameObject gameObject) {
+                Rigidbody rb = new Rigidbody(gameObject, new Mass(Rand.getDouble(0.5,2)));
+                rb.velocity = new StatVector3(0, 0, 0);
+
+                rbs.add(rb);
+                gravity.add(rb);
+                return super.add(gameObject);
+            }
 
             @Override
             public void update (Time delta) {
                 double time = delta.getValue();
+                double fps = Math.pow(time, -1);
+                System.out.println(fps);
+
                 move.update(delta);
-                moveObj.update(delta);
+                gravity.update(delta);
+
+                if (rbs.get(0).isCollidingWith(rbs.get(1))){
+                    System.out.println("Collision!");
+                }
+
+                if (input.isPressed(KeyCode.Up)) {
+                    get(0).transform.rotation.addX(time);
+                }
+
+                if (input.isPressed(KeyCode.Down)) {
+                    get(0).transform.rotation.addX(-time);
+                }
+
+                if (input.isPressed(KeyCode.Right)) {
+                    get(0).transform.rotation.addY(time);
+                }
+
+                if (input.isPressed(KeyCode.Left)) {
+                    get(0).transform.rotation.addY(-time);
+                }
             }
         };
 

@@ -42,10 +42,6 @@ public class Mesh {
         this.colors = new float[vertices.length];
     }
 
-    public Mesh (File file) {
-
-    }
-
     public int getVao() {
         return vao;
     }

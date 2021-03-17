@@ -1,5 +1,6 @@
 package OpenGL.Extras.Move;
 
+import Extras.Mathf;
 import OpenGL.Extras.Vector.StatVector2;
 import OpenGL.Extras.Vector.StatVector3;
 import OpenGL.Extras.Vector.Vector2;
@@ -14,7 +15,6 @@ import java.security.Key;
 
 public class KeyMouse extends Movement {
     public KeyCode forward, backward, right, left, up, down;
-    private StatVector2 lastRot;
     public float speed;
 
     public KeyMouse(Window window, Transform transform, float speed, KeyCode forward, KeyCode backward, KeyCode right, KeyCode left, KeyCode up, KeyCode down) {
@@ -26,7 +26,6 @@ public class KeyMouse extends Movement {
         this.left = left;
         this.up = up;
         this.down = down;
-        this.lastRot = new StatVector2();
     }
 
     public KeyMouse (Window window, Transform transform, float speed) {
@@ -49,12 +48,7 @@ public class KeyMouse extends Movement {
     @Override
     public void rotate(Time delta) {
         Vector2 rot = window.input.getMouseRel().toRelative().subtr(0.5f).mul(-2 * Math.PI);
-        Vector2 dt = rot.subtr(this.lastRot.toRelative());
-
-        transform.rotation.addX(dt.y());
-        transform.rotation.addY(dt.x());
-
-        this.lastRot = rot.toStatic();
+        transform.setRotation(new StatVector3(rot.y(), rot.x(), 0).toRelative());
     }
 
     private int getValue (KeyCode plus, KeyCode minus) {

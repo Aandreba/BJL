@@ -18,6 +18,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Objects;
 
 import static jcuda.jcublas.JCublas2.*;
 import static jcuda.jcublas.cublasOperation.CUBLAS_OP_N;
@@ -571,6 +572,31 @@ public abstract class Matrix {
         return getSum() / (rows * cols);
     }
 
+    // Equals
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        } else if (o == null || !o.getClass().equals(getClass())) {
+            return false;
+        }
+
+        Matrix mo = (Matrix)o;
+        if (rows != mo.rows || cols != mo.cols) {
+            return false;
+        }
+
+        for (int i=0;i<rows;i++) {
+            for (int j=0;j<cols;j++) {
+                if (get(i,j) != mo.get(i,j)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
     // String
     @Override
     public String toString() {
@@ -605,25 +631,5 @@ public abstract class Matrix {
 
     public byte[] getBytes () {
         return getByteBuffer().array();
-    }
-
-    public static Matrix fromImage (BufferedImage img) {
-        return new Matrix (img.getHeight(), img.getWidth()) {
-            @Override
-            public double get(int row, int col) {
-                int p = img.getRGB(row, col);
-
-                //int a = (p>>24) & 0xff;
-                int r = (p>>16) & 0xff;
-                int g = (p>>8) & 0xff;
-                int b = p & 0xff;
-
-                return (r+g+b) / 3f;
-            }
-        };
-    }
-
-    public static Matrix fromImage (String img) throws IOException {
-        return fromImage(ImageIO.read(new File(img)));
     }
 }

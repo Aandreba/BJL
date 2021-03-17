@@ -17,6 +17,13 @@ public class StatVector3 extends StatVector {
         super(3);
     }
 
+    public StatVector3 (Vector2 v, float z) {
+        super(3);
+        set(0, v.x());
+        set(1, v.y());
+        set(2, z);
+    }
+
     public StatVector3 (double x, double y, double z) {
         super(3);
         set(0, x);
