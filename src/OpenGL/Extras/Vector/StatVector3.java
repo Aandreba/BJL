@@ -24,6 +24,116 @@ public class StatVector3 extends StatVector {
         set(2, z);
     }
 
+    // Vector3
+    public Vector3 sum (Vector3 b) {
+        return new Vector3 () {
+            @Override
+            public double get(int pos) {
+                return StatVector3.this.get(pos) + b.get(pos);
+            }
+        };
+    }
+
+    public Vector3 sum (double b) {
+        return new Vector3 () {
+            @Override
+            public double get(int pos) {
+                return StatVector3.this.get(pos) + b;
+            }
+        };
+    }
+
+    public Vector3 subtr (Vector3 b) {
+        return new Vector3 () {
+            @Override
+            public double get(int pos) {
+                return StatVector3.this.get(pos) - b.get(pos);
+            }
+        };
+    }
+
+    public Vector3 subtr (double b) {
+        return new Vector3 () {
+            @Override
+            public double get(int pos) {
+                return StatVector3.this.get(pos) - b;
+            }
+        };
+    }
+
+    public Vector3 mul (Vector3 b) {
+        return new Vector3 () {
+            @Override
+            public double get(int pos) {
+                return StatVector3.this.get(pos) * b.get(pos);
+            }
+        };
+    }
+
+    public Vector3 mul (double b) {
+        return new Vector3 () {
+            @Override
+            public double get(int pos) {
+                return StatVector3.this.get(pos) * b;
+            }
+        };
+    }
+
+    public Vector3 div (Vector3 b) {
+        return new Vector3 () {
+            @Override
+            public double get(int pos) {
+                return StatVector3.this.get(pos) / b.get(pos);
+            }
+        };
+    }
+
+    public Vector3 div (double b) {
+        return new Vector3 () {
+            @Override
+            public double get(int pos) {
+                return StatVector3.this.get(pos) / b;
+            }
+        };
+    }
+
+    // StatVector3
+    public Vector3 sum (StatVector3 b) {
+        return new Vector3 () {
+            @Override
+            public double get(int pos) {
+                return StatVector3.this.get(pos) + b.get(pos);
+            }
+        };
+    }
+
+    public Vector3 subtr (StatVector3 b) {
+        return new Vector3 () {
+            @Override
+            public double get(int pos) {
+                return StatVector3.this.get(pos) - b.get(pos);
+            }
+        };
+    }
+
+    public Vector3 mul (StatVector3 b) {
+        return new Vector3 () {
+            @Override
+            public double get(int pos) {
+                return StatVector3.this.get(pos) * b.get(pos);
+            }
+        };
+    }
+
+    public Vector3 div (StatVector3 b) {
+        return new Vector3 () {
+            @Override
+            public double get(int pos) {
+                return StatVector3.this.get(pos) / b.get(pos);
+            }
+        };
+    }
+
     public Vector3 toRelative () {
         return new Vector3() {
             @Override
@@ -43,6 +153,12 @@ public class StatVector3 extends StatVector {
 
     public void addZ (double z) {
         set(2, get(2) + z);
+    }
+
+    public void add (Vector3 v) {
+        addX(v.x());
+        addY(v.y());
+        addZ(v.z());
     }
 
     @Override

@@ -62,7 +62,7 @@ public class GameObject {
 
         shader.setUniformMatrix4("transform", this.transform.getMatrix());
         shader.setUniformMatrix4("project", window.getProjectionMatrix().toRelative());
-        shader.setUniformMatrix4("view", window.mainCamera.getViewMatrix());
+        shader.setUniformMatrix4("view", window.mainCamera.view);
 
         // Bind to the VAO
         glBindVertexArray(this.mesh.getVao());

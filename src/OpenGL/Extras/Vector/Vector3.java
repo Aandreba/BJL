@@ -31,6 +31,7 @@ public abstract class Vector3 extends Vector {
         return getFloat(2);
     }
 
+    // Vector3
     public Vector3 sum (Vector3 b) {
         return new Vector3 () {
             @Override
@@ -101,6 +102,47 @@ public abstract class Vector3 extends Vector {
                 return Vector3.this.get(pos) / b;
             }
         };
+    }
+
+    // StatVector3
+    public Vector3 sum (StatVector3 b) {
+        return new Vector3 () {
+            @Override
+            public double get(int pos) {
+                return Vector3.this.get(pos) + b.get(pos);
+            }
+        };
+    }
+
+    public Vector3 subtr (StatVector3 b) {
+        return new Vector3 () {
+            @Override
+            public double get(int pos) {
+                return Vector3.this.get(pos) - b.get(pos);
+            }
+        };
+    }
+
+    public Vector3 mul (StatVector3 b) {
+        return new Vector3 () {
+            @Override
+            public double get(int pos) {
+                return Vector3.this.get(pos) * b.get(pos);
+            }
+        };
+    }
+
+    public Vector3 div (StatVector3 b) {
+        return new Vector3 () {
+            @Override
+            public double get(int pos) {
+                return Vector3.this.get(pos) / b.get(pos);
+            }
+        };
+    }
+
+    public Vector3 getNormalized () {
+        return div(getSqrtMagnitude());
     }
 
     @Override

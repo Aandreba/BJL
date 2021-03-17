@@ -1,7 +1,7 @@
 package OpenGL;
 
 import OpenGL.Extras.Matrix.StatMatrix4;;
-import OpenGL.Extras.MouseMovement;
+import OpenGL.Input.Input;
 import Units.Time;
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.*;
@@ -25,6 +25,7 @@ public abstract class Window extends ArrayList<GameObject> implements Runnable {
     private Color bkgColor;
 
     final public Camera mainCamera;
+    final public Input input;
 
     public Window (String title, int width, int height, boolean vSync) {
         super();
@@ -70,6 +71,7 @@ public abstract class Window extends ArrayList<GameObject> implements Runnable {
             }
         });
 
+        this.input = new Input(this);
         this.pushFrame();
     }
 
@@ -175,6 +177,7 @@ public abstract class Window extends ArrayList<GameObject> implements Runnable {
             deltaTime = new Time(thisTime - lastTime, Time.Type.Nanoseconds);
 
             clear();
+            input.update();
             update(deltaTime);
             render();
             updateFrame();
@@ -189,6 +192,7 @@ public abstract class Window extends ArrayList<GameObject> implements Runnable {
             loop();
         } catch (Exception e) {
             e.printStackTrace();
+            cleanup();
         } finally {
             cleanup();
         }

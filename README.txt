@@ -1,6 +1,6 @@
 BASE JAVA LIBRARY
     - OpenCL
-    - OpenGL TODO
+    - OpenGL
     - CUDA
     - Matrix
     - Vector

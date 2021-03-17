@@ -1,11 +1,13 @@
 package OpenGL;
 
+import Matrix.Matrix;
 import OpenGL.Extras.Matrix.Matrix4;
 import OpenGL.Extras.Matrix.StatMatrix4;
 import Units.Angle;
 
 public class Camera extends Transform {
     final private StatMatrix4 proj;
+    final public Matrix4 view;
 
     private Angle fov;
     private float zFar;
@@ -27,6 +29,8 @@ public class Camera extends Transform {
         this.proj.set(2, 2, -zp / zm);
         this.proj.set(3, 2, -1);
         this.proj.set(2, 3, -2 * zFar * zNear / zm);
+
+        this.view = Matrix4.identity.toRelative().mul(rotationXMatrix).mul(rotationYMatrix).mul(translationMatrixOf(position.toRelative().mul(-1)));
     }
 
     public Camera () {
@@ -73,15 +77,5 @@ public class Camera extends Transform {
         clone.set(0, 0, clone.get(1, 1) / (window.getWidth() * 1f / window.getHeight()));
 
         return clone;
-    }
-
-    public Matrix4 getViewMatrix () {
-        return translationMatrix.mul(rotationMatrix);
-    }
-
-    public void move (float x, float y, float z) {
-        this.position.set(0, this.position.get(0) + x);
-        this.position.set(1, this.position.get(1) + x);
-        this.position.set(2, this.position.get(2) + x);
     }
 }

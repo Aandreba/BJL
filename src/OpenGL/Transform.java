@@ -7,7 +7,7 @@ import Units.Angle;
 
 public class Transform {
     final public StatVector3 position, scale, rotation;
-    protected Matrix4 translationMatrix, rotationMatrix, scaleMatrix;
+    protected Matrix4 translationMatrix, rotationXMatrix, rotationYMatrix, rotationZMatrix, rotationMatrix, scaleMatrix;
 
     public Transform () {
         super();
@@ -42,51 +42,51 @@ public class Transform {
             }
         };
 
-        Matrix4 rotationXMatrix = new Matrix4() {
+        this.rotationXMatrix = new Matrix4() {
             @Override
             public double get(int row, int col) {
                 if ((row == 0 && col == 0) || (row == 3 && col == 3)) {
                     return 1;
                 } else if ((row == 1 && col == 1) || (row == 2 && col == 2)) {
-                    return Math.cos(rotation.get(0));
+                    return Math.cos(-rotation.get(0));
                 } else if (row == 2 && col == 1) {
-                    return Math.sin(rotation.get(0));
+                    return Math.sin(-rotation.get(0));
                 } else if (row == 1 && col == 2) {
-                    return -Math.sin(rotation.get(0));
+                    return -Math.sin(-rotation.get(0));
                 }
 
                 return 0;
             }
         };
 
-        Matrix4 rotationYMatrix = new Matrix4() {
+        this.rotationYMatrix = new Matrix4() {
             @Override
             public double get(int row, int col) {
                 if ((row == 1 && col == 1) || (row == 3 && col == 3)) {
                     return 1;
                 } else if ((row == 0 && col == 0) || (row == 2 && col == 2)) {
-                    return Math.cos(rotation.get(1));
+                    return Math.cos(-rotation.get(1));
                 } else if (row == 0 && col == 2) {
-                    return Math.sin(rotation.get(1));
+                    return Math.sin(-rotation.get(1));
                 } else if (row == 2 && col == 0) {
-                    return -Math.sin(rotation.get(1));
+                    return -Math.sin(-rotation.get(1));
                 }
 
                 return 0;
             }
         };
 
-        Matrix4 rotationZMatrix = new Matrix4() {
+        this.rotationZMatrix = new Matrix4() {
             @Override
             public double get(int row, int col) {
                 if ((row == 2 && col == 2) || (row == 3 && col == 3)) {
                     return 1;
                 } else if ((row == 0 && col == 0) || (row == 1 && col == 1)) {
-                    return Math.cos(rotation.get(2));
+                    return Math.cos(-rotation.get(2));
                 } else if (row == 0 && col == 1) {
-                    return Math.sin(rotation.get(2));
+                    return Math.sin(-rotation.get(2));
                 } else if (row == 1 && col == 0) {
-                    return -Math.sin(rotation.get(2));
+                    return -Math.sin(-rotation.get(2));
                 }
 
                 return 0;
@@ -112,6 +112,12 @@ public class Transform {
         this.rotation.set(0, rot.get(0));
         this.rotation.set(1, rot.get(1));
         this.rotation.set(2, rot.get(2));
+    }
+
+    public void setRotation (float x, float y, float z) {
+        this.rotation.set(0, x);
+        this.rotation.set(1, y);
+        this.rotation.set(2, z);
     }
 
     public Angle getRotationX () {
@@ -162,6 +168,21 @@ public class Transform {
     }
 
     public Matrix4 getMatrix () {
-        return translationMatrix.mul(rotationMatrix).mul(scaleMatrix);
+        return Matrix4.identity.toRelative().mul(translationMatrix).mul(rotationMatrix).mul(scaleMatrix);
+    }
+
+    public static Matrix4 translationMatrixOf (Vector3 position) {
+        return new Matrix4() {
+            @Override
+            public double get(int row, int col) {
+                if (row == col) {
+                    return 1;
+                } else if (col == 3) {
+                    return position.get(row);
+                }
+
+                return 0;
+            }
+        };
     }
 }

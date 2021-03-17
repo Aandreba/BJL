@@ -362,6 +362,11 @@ public abstract class Vector {
         };
     }
 
+    // Distance
+    public double dist (Vector b) {
+        return Math.sqrt(this.subtr(b).pow(2).getSum());
+    }
+
     // Magnitude
     public double getMagnitude () {
         return pow(2).getSum();

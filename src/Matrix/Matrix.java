@@ -529,6 +529,20 @@ public abstract class Matrix {
         };
     }
 
+    // Identity
+    public Matrix identity () {
+        return new Matrix (rows, cols) {
+            @Override
+            public double get(int row, int col) {
+                if (row == col) {
+                    return 1;
+                }
+
+                return 0;
+            }
+        };
+    }
+
     // Self sum
     public Vector getRowSum () {
         return new Vector (rows) {

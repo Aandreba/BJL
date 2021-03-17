@@ -8,6 +8,11 @@ public class StatMatrix4 extends StatMatrix {
         super (4, 4);
     }
 
+    public StatMatrix4 (double[][] vals) {
+        super (4, 4);
+        this.values = vals;
+    }
+
     public Matrix4 toRelative () {
         return new Matrix4() {
             @Override

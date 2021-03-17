@@ -1,9 +1,11 @@
 package OpenGL.Mesh;
 
-import Matrix.Matrix;
+import Matrix.RelMatrix;
+import OpenGL.Extras.Vector.Vector3;
 import org.lwjgl.system.MemoryUtil;
 
 import java.awt.*;
+import java.io.File;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
@@ -16,9 +18,9 @@ import static org.lwjgl.system.MemoryUtil.*;
 public class Mesh {
     private int vertexCount, triangleCount;
 
-    private float[] vertices;
-    private int[] triangles;
-    private float[] colors;
+    protected float[] vertices;
+    protected int[] triangles;
+    protected float[] colors;
 
     private int vao, vbo, tVbo, cVbo;
 
@@ -38,6 +40,10 @@ public class Mesh {
         this.vertices = vertices;
         this.triangles = triangles;
         this.colors = new float[vertices.length];
+    }
+
+    public Mesh (File file) {
+
     }
 
     public int getVao() {
@@ -68,15 +74,16 @@ public class Mesh {
         return vertices;
     }
 
-    public Matrix getMatrix() {
-        return new Matrix (vertexCount, 4) {
+    public Matrix.RelMatrix getMatrix() {
+        return new RelMatrix(vertexCount, 3) {
             @Override
             public double get(int row, int col) {
-                if (col == 3) {
-                    return 0;
-                }
-
                 return vertices[(row * 3) + col];
+            }
+
+            @Override
+            public void set(int row, int col, double value) {
+                vertices[(row * 3) + col] = (float) value;
             }
         };
     }
@@ -96,6 +103,15 @@ public class Mesh {
         this.vertices[3 * id] = x;
         this.vertices[3 * id + 1] = y;
         this.vertices[3 * id + 2] = z;
+    }
+
+    public Vector3 getVertex (int id) {
+        return new Vector3() {
+            @Override
+            public double get(int pos) {
+                return vertices[3 * id + pos];
+            }
+        };
     }
 
     /**

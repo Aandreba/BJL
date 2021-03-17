@@ -8,6 +8,6 @@ in vec3 inColor;
 out vec3 exColor;
 
 void main () {
-    gl_Position = project * inverse(view) * transform * vec4(vp, 1.0);
+    gl_Position = project * view * transform * vec4(vp, 1.0);
     exColor = inColor;
 }

@@ -3,6 +3,8 @@ package OpenGL.Extras.Matrix;
 import Matrix.Matrix;
 
 public abstract class Matrix4 extends Matrix {
+    final public static StatMatrix4 identity = new StatMatrix4(new double[][]{ {1,0,0,0}, {0,1,0,0}, {0,0,1,0}, {0,0,0,1} });
+
     public Matrix4 () {
         super(4,4);
     }
@@ -36,6 +38,41 @@ public abstract class Matrix4 extends Matrix {
                 }
 
                 return sum;
+            }
+        };
+    }
+
+    @Override
+    public Matrix4 scalarMul (double b) {
+        return new Matrix4 () {
+            @Override
+            public double get(int row, int col) {
+                return Matrix4.this.get(row,col) * b;
+            }
+        };
+    }
+
+    @Override
+    public <T extends Number> Matrix4 scalarMul (T b) {
+        return new Matrix4 () {
+            @Override
+            public double get(int row, int col) {
+                return Matrix4.this.get(row,col) * b.doubleValue();
+            }
+        };
+    }
+
+    // Identity
+    @Override
+    public Matrix4 identity () {
+        return new Matrix4 () {
+            @Override
+            public double get(int row, int col) {
+                if (row == col) {
+                    return 1;
+                }
+
+                return 0;
             }
         };
     }
