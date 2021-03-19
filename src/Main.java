@@ -1,3 +1,4 @@
+import Extras.Rand;
 import OpenGL.*;
 import OpenGL.Extras.Move.KeyMouse;
 import OpenGL.Input.Buttons.KeyCode;
@@ -42,11 +43,11 @@ public class Main {
         Shader shader = new Shader();
         Texture tex = new Texture("sample.bmp");
 
-        GameObject planet1 = new GameObject(new Cube(), shader);
+        GameObject planet1 = new GameObject(new Sphere(), shader);
         GameObject planet2 = new GameObject(OBJLoader.loadMesh("bunny.obj"), shader);
 
-        planet1.texture = tex;
-        planet2.color = new Color(255, 200, 190);
+        planet1.color = Rand.getColorRGB();
+        planet2.color = Rand.getColorRGBA();
 
         planet1.transform.setScale(0.2f);
         planet2.transform.setScale(0.1f);

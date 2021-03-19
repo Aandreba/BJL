@@ -3,6 +3,7 @@ package Extras;
 import Vector.StatVector;
 import Vector.Vector;
 
+import java.awt.*;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
@@ -49,7 +50,7 @@ public class Rand {
     }
 
     public static long getLong (long from, long to) {
-        return Math.round((to - from) * random.nextDouble() + from);
+        return Math.round(getDouble(from, to));
     }
 
     // Int
@@ -58,7 +59,7 @@ public class Rand {
     }
 
     public static int getInt (int from, int to) {
-        return Math.round((to - from) * random.nextFloat() + from);
+        return Math.round(getFloat(from, to));
     }
 
     // Short
@@ -80,6 +81,15 @@ public class Rand {
 
     public static boolean getBool (double chance) {
         return chance < random.nextDouble();
+    }
+
+    // Color
+    public static Color getColorRGB () {
+        return new Color(getInt(0, 255), getInt(0, 255), getInt(0, 255));
+    }
+
+    public static Color getColorRGBA () {
+        return new Color(getInt(0, 255), getInt(0, 255), getInt(0, 255), getInt(0, 255));
     }
 
     // Choice

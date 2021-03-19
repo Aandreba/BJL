@@ -15,6 +15,7 @@ import java.security.Key;
 
 public class KeyMouse extends Movement {
     public KeyCode forward, backward, right, left, up, down;
+    public int accuracy = 3;
     public float speed;
 
     public KeyMouse(Window window, Transform transform, float speed, KeyCode forward, KeyCode backward, KeyCode right, KeyCode left, KeyCode up, KeyCode down) {
@@ -48,7 +49,7 @@ public class KeyMouse extends Movement {
     @Override
     public void rotate(Time delta) {
         Vector2 rot = window.input.getMouseRel().toRelative().subtr(0.5f).mul(-2 * Math.PI);
-        transform.setRotation(new StatVector3(rot.y(), rot.x(), 0).toRelative());
+        transform.setRotation(new StatVector3(Mathf.roundTo(rot.y(), accuracy), Mathf.roundTo(rot.x(), accuracy), 0).toRelative());
     }
 
     private int getValue (KeyCode plus, KeyCode minus) {

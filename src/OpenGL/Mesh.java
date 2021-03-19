@@ -2,6 +2,8 @@ package OpenGL;
 
 import Matrix.RelMatrix;
 import OpenGL.Extras.Vector.Vector3;
+import Vector.RelVector;
+import Vector.Vector;
 import org.lwjgl.system.MemoryUtil;
 
 import java.awt.*;
@@ -32,7 +34,7 @@ public class Mesh {
         this.vertices = new float[vertices * 3];
         this.normals = new float[vertices * 3];
         this.triangles = new int[triangles * 3];
-        this.textCoords = new float[vertices * 3];
+        this.textCoords = new float[vertices * 2];
         this.draw();
     }
 
@@ -66,6 +68,7 @@ public class Mesh {
         this.triangles = triangles;
         this.textCoords = new float[vertices.length];
         this.calculateNormals();
+        this.calculateTexCoords();
         this.draw();
     }
 
@@ -88,6 +91,17 @@ public class Mesh {
 
         for (int i=0;i<vertexCount;i++) {
             matrix.set(i, matrix.get(i).getNormalized());
+        }
+    }
+
+    public void calculateTexCoords () {
+        this.textCoords = new float[this.textCoords.length];
+        RelMatrix matrix = vertexMatrix();
+
+        for (int i=0;i<matrix.getRows();i++) {
+            Vector vertex = matrix.get(i).getNormalized();
+            this.textCoords[i * 2] = (vertex.getFloat(0) + 1) / 2;
+            this.textCoords[i * 2 + 1] = (vertex.getFloat(1) + 1) / 2;
         }
     }
 
