@@ -1,9 +1,7 @@
 package OpenGL.Primitives;
 
 import Extras.Mathf;
-import OpenGL.Mesh.Mesh;
-
-import java.util.Arrays;
+import OpenGL.Mesh;
 
 public class Sphere extends Mesh {
     public Sphere(int rows, int cols) {

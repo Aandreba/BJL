@@ -1,26 +1,22 @@
 package OpenGL;
 
+import OpenGL.Extras.Vector.StatVector3;
 import OpenGL.Extras.Vector.Vector3;
-import OpenGL.Mesh.Mesh;
-import OpenGL.Shader.Shader;
 
-import java.nio.FloatBuffer;
+import java.awt.*;
 
 import static org.lwjgl.opengl.GL15.*;
-import static org.lwjgl.opengl.GL20.*;
-import static org.lwjgl.opengl.GL30.*;
-
-import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL11.GL_UNSIGNED_INT;
 import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
-import static org.lwjgl.system.MemoryUtil.*;
 
 public class GameObject {
     public Mesh mesh;
     public Shader shader;
     public Transform transform;
+    public Texture texture;
+    public Color color = Color.GRAY;
 
     public GameObject(Mesh mesh, Shader shader, Transform transform) {
         this.mesh = mesh;
@@ -49,6 +45,10 @@ public class GameObject {
         this.transform = new Transform();
     }
 
+    private StatVector3 getColorArray () {
+        return new StatVector3(color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f);
+    }
+
     /**
      * Render mesh on screen
      */
@@ -60,14 +60,23 @@ public class GameObject {
             window.setResized(false);
         }
 
-        shader.setUniformMatrix4("transform", this.transform.getMatrix());
-        shader.setUniformMatrix4("project", window.getProjectionMatrix().toRelative());
-        shader.setUniformMatrix4("view", window.mainCamera.view);
+        shader.setUniform("transform", this.transform.getMatrix());
+        shader.setUniform("project", window.getProjectionMatrix().toRelative());
+        shader.setUniform("view", window.mainCamera.view);
+        shader.setUniform("textureSampler", 0);
+        /*shader.setUniform("defColor", getColorArray().toRelative());
+        shader.setUniform("useColor", (texture == null) ? 1 : 0);*/
+
+        if (texture != null) {
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, texture.id);
+        }
 
         // Bind to the VAO
         glBindVertexArray(this.mesh.getVao());
         glEnableVertexAttribArray(0);
         glEnableVertexAttribArray(1);
+        glEnableVertexAttribArray(2);
 
         // Draw the vertices
         glDrawElements(GL_TRIANGLES, mesh.getTriangles().length, GL_UNSIGNED_INT, 0);
@@ -75,7 +84,9 @@ public class GameObject {
         // Restore state
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);
+        glDisableVertexAttribArray(2);
         glBindVertexArray(0);
+        glBindTexture(GL_TEXTURE_2D, 0);
 
         shader.unbind();
     }
@@ -83,6 +94,10 @@ public class GameObject {
     public void cleanup () {
         if (this.shader != null) {
             this.shader.cleanup();
+        }
+
+        if (this.texture != null) {
+            this.texture.cleanup();
         }
 
         mesh.cleanup();

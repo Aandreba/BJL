@@ -2,8 +2,12 @@ package Extras;
 
 import Units.ByteSize;
 
+import java.nio.ByteBuffer;
+
 public class Sys {
     final private Runtime runtime = Runtime.getRuntime();
-    final private ByteSize maxMemory = new ByteSize(runtime.maxMemory());
+
+    final public int threads = runtime.availableProcessors();
+    final public ByteSize maxMemory = new ByteSize(runtime.maxMemory());
     // TODO
 }

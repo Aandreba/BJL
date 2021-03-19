@@ -1,54 +1,27 @@
-import Extras.Rand;
-import Matrix.RelMatrix;
-import OpenGL.Extras.Gravity.Gravity;
-import OpenGL.Extras.Gravity.Newton;
-import OpenGL.Extras.Gravity.Normal;
 import OpenGL.Extras.Move.KeyMouse;
-import OpenGL.Extras.Vector.StatVector3;
 import OpenGL.GameObject;
 import OpenGL.Input.Buttons.KeyCode;
-import OpenGL.Mesh.Mesh;
+import OpenGL.Primitives.Cube;
 import OpenGL.Primitives.Sphere;
-import OpenGL.Rigidbody;
-import OpenGL.Shader.DefaultShader;
+import OpenGL.Shader;
+import OpenGL.Texture;
 import OpenGL.Window;
-import Units.Mass;
 import Units.Time;
-import Vector.RelVector;
-
 import java.awt.*;
-import java.util.ArrayList;
 
 public class Main {
     public static void main (String[] args) throws Exception {
-        ArrayList<Rigidbody> rbs = new ArrayList<>();
-        Gravity gravity = new Newton();
-
         Window window = new Window("Hello world", 1024, 1024, false) {
             KeyMouse move = new KeyMouse(this);
 
             @Override
-            public boolean add(GameObject gameObject) {
-                Rigidbody rb = new Rigidbody(gameObject, new Mass(Rand.getDouble(0.5,2)));
-                rb.velocity = new StatVector3(0, 0, 0);
-
-                rbs.add(rb);
-                gravity.add(rb);
-                return super.add(gameObject);
-            }
-
-            @Override
             public void update (Time delta) {
-                double time = delta.getValue();
-                double fps = Math.pow(time, -1);
-                System.out.println(fps);
-
-                move.update(delta);
-                gravity.update(delta);
-
-                if (rbs.get(0).isCollidingWith(rbs.get(1))){
-                    System.out.println("Collision!");
+                if (this.input.isPressed(KeyCode.Escape)) {
+                    System.exit(1);
                 }
+
+                double time = delta.getValue();
+                move.update(delta);
 
                 if (input.isPressed(KeyCode.Up)) {
                     get(0).transform.rotation.addX(time);
@@ -68,9 +41,15 @@ public class Main {
             }
         };
 
-        DefaultShader shader = new DefaultShader();
-        GameObject planet1 = new GameObject(new Sphere(255, 255), shader);
-        GameObject planet2 = new GameObject(new Sphere(), shader);
+        Shader shader = new Shader();
+        Texture tex = new Texture("sample.bmp");
+        Texture tex2 = new Texture(new Color(255, 0, 0));
+
+        GameObject planet1 = new GameObject(new Cube(), shader);
+        GameObject planet2 = new GameObject(new Cube(), shader);
+
+        planet1.texture = tex;
+        planet2.texture = tex2;
 
         planet1.transform.setScale(0.2f);
         planet2.transform.setScale(0.1f);
@@ -78,20 +57,14 @@ public class Main {
         planet1.transform.setPosition(0, 0, -2);
         planet2.transform.setPosition(0.5f, 0, -2);
 
-        colorSphere(planet1.mesh, Color.RED, Color.GREEN, Color.BLUE, Color.WHITE);
-        colorSphere(planet2.mesh, Color.ORANGE, Color.YELLOW, Color.MAGENTA, Color.PINK);
-
-        planet1.mesh.draw();
-        planet2.mesh.draw();
-
         window.add(planet1);
         window.add(planet2);
 
         window.run();
     }
 
-    private static void colorSphere (Mesh sphere, Color from, Color to, Color left, Color right) {
-        RelMatrix matrix = sphere.getMatrix();
+    /*private static void colorSphere (Mesh sphere, Color from, Color to, Color left, Color right) {
+        RelMatrix matrix = sphere.vertexMatrix();
         for (int i=0;i<matrix.getRows();i++) {
             RelVector vector = matrix.get(i);
 
@@ -110,5 +83,5 @@ public class Main {
 
             sphere.setColor(i, new Color((r + r2) / 2, (g + g2) / 2, (b + b2) / 2, (a + a2) / 2));
         }
-    }
+    }*/
 }

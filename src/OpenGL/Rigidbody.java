@@ -1,8 +1,13 @@
 package OpenGL;
 
+import Extras.Mathf;
+import Extras.Sys;
 import Matrix.Matrix;
+import OpenGL.Extras.Matrix.Matrix4;
+import OpenGL.Extras.Matrix.StatMatrix4;
 import OpenGL.Extras.Vector.StatVector3;
 import OpenGL.Extras.Vector.Vector3;
+import Units.Angle;
 import Units.Mass;
 import Units.Time;
 import Vector.Vector;
@@ -22,8 +27,26 @@ public class Rigidbody {
         this.detectCollisions = true;
     }
 
-    private Matrix vertexPos () {
-        return gameObject.mesh.getMatrix().mulGPU(gameObject.transform.getMatrix());
+    private Matrix getMatrix () {
+        Matrix mat4 = new Matrix(gameObject.mesh.getVertexCount(), 4) {
+            @Override
+            public double get(int row, int col) {
+                if (col == 3) {
+                    return 1;
+                }
+
+                return gameObject.mesh.getVertex(row).get(col);
+            }
+        };
+
+        return new Matrix (gameObject.mesh.getVertexCount(),4) {
+            @Override
+            public double get(int row, int col) {
+                Vector pos = mat4.get(row);
+                Matrix mul = gameObject.transform.getMatrix().mul(pos.toMatrix(1));
+                return mul.toVector().get(col);
+            }
+        };
     }
 
     public void addForce (Vector3 force) {
@@ -32,26 +55,6 @@ public class Rigidbody {
 
     public void addAcceleration (Vector3 vel) {
         this.velocity.add(vel);
-    }
-
-    public boolean isCollidingWith (Rigidbody rb) {
-        // TODO
-        Matrix posA = vertexPos();
-        Matrix posB = rb.vertexPos();
-
-        for (int i=0;i<posA.getRows();i++) {
-            Vector vertexA = posA.get(i);
-            for (int j=0;j<posB.getRows();j++) {
-                Vector vertexB = posB.get(j);
-                boolean bIsFurther = this.gameObject.transform.position.getMagnitude() < rb.gameObject.transform.position.getMagnitude();
-                boolean bVertexIsFurther = vertexA.getMagnitude() < vertexB.getMagnitude();
-                if (!bIsFurther && bVertexIsFurther) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
     }
 
     public void update (Time delta) {

@@ -141,6 +141,39 @@ public class StatVector3 extends StatVector {
         };
     }
 
+    // New
+    public Vector3 cross (Vector3 b) {
+        return new Vector3() {
+            @Override
+            public double get(int pos) {
+                switch (pos) {
+                    case 0:
+                        return (StatVector3.this.get(1) * b.get(2)) - (StatVector3.this.get(2) * b.get(1));
+                    case 1:
+                        return (StatVector3.this.get(0) * b.get(2)) - (StatVector3.this.get(2) * b.get(0));
+                    default:
+                        return (StatVector3.this.get(0) * b.get(1)) - (StatVector3.this.get(1) * b.get(0));
+                }
+            }
+        };
+    }
+
+    public Vector3 cross (StatVector3 b) {
+        return new Vector3() {
+            @Override
+            public double get(int pos) {
+                switch (pos) {
+                    case 0:
+                        return (StatVector3.this.get(1) * b.get(2)) - (StatVector3.this.get(2) * b.get(1));
+                    case 1:
+                        return (StatVector3.this.get(0) * b.get(2)) - (StatVector3.this.get(2) * b.get(0));
+                    default:
+                        return (StatVector3.this.get(0) * b.get(1)) - (StatVector3.this.get(1) * b.get(0));
+                }
+            }
+        };
+    }
+
     public Vector3 toRelative () {
         return new Vector3() {
             @Override

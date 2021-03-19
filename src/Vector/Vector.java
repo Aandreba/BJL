@@ -57,7 +57,7 @@ public abstract class Vector {
         float[] ret = new float[length];
 
         for (int i=0;i<length;i++) {
-            ret[i] =(float)get(i);
+            ret[i] = getFloat(i);
         }
 
         return ret;
@@ -395,6 +395,32 @@ public abstract class Vector {
     // Mean
     public double getMean () {
         return getSum() / length;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        } else if (!(o instanceof Vector)) {
+            return false;
+        }
+
+        try {
+            Vector mo = (Vector) o;
+            if (length != mo.length) {
+                return false;
+            }
+
+            for (int i = 0; i < length; i++) {
+                if (get(i) != mo.get(i)) {
+                    return false;
+                }
+            }
+        } catch (Exception e) {
+            return false;
+        }
+
+        return true;
     }
 
     // String

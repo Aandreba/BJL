@@ -55,9 +55,8 @@ public class Controller extends Movement {
     public void rotate(Time delta) {
         StatVector2 rot = window.input.getJoystick(joystick, rotate);
         StatVector3 target = new StatVector3(-Mathf.roundTo(rot.get(1), accuracy), -Mathf.roundTo(rot.get(0), accuracy), 0);
-        Vector3 dt = target.toRelative().mul(window.mainCamera.getFov().getValue()).subtr(transform.rotation.toRelative());
+        Vector3 dt = target.mul(window.mainCamera.getFov().getValue()).subtr(transform.rotation.toRelative());
 
         transform.rotation.add(dt.mul(sensitivity));
-        System.out.println(transform.rotation);
     }
 }

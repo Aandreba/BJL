@@ -1,7 +1,6 @@
 package OpenGL.Primitives;
 
-import OpenGL.Mesh.Mesh;
-import OpenGL.Shader.Shader;
+import OpenGL.Mesh;
 
 public class Square extends Mesh {
     /*public Square() throws Exception {

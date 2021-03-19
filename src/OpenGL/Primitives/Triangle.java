@@ -1,6 +1,6 @@
 package OpenGL.Primitives;
 
-import OpenGL.Mesh.Mesh;
+import OpenGL.Mesh;
 
 public class Triangle extends Mesh {
     public Triangle () throws Exception {

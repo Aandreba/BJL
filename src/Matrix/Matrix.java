@@ -577,7 +577,7 @@ public abstract class Matrix {
     public boolean equals(Object o) {
         if (this == o) {
             return true;
-        } else if (o == null || !o.getClass().equals(getClass())) {
+        } else if (!(o instanceof Matrix)) {
             return false;
         }
 

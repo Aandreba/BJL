@@ -1,7 +1,6 @@
 package OpenGL.Primitives;
 
-import OpenGL.Mesh.Mesh;
-import OpenGL.Shader.Shader;
+import OpenGL.Mesh;
 
 public class Cube extends Mesh {
     public Cube () {
@@ -22,6 +21,11 @@ public class Cube extends Mesh {
                 -1, -1, -1,
                 // V7
                 1, -1, -1,
+        }, new float[] {
+                0.0f, 0.0f,
+                0.0f, 0.5f,
+                0.5f, 0.5f,
+                0.5f, 0.0f,
         }, new int[] {
                 // Front face
                 0, 1, 3, 3, 1, 2,

@@ -145,6 +145,39 @@ public abstract class Vector3 extends Vector {
         return div(getSqrtMagnitude());
     }
 
+    // New
+    public Vector3 cross (Vector3 b) {
+        return new Vector3() {
+            @Override
+            public double get(int pos) {
+                switch (pos) {
+                    case 0:
+                        return (Vector3.this.get(1) * b.get(2)) - (Vector3.this.get(2) * b.get(1));
+                    case 1:
+                        return (Vector3.this.get(0) * b.get(2)) - (Vector3.this.get(2) * b.get(0));
+                    default:
+                        return (Vector3.this.get(0) * b.get(1)) - (Vector3.this.get(1) * b.get(0));
+                }
+            }
+        };
+    }
+
+    public Vector3 cross (StatVector3 b) {
+        return new Vector3() {
+            @Override
+            public double get(int pos) {
+                switch (pos) {
+                    case 0:
+                        return (Vector3.this.get(1) * b.get(2)) - (Vector3.this.get(2) * b.get(1));
+                    case 1:
+                        return (Vector3.this.get(0) * b.get(2)) - (Vector3.this.get(2) * b.get(0));
+                    default:
+                        return (Vector3.this.get(0) * b.get(1)) - (Vector3.this.get(1) * b.get(0));
+                }
+            }
+        };
+    }
+
     @Override
     public StatVector3 toStatic() {
         return new StatVector3(get(0), get(1), get(2));

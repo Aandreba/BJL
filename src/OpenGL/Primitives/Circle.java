@@ -1,6 +1,6 @@
 package OpenGL.Primitives;
 
-import OpenGL.Mesh.Mesh;
+import OpenGL.Mesh;
 
 public class Circle extends Mesh {
     public Circle(int points) {
