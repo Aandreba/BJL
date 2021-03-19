@@ -45,10 +45,6 @@ public class GameObject {
         this.transform = new Transform();
     }
 
-    private StatVector3 getColorArray () {
-        return new StatVector3(color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f);
-    }
-
     /**
      * Render mesh on screen
      */
@@ -64,8 +60,8 @@ public class GameObject {
         shader.setUniform("project", window.getProjectionMatrix().toRelative());
         shader.setUniform("view", window.mainCamera.view);
         shader.setUniform("textureSampler", 0);
-        /*shader.setUniform("defColor", getColorArray().toRelative());
-        shader.setUniform("useColor", (texture == null) ? 1 : 0);*/
+        shader.setUniform("defColor", color);
+        shader.setUniform("useColor", (texture == null) ? 1 : 0);
 
         if (texture != null) {
             glActiveTexture(GL_TEXTURE0);

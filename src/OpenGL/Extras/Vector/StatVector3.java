@@ -31,6 +31,30 @@ public class StatVector3 extends StatVector {
         set(2, z);
     }
 
+    public double x () {
+        return get(0);
+    }
+
+    public float xf () {
+        return getFloat(0);
+    }
+
+    public double y () {
+        return get(1);
+    }
+
+    public float yf () {
+        return getFloat(1);
+    }
+
+    public double z () {
+        return get(2);
+    }
+
+    public float zf () {
+        return getFloat(2);
+    }
+
     // Vector3
     public Vector3 sum (Vector3 b) {
         return new Vector3 () {

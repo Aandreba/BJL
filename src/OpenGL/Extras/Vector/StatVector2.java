@@ -19,6 +19,22 @@ public class StatVector2 extends StatVector {
         set(1, y);
     }
 
+    public double x () {
+        return get(0);
+    }
+
+    public float xf () {
+        return getFloat(0);
+    }
+
+    public double y () {
+        return get(1);
+    }
+
+    public float yf () {
+        return getFloat(1);
+    }
+
     // Vector2
     public Vector2 sum (Vector2 b) {
         return new Vector2 () {

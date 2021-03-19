@@ -33,6 +33,18 @@ public class Mesh {
         this.normals = new float[vertices * 3];
         this.triangles = new int[triangles * 3];
         this.textCoords = new float[vertices * 3];
+        this.draw();
+    }
+
+    public Mesh (float[] vertices, float[] texCoords, int[] triangles, float[] normals) {
+        this.vertexCount = vertices.length / 3;
+        this.triangleCount = triangles.length / 3;
+
+        this.vertices = vertices;
+        this.triangles = triangles;
+        this.textCoords = texCoords;
+        this.normals = normals;
+        this.draw();
     }
 
     public Mesh (float[] vertices, float[] texCoords, int[] triangles) {
@@ -43,6 +55,7 @@ public class Mesh {
         this.triangles = triangles;
         this.textCoords = texCoords;
         this.calculateNormals();
+        this.draw();
     }
 
     public Mesh (float[] vertices, int[] triangles) {
@@ -53,6 +66,7 @@ public class Mesh {
         this.triangles = triangles;
         this.textCoords = new float[vertices.length];
         this.calculateNormals();
+        this.draw();
     }
 
     public void calculateNormals () {

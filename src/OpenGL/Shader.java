@@ -34,9 +34,9 @@ public class Shader {
         this.createUniform("project");
         this.createUniform("view");
         this.createUniform("transform");
-        //this.createUniform("textureSampler");
-        //this.createUniform("defColor");
-        //this.createUniform("useColor");
+        this.createUniform("textureSampler");
+        this.createUniform("defColor");
+        this.createUniform("useColor");
     }
 
     public void createVertexShader (String code) throws Exception {
@@ -90,6 +90,18 @@ public class Shader {
 
     public void setUniform (String uniformName, Vector3 value) {
         glUniform3f(uniforms.get(uniformName), value.xf(), value.yf(), value.zf());
+    }
+
+    public void setUniform (String uniformName, float x, float y, float z) {
+        glUniform3f(uniforms.get(uniformName), x, y, z);
+    }
+
+    public void setUniform (String uniformName, float x, float y, float z, float w) {
+        glUniform4f(uniforms.get(uniformName), x, y, z, w);
+    }
+
+    public void setUniform (String uniformName, Color color) {
+        setUniform(uniformName, color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f, color.getAlpha() / 255f);
     }
 
     public void setUniform (String uniformName, Matrix4 value) {
