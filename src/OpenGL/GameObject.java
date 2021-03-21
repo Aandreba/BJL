@@ -13,19 +13,18 @@ import static org.lwjgl.opengl.GL30.glBindVertexArray;
 
 public class GameObject {
     public Mesh mesh;
-    public Shader shader;
     public Transform transform;
-    public Texture texture;
+    public Material material;
     public Color color = Color.GRAY;
 
-    public GameObject(Mesh mesh, Shader shader, Transform transform) {
+    public GameObject(Mesh mesh, Transform transform, Material material) {
         this.mesh = mesh;
-        this.shader = shader;
         this.transform = transform;
+        this.material = material;
     }
 
-    public GameObject (Mesh mesh, Shader shader, Vector3 pos, Vector3 rot, float scale) {
-        this(mesh, shader);
+    public GameObject (Mesh mesh, Material material, Vector3 pos, Vector3 rot, float scale) {
+        this(mesh, material);
 
         this.transform = new Transform();
         if (pos != null) {
@@ -39,33 +38,27 @@ public class GameObject {
         this.transform.setScale(scale);
     }
 
-    public GameObject (Mesh mesh, Shader shader) {
+    public GameObject (Mesh mesh, Material material) {
         this.mesh = mesh;
-        this.shader = shader;
         this.transform = new Transform();
+        this.material = material;
     }
 
     /**
      * Render mesh on screen
      */
     public void render (Window window) {
-        shader.bind();
-
         if (window.isResized()) {
             glViewport(0, 0, window.getWidth(), window.getHeight());
             window.setResized(false);
         }
 
-        shader.setUniform("transform", this.transform.getMatrix());
-        shader.setUniform("project", window.getProjectionMatrix().toRelative());
-        shader.setUniform("view", window.mainCamera.view);
-        shader.setUniform("textureSampler", 0);
-        shader.setUniform("defColor", color);
-        shader.setUniform("useColor", (texture == null) ? 1 : 0);
+        window.shader.setUniform("transform", this.transform.getMatrix());
+        material.setAsUniform(window.shader);
 
-        if (texture != null) {
+        if (material.texture != null) {
             glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, texture.id);
+            glBindTexture(GL_TEXTURE_2D, material.texture.id);
         }
 
         // Bind to the VAO
@@ -83,19 +76,10 @@ public class GameObject {
         glDisableVertexAttribArray(2);
         glBindVertexArray(0);
         glBindTexture(GL_TEXTURE_2D, 0);
-
-        shader.unbind();
     }
 
     public void cleanup () {
-        if (this.shader != null) {
-            this.shader.cleanup();
-        }
-
-        if (this.texture != null) {
-            this.texture.cleanup();
-        }
-
         mesh.cleanup();
+        material.cleanup();
     }
 }

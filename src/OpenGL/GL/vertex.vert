@@ -1,14 +1,20 @@
 #version 400
 
+// UNIFORMS //
 uniform mat4 project, view, transform;
 
 in vec3 vp;
 in vec2 texCoord;
-in vec3 normals;
+in vec3 normal;
 
+out vec4 worldCoord;
 out vec2 outTexCoord;
+out vec3 outNormal;
 
 void main () {
-    gl_Position = project * view * transform * vec4(vp, 1.0);
+    worldCoord = transform * vec4(vp, 1.0);
+    gl_Position = project * view * worldCoord;
+
     outTexCoord = texCoord;
+    outNormal = normal;
 }

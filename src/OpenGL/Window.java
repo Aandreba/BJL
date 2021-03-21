@@ -2,6 +2,9 @@ package OpenGL;
 
 import OpenGL.Extras.Matrix.StatMatrix4;;
 import OpenGL.Input.Input;
+import OpenGL.Light.LightPoint;
+import OpenGL.Shaders.DefShader;
+import OpenGL.Shaders.Shader;
 import Units.Time;
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.*;
@@ -24,10 +27,12 @@ public abstract class Window extends ArrayList<GameObject> implements Runnable {
     private boolean resized, vSync;
     private Color bkgColor;
 
+    final public Shader shader;
     final public Camera mainCamera;
     final public Input input;
+    public LightPoint[] points = new LightPoint[5];
 
-    public Window (String title, int width, int height, boolean vSync) {
+    public Window (String title, int width, int height, boolean vSync) throws Exception {
         super();
 
         this.title = title;
@@ -73,6 +78,7 @@ public abstract class Window extends ArrayList<GameObject> implements Runnable {
 
         this.input = new Input(this);
         this.pushFrame();
+        this.shader = new DefShader();
     }
 
     public void pushFrame () {
@@ -153,9 +159,23 @@ public abstract class Window extends ArrayList<GameObject> implements Runnable {
     }
 
     public void render () {
+        shader.bind();
+        shader.setUniform("project", getProjectionMatrix().toRelative());
+        shader.setUniform("view", mainCamera.view);
+        shader.setUniform("textureSampler", 0);
+
+        for (int i = 0; i< points.length; i++) {
+            if (points[i] == null) {
+                continue;
+            }
+            points[i].setAsUniform("points", i, shader);
+        }
+
         for (GameObject object: this) {
             object.render(this);
         }
+
+        shader.unbind();
     }
 
     public void updateFrame () {
@@ -199,6 +219,10 @@ public abstract class Window extends ArrayList<GameObject> implements Runnable {
     }
 
     public void cleanup () {
+        if (this.shader != null) {
+            this.shader.cleanup();
+        }
+
         for (GameObject object: this) {
             object.cleanup();
         }

@@ -12,6 +12,7 @@ public class StatVector3 extends StatVector {
     final public static StatVector3 up = new StatVector3(0, 1, 0);
     final public static StatVector3 down = new StatVector3(0, -1, 0);
     final public static StatVector3 zero = new StatVector3(0, 0, 0);
+    final public static StatVector3 one = new StatVector3(1, 1, 1);
 
     public StatVector3 () {
         super(3);
