@@ -3,7 +3,6 @@ package OpenGL;
 import OpenGL.Extras.Matrix.StatMatrix4;;
 import OpenGL.Input.Input;
 import OpenGL.Light.LightPoint;
-import OpenGL.Shaders.DefShader;
 import OpenGL.Shaders.Shader;
 import Units.Time;
 import org.lwjgl.glfw.*;
@@ -21,15 +20,15 @@ import static org.lwjgl.system.MemoryUtil.*;
 
 public abstract class Window extends ArrayList<GameObject> implements Runnable {
     final public long id;
-
     final public String title;
+    final public Shader shader;
+    final public Camera mainCamera;
+    final public Input input;
+
     private int width, height;
     private boolean resized, vSync;
     private Color bkgColor;
 
-    final public Shader shader;
-    final public Camera mainCamera;
-    final public Input input;
     public LightPoint[] points = new LightPoint[5];
 
     public Window (String title, int width, int height, boolean vSync) throws Exception {
@@ -78,7 +77,7 @@ public abstract class Window extends ArrayList<GameObject> implements Runnable {
 
         this.input = new Input(this);
         this.pushFrame();
-        this.shader = new DefShader();
+        this.shader = new Shader();
     }
 
     public void pushFrame () {
@@ -137,7 +136,7 @@ public abstract class Window extends ArrayList<GameObject> implements Runnable {
         this.vSync = vSync;
     }
 
-    public boolean isvSync() {
+    public boolean isVSync() {
         return vSync;
     }
 
@@ -145,8 +144,8 @@ public abstract class Window extends ArrayList<GameObject> implements Runnable {
         return bkgColor;
     }
 
-    public void setBackgroundColor (int red, int green, int blue, int alpha) {
-        this.bkgColor = new Color(red, green, blue, alpha);
+    public void setBackgroundColor (Color color) {
+        this.bkgColor = color;
         glClearColor(this.bkgColor.getRed() / 255f,this.bkgColor.getGreen() / 255f,this.bkgColor.getBlue() / 255f,this.bkgColor.getAlpha() / 255f);
     }
 

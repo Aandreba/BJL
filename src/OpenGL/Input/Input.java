@@ -15,9 +15,9 @@ public class Input {
     final private Window window;
 
     final private HashMap<KeyCode, Boolean> keyPressed;
-    private StatVector2 currentMouse;
     final private HashMap<Joystick, HashMap<GamepadButton, Boolean>> buttonPressed;
     final private HashMap<Joystick, HashMap<GamepadAxes, StatVector2>> currentJoystick;
+    private StatVector2 currentMouse;
 
     public Input (Window window) {
         this.window = window;

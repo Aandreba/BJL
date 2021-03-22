@@ -15,7 +15,6 @@ public class GameObject {
     public Mesh mesh;
     public Transform transform;
     public Material material;
-    public Color color = Color.GRAY;
 
     public GameObject(Mesh mesh, Transform transform, Material material) {
         this.mesh = mesh;

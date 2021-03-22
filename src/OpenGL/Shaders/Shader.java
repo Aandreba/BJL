@@ -2,8 +2,10 @@ package OpenGL.Shaders;
 
 import Extras.Files;
 import OpenGL.Extras.Matrix.Matrix4;
+import OpenGL.Extras.Matrix.StatMatrix4;
 import OpenGL.Extras.Vector.StatVector3;
 import OpenGL.Extras.Vector.Vector3;
+import OpenGL.Light.LightPoint;
 import org.lwjgl.opengl.GL40;
 
 import java.awt.*;
@@ -16,12 +18,9 @@ import static org.lwjgl.opengl.GL43.*;
 
 public class Shader {
     final protected int id;
+    final protected Map<String, Integer> uniforms;
     protected int vertex;
-    protected int compute = -1;
     protected int fragment;
-
-    public int workGroupX, workGroupY, workGroupZ;
-    protected final Map<String, Integer> uniforms;
 
     public Shader () throws Exception {
         this.id = glCreateProgram();
@@ -29,6 +28,18 @@ public class Shader {
             throw new Exception("Could not create Shader");
         }
         this.uniforms = new HashMap<>();
+
+        this.createVertexShader(new File("src/OpenGL/GL/vertex.vert"));
+        this.createFragmentShader(new File("src/OpenGL/GL/fragment.frag"));
+
+        this.createUniform("project");
+        this.createUniform("view");
+        this.createUniform("transform");
+        this.createUniform("textureSampler");
+        this.createUniform("defColor");
+        this.createUniform("hasTexture");
+
+        LightPoint.createArrayUniform("points", 5, this);
     }
 
     public void createVertexShader (String code) throws Exception {
@@ -37,14 +48,6 @@ public class Shader {
 
     public void createVertexShader (File file) throws Exception {
         createVertexShader(Files.loadFile(file, StandardCharsets.UTF_8));
-    }
-
-    public void createComputeShader (String code) throws Exception {
-        this.vertex = createShader(code, GL_COMPUTE_SHADER);
-    }
-
-    public void createComputeShader (File file) throws Exception {
-        createComputeShader(Files.loadFile(file, StandardCharsets.UTF_8));
     }
 
     public void createFragmentShader (String code) throws Exception {
@@ -99,16 +102,16 @@ public class Shader {
         glUniform3f(uniforms.get(uniformName), value.xf(), value.yf(), value.zf());
     }
 
+    public void setUniform (String uniformName, float x, float y, float z) {
+        glUniform3f(uniforms.get(uniformName), x, y, z);
+    }
+
     public void setUniform (String uniformName, Vector3 value, float w) {
         glUniform4f(uniforms.get(uniformName), value.xf(), value.yf(), value.zf(), w);
     }
 
     public void setUniform (String uniformName, StatVector3 value, float w) {
         glUniform4f(uniforms.get(uniformName), value.xf(), value.yf(), value.zf(), w);
-    }
-
-    public void setUniform (String uniformName, float x, float y, float z) {
-        glUniform3f(uniforms.get(uniformName), x, y, z);
     }
 
     public void setUniform (String uniformName, float x, float y, float z, float w) {
@@ -120,6 +123,10 @@ public class Shader {
     }
 
     public void setUniform (String uniformName, Matrix4 value) {
+        glUniformMatrix4fv(uniforms.get(uniformName), true, value.toVector().toFloatArray());
+    }
+
+    public void setUniform (String uniformName, StatMatrix4 value) {
         glUniformMatrix4fv(uniforms.get(uniformName), true, value.toVector().toFloatArray());
     }
 
@@ -143,20 +150,8 @@ public class Shader {
 
     }
 
-    public static StatVector3 maxWorkGroupSize () {
-        int[] v = new int[3];
-        glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, v);
-        glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 1, v);
-        glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 2, v);
-
-        return new StatVector3(v[0], v[1], v[2]);
-    }
-
     public void bind() {
         glUseProgram(this.id);
-        if (compute > -1) {
-            glDispatchCompute(workGroupX, workGroupY, workGroupZ);
-        }
     }
 
     public void unbind() {

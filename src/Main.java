@@ -12,7 +12,7 @@ import java.awt.*;
 public class Main {
     public static void main (String[] args) throws Exception {
         LightPoint light = new LightPoint(new StatVector3(0, 0, 0), Color.WHITE, 0.5f);
-        LightPoint light2 = new LightPoint(new StatVector3(0.25f, 0, -2.5f), Color.YELLOW, 2.5f);
+        LightPoint light2 = new LightPoint(new StatVector3(0.25f, 1, -2f), Color.YELLOW, 2.5f);
 
         Window window = new Window("Hello world", 1024, 1024, false) {
             KeyMouse move = new KeyMouse(this);

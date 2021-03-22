@@ -2,12 +2,9 @@ package OpenGL;
 
 import Matrix.RelMatrix;
 import OpenGL.Extras.Vector.Vector3;
-import Vector.RelVector;
 import Vector.Vector;
 import org.lwjgl.system.MemoryUtil;
 
-import java.awt.*;
-import java.io.File;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
@@ -23,7 +20,7 @@ public class Mesh {
     protected float[] vertices;
     protected float[] normals;
     protected int[] triangles;
-    protected float[] textCoords;
+    protected float[] texCoords;
 
     private int vao, vbo, tVbo, nVbo, xVbo;
 
@@ -34,7 +31,7 @@ public class Mesh {
         this.vertices = new float[vertices * 3];
         this.normals = new float[vertices * 3];
         this.triangles = new int[triangles * 3];
-        this.textCoords = new float[vertices * 2];
+        this.texCoords = new float[vertices * 2];
         this.draw();
     }
 
@@ -44,7 +41,7 @@ public class Mesh {
 
         this.vertices = vertices;
         this.triangles = triangles;
-        this.textCoords = texCoords;
+        this.texCoords = texCoords;
         this.normals = normals;
         this.draw();
     }
@@ -55,7 +52,7 @@ public class Mesh {
 
         this.vertices = vertices;
         this.triangles = triangles;
-        this.textCoords = texCoords;
+        this.texCoords = texCoords;
         this.calculateNormals();
         this.draw();
     }
@@ -66,7 +63,7 @@ public class Mesh {
 
         this.vertices = vertices;
         this.triangles = triangles;
-        this.textCoords = new float[vertices.length];
+        this.texCoords = new float[vertices.length];
         this.calculateNormals();
         this.calculateTexCoords();
         this.draw();
@@ -95,13 +92,13 @@ public class Mesh {
     }
 
     public void calculateTexCoords () {
-        this.textCoords = new float[this.textCoords.length];
+        this.texCoords = new float[this.texCoords.length];
         RelMatrix matrix = vertexMatrix();
 
         for (int i=0;i<matrix.getRows();i++) {
             Vector vertex = matrix.get(i).getNormalized();
-            this.textCoords[i * 2] = (vertex.getFloat(0) + 1) / 2;
-            this.textCoords[i * 2 + 1] = (vertex.getFloat(1) + 1) / 2;
+            this.texCoords[i * 2] = (vertex.getFloat(0) + 1) / 2;
+            this.texCoords[i * 2 + 1] = (vertex.getFloat(1) + 1) / 2;
         }
     }
 
@@ -134,15 +131,15 @@ public class Mesh {
     }
 
     public Matrix.RelMatrix textureMatrix() {
-        return new RelMatrix(textCoords.length / 2, 2) {
+        return new RelMatrix(texCoords.length / 2, 2) {
             @Override
             public double get(int row, int col) {
-                return textCoords[(row * 2) + col];
+                return texCoords[(row * 2) + col];
             }
 
             @Override
             public void set(int row, int col, double value) {
-                textCoords[(row * 2) + col] = (float) value;
+                texCoords[(row * 2) + col] = (float) value;
             }
         };
     }
@@ -178,7 +175,7 @@ public class Mesh {
     }
 
     /**
-     * Set vertex position
+     * Set vertex normal
      * @param id Vertex position in matrix
      * @param x X axis position (from -1 to 1)
      * @param y Y axis position (from -1 to 1)
@@ -234,7 +231,7 @@ public class Mesh {
         glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
 
         // Texture VBO
-        this.xVbo = bindFloats(this.textCoords);
+        this.xVbo = bindFloats(this.texCoords);
         glEnableVertexAttribArray(1);
         glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, 0);
 
