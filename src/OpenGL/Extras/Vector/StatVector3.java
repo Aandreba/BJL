@@ -166,6 +166,10 @@ public class StatVector3 extends StatVector {
         };
     }
 
+    public Vector3 getNormalized () {
+        return div(getSqrtMagnitude());
+    }
+
     // New
     public Vector3 cross (Vector3 b) {
         return new Vector3() {

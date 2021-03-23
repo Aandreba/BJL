@@ -19,6 +19,9 @@ public class OBJLoader {
 
         for (String line : lines) {
             String[] tokens = line.split("\\s+");
+            if (tokens.length <= 0) {
+                continue;
+            }
             switch (tokens[0]) {
                 case "v":
                     // Geometric vertex

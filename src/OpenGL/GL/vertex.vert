@@ -12,8 +12,11 @@ out vec2 outTexCoord;
 out vec3 outNormal;
 
 void main () {
-    worldCoord = transform * vec4(vp, 1.0);
-    gl_Position = project * view * worldCoord;
+    vec4 pos = vec4(vp, 1);
+    mat4 worldMatrix = view * transform;
+
+    worldCoord = transform * pos;
+    gl_Position = project * worldMatrix * pos;
 
     outTexCoord = texCoord;
     outNormal = normal;

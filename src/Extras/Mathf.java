@@ -7,11 +7,23 @@ public class Mathf {
         return (float) Math.sin(x);
     }
 
+    public static float sin (double x) {
+        return (float) Math.sin(x);
+    }
+
     public static float cos (float x) {
         return (float) Math.cos(x);
     }
 
+    public static float cos (double x) {
+        return (float) Math.cos(x);
+    }
+
     public static float tan (float x) {
+        return (float) Math.tan(x);
+    }
+
+    public static float tan (double x) {
         return (float) Math.tan(x);
     }
 

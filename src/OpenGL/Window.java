@@ -2,7 +2,9 @@ package OpenGL;
 
 import OpenGL.Extras.Matrix.StatMatrix4;;
 import OpenGL.Input.Input;
-import OpenGL.Light.LightPoint;
+import OpenGL.Light.DirectionalLight;
+import OpenGL.Light.PointLight;
+import OpenGL.Light.SpotLight;
 import OpenGL.Shaders.Shader;
 import Units.Time;
 import org.lwjgl.glfw.*;
@@ -21,15 +23,17 @@ import static org.lwjgl.system.MemoryUtil.*;
 public abstract class Window extends ArrayList<GameObject> implements Runnable {
     final public long id;
     final public String title;
-    final public Shader shader;
     final public Camera mainCamera;
     final public Input input;
 
     private int width, height;
     private boolean resized, vSync;
     private Color bkgColor;
+    public Shader shader;
 
-    public LightPoint[] points = new LightPoint[5];
+    public PointLight[] points = new PointLight[5];
+    public DirectionalLight[] directionals = new DirectionalLight[5];
+    public SpotLight[] spots = new SpotLight[5];
 
     public Window (String title, int width, int height, boolean vSync) throws Exception {
         super();
@@ -41,11 +45,7 @@ public abstract class Window extends ArrayList<GameObject> implements Runnable {
         this.vSync = vSync;
         this.mainCamera = new Camera();
 
-        GLFWErrorCallback.createPrint(System.err).set();
-
-        if (!glfwInit()) {
-            throw new IllegalStateException("Unable to initialize GLFW");
-        }
+        init();
 
         glfwDefaultWindowHints();
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // the window will stay hidden after creation
@@ -80,6 +80,14 @@ public abstract class Window extends ArrayList<GameObject> implements Runnable {
         this.shader = new Shader();
     }
 
+    public static void init () throws IllegalStateException {
+        GLFWErrorCallback.createPrint(System.err).set();
+
+        if (!glfwInit()) {
+            throw new IllegalStateException("Unable to initialize GLFW");
+        }
+    }
+
     public void pushFrame () {
         try ( MemoryStack stack = stackPush() ) {
             IntBuffer pWidth = stack.mallocInt(1); // int*
@@ -111,7 +119,7 @@ public abstract class Window extends ArrayList<GameObject> implements Runnable {
         glfwShowWindow(this.id);
 
         GL.createCapabilities();
-        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_CULL_FACE);
     }
 
     public abstract void update (Time deltaTime);
@@ -164,10 +172,17 @@ public abstract class Window extends ArrayList<GameObject> implements Runnable {
         shader.setUniform("textureSampler", 0);
 
         for (int i = 0; i< points.length; i++) {
-            if (points[i] == null) {
-                continue;
+            if (points[i] != null) {
+                points[i].setAsUniform("points", i, shader);
             }
-            points[i].setAsUniform("points", i, shader);
+
+            if (directionals[i] != null) {
+                directionals[i].setAsUniform("directionals", i, shader);
+            }
+
+            if (spots[i] != null) {
+                spots[i].setAsUniform("spots", i, shader);
+            }
         }
 
         for (GameObject object: this) {

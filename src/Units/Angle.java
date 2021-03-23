@@ -1,5 +1,7 @@
 package Units;
 
+import Extras.Mathf;
+
 import java.text.NumberFormat;
 
 public class Angle {
@@ -58,12 +60,24 @@ public class Angle {
         return Math.sin(value);
     }
 
+    public float sinf () {
+        return Mathf.sin(value);
+    }
+
     public double cos () {
         return Math.cos(value);
     }
 
+    public float cosf () {
+        return Mathf.cos(value);
+    }
+
     public double tan () {
         return Math.tan(value);
+    }
+
+    public float tanf () {
+        return Mathf.tan(value);
     }
 
     // Get value

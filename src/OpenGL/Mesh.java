@@ -1,12 +1,14 @@
 package OpenGL;
 
 import Matrix.RelMatrix;
+import OpenGL.Extras.Vector.StatVector3;
 import OpenGL.Extras.Vector.Vector3;
 import Vector.Vector;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.Arrays;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
@@ -75,11 +77,14 @@ public class Mesh {
 
         for (int j=0;j<triangleCount;j++) {
             int[] triangle = getTriangle(j);
+            if (triangle[0] >= vertexCount || triangle[1] >= vertexCount || triangle[2] >= vertexCount) {
+                continue;
+            }
 
             Vector3 a = getVertex(triangle[0]);
             Vector3 b = getVertex(triangle[1]);
             Vector3 c = getVertex(triangle[2]);
-            Vector3 n = b.subtr(a).cross(c.subtr(a));
+            StatVector3 n = b.subtr(a).cross(c.subtr(a)).toStatic();
 
             matrix.get(triangle[0]).add(n);
             matrix.get(triangle[1]).add(n);
@@ -111,6 +116,28 @@ public class Mesh {
 
             @Override
             public void set(int row, int col, double value) {
+                vertices[(row * 3) + col] = (float) value;
+            }
+        };
+    }
+
+    public Matrix.RelMatrix vertexMatrix4() {
+        return new RelMatrix(vertexCount, 4) {
+            @Override
+            public double get(int row, int col) {
+                if (col == 3) {
+                    return 1;
+                }
+
+                return vertices[(row * 3) + col];
+            }
+
+            @Override
+            public void set(int row, int col, double value) {
+                if (col == 3) {
+                    return;
+                }
+
                 vertices[(row * 3) + col] = (float) value;
             }
         };

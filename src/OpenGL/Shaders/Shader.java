@@ -5,12 +5,15 @@ import OpenGL.Extras.Matrix.Matrix4;
 import OpenGL.Extras.Matrix.StatMatrix4;
 import OpenGL.Extras.Vector.StatVector3;
 import OpenGL.Extras.Vector.Vector3;
-import OpenGL.Light.LightPoint;
-import org.lwjgl.opengl.GL40;
+import OpenGL.Light.DirectionalLight;
+import OpenGL.Light.PointLight;
+import OpenGL.Light.SpotLight;
+import OpenGL.Material;
 
 import java.awt.*;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,24 +25,29 @@ public class Shader {
     protected int vertex;
     protected int fragment;
 
-    public Shader () throws Exception {
+    protected Shader (boolean init) throws Exception {
         this.id = glCreateProgram();
         if (this.id == 0) {
             throw new Exception("Could not create Shader");
         }
         this.uniforms = new HashMap<>();
+    }
 
-        this.createVertexShader(new File("src/OpenGL/GL/vertex.vert"));
-        this.createFragmentShader(new File("src/OpenGL/GL/fragment.frag"));
+    public Shader () throws Exception {
+        this(true);
+
+        this.createVertexShader(Files.loadResource("/OpenGL/GL/vertex.vert"));
+        this.createFragmentShader(Files.loadResource("/OpenGL/GL/fragment.frag"));
 
         this.createUniform("project");
         this.createUniform("view");
         this.createUniform("transform");
         this.createUniform("textureSampler");
-        this.createUniform("defColor");
-        this.createUniform("hasTexture");
 
-        LightPoint.createArrayUniform("points", 5, this);
+        Material.createUniform(this);
+        PointLight.createArrayUniform("points", 5, this);
+        DirectionalLight.createArrayUniform("directionals", 5, this);
+        SpotLight.createArrayUniform("spots", 5, this);
     }
 
     public void createVertexShader (String code) throws Exception {

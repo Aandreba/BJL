@@ -40,6 +40,8 @@ public class Sphere extends Mesh {
             }
         }
 
+        this.calculateNormals();
+        this.calculateTexCoords();
         this.draw();
     }
 

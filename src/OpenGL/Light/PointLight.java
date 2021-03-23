@@ -6,19 +6,19 @@ import OpenGL.Shaders.Shader;
 
 import java.awt.*;
 
-public class LightPoint {
-    public Vector3 position;
+public class PointLight {
+    public StatVector3 position;
     public Color color;
     public float intensity;
 
-    public LightPoint(Vector3 position, Color color, float intensity) {
-        this.position = position;
+    public PointLight(Vector3 position, Color color, float intensity) {
+        this.position = position.toStatic();
         this.color = color;
         this.intensity = intensity;
     }
 
-    public LightPoint(StatVector3 position, Color color, float intensity) {
-        this.position = position.toRelative();
+    public PointLight(StatVector3 position, Color color, float intensity) {
+        this.position = position;
         this.color = color;
         this.intensity = intensity;
     }

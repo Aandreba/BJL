@@ -18,7 +18,25 @@ public abstract class Matrix4 extends Matrix {
         };
     }
 
+    public Matrix4 sum (StatMatrix4 b) {
+        return new Matrix4() {
+            @Override
+            public double get(int row, int col) {
+                return Matrix4.this.get(row, col) + b.get(row, col);
+            }
+        };
+    }
+
     public Matrix4 subtr (Matrix4 b) {
+        return new Matrix4() {
+            @Override
+            public double get(int row, int col) {
+                return Matrix4.this.get(row, col) - b.get(row, col);
+            }
+        };
+    }
+
+    public Matrix4 subtr (StatMatrix4 b) {
         return new Matrix4() {
             @Override
             public double get(int row, int col) {
@@ -34,6 +52,21 @@ public abstract class Matrix4 extends Matrix {
                 double sum = 0;
 
                 for (int k=0;k<b.rows;k++) {
+                    sum += Matrix4.this.get(row,k) * b.get(k,col);
+                }
+
+                return sum;
+            }
+        };
+    }
+
+    public Matrix4 mul (StatMatrix4 b) {
+        return new Matrix4() {
+            @Override
+            public double get(int row, int col) {
+                double sum = 0;
+
+                for (int k=0;k<4;k++) {
                     sum += Matrix4.this.get(row,k) * b.get(k,col);
                 }
 

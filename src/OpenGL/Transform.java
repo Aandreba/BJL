@@ -148,21 +148,23 @@ public class Transform {
         this.scale.set(2, scale);
     }
 
-    public void translate (Vector3 trans) {
-        float sinY = (float) getRotationY().sin();
-        float cosY = (float) getRotationY().cos();
+    public StatVector3 translateVector (Vector3 trans) {
+        float sinY = getRotationY().sinf();
+        float cosY = getRotationY().cosf();
 
-        Vector3 x = new StatVector3(cosY, 0, -sinY).toRelative().mul(trans.x());
-        Vector3 y = new StatVector3(0, 1, 0).toRelative().mul(trans.y());
-        Vector3 z = new StatVector3(sinY, 0, cosY).toRelative().mul(trans.z());
+        Vector3 x = new StatVector3(cosY, 0, -sinY).mul(trans.x());
+        Vector3 y = new StatVector3(0, 1, 0).mul(trans.y());
+        Vector3 z = new StatVector3(sinY, 0, cosY).mul(trans.z());
 
         float X = x.xf() + y.xf() + z.xf();
         float Y = x.yf() + y.yf() + z.yf();
         float Z = x.zf() + y.zf() + z.zf();
 
-        this.position.addX(X);
-        this.position.addY(Y);
-        this.position.addZ(Z);
+        return new StatVector3(X, Y, Z);
+    }
+
+    public void translate (Vector3 trans) {
+        this.position.add(translateVector(trans));
     }
 
     public Matrix4 getMatrix () {
