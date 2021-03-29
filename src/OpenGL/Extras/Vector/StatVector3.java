@@ -3,6 +3,7 @@ package OpenGL.Extras.Vector;
 import OpenGL.Extras.Matrix.Matrix4;
 import OpenGL.Extras.Matrix.StatMatrix4;
 import Vector.StatVector;
+import Vector.Vector;
 
 public class StatVector3 extends StatVector {
     final public static StatVector3 forward = new StatVector3(0, 0, 1);
@@ -162,6 +163,16 @@ public class StatVector3 extends StatVector {
             @Override
             public double get(int pos) {
                 return StatVector3.this.get(pos) / b.get(pos);
+            }
+        };
+    }
+
+    @Override
+    public Vector3 abs() {
+        return new Vector3() {
+            @Override
+            public double get (int pos) {
+                return Math.abs(StatVector3.this.get(pos));
             }
         };
     }

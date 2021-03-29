@@ -96,6 +96,16 @@ public abstract class Vector2 extends Vector {
     }
 
     @Override
+    public Vector2 abs() {
+        return new Vector2() {
+            @Override
+            public double get (int pos) {
+                return Math.abs(Vector2.this.get(pos));
+            }
+        };
+    }
+
+    @Override
     public StatVector2 toStatic() {
         return new StatVector2(get(0), get(1));
     }

@@ -141,6 +141,16 @@ public abstract class Vector3 extends Vector {
         };
     }
 
+    @Override
+    public Vector3 abs() {
+        return new Vector3() {
+            @Override
+            public double get (int pos) {
+                return Math.abs(Vector3.this.get(pos));
+            }
+        };
+    }
+
     public Vector3 getNormalized () {
         return div(getSqrtMagnitude());
     }

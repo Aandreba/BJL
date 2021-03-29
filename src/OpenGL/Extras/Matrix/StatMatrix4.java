@@ -99,8 +99,54 @@ public class StatMatrix4 extends StatMatrix {
         };
     }
 
+    public Matrix4 transposed () {
+        return new Matrix4() {
+            @Override
+            public double get(int row, int col) {
+                return StatMatrix4.this.get(col, row);
+            }
+        };
+    }
+
+    @Override
+    public double determinant() {
+        double result = 0;
+
+        for (int i=0;i<4;i++) {
+            int k = i;
+            Matrix3 matrix = new Matrix3() {
+                @Override
+                public double get(int row, int col) {
+                    return StatMatrix4.this.get(row + 1, col < k ? col : col + 1);
+                }
+            };
+
+            double mul = get(0, i);
+            if (i == 1 || i == 3) {
+                mul = -mul;
+            }
+
+            result += mul * matrix.determinant();
+        }
+
+        return result;
+    }
+
+    public Matrix4 inverted () {
+        return scalarMul(1 / determinant());
+    }
+
     public Matrix4 toRelative () {
         return new Matrix4() {
+            @Override
+            public double get(int row, int col) {
+                return StatMatrix4.this.get(row, col);
+            }
+        };
+    }
+
+    public Matrix3 toMatrix3 () {
+        return new Matrix3() {
             @Override
             public double get(int row, int col) {
                 return StatMatrix4.this.get(row, col);

@@ -17,7 +17,9 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.Objects;
 
 import static jcuda.jcublas.JCublas2.*;
@@ -240,7 +242,7 @@ public abstract class Matrix {
 
     public StatMatrix mulGPU (Matrix b, Device device, double alpha, double beta) {
         if (device.isCudaCapable()) {
-            return mulCUDA(b, device, alpha, beta);
+            return mulCUDA(b, alpha, beta);
         }
 
         return mulCL(b, device, (float)alpha, (float)beta);
@@ -248,7 +250,7 @@ public abstract class Matrix {
 
     public StatMatrix mulGPU (Matrix b, double alpha, double beta) {
         if (Device.isCudaAvailable) {
-            return mulCUDA(b, null, alpha, beta);
+            return mulCUDA(b, alpha, beta);
         }
 
         return mulCL(b, Device.def, (float)alpha, (float)beta);
@@ -260,7 +262,7 @@ public abstract class Matrix {
 
     public StatMatrix mulGPU (Matrix b) {
         if (Device.isCudaAvailable) {
-            return mulCUDA(b, null, 1, 0);
+            return mulCUDA(b, 1, 0);
         }
 
         return mulCL(b, Device.def, 1, 0);
@@ -290,11 +292,7 @@ public abstract class Matrix {
         return new StatVector(r).toMatrix(b.cols).toStatic();
     }
 
-    public StatMatrix mulCUDA (Matrix b, Device device, double alpha, double beta) {
-        if (device != null && !device.isCudaCapable()) {
-            return mulCL(b, device, (float)alpha, (float)beta);
-        }
-
+    public StatMatrix mulCUDA (Matrix b, double alpha, double beta) {
         JCublas2.setExceptionsEnabled(true);
 
         double[] A = toVector().toArray();
@@ -329,6 +327,24 @@ public abstract class Matrix {
         cublasDestroy(handle);
 
         return new StatVector(C).toMatrix(b.cols).toStatic();
+    }
+
+    public Matrix smartMul (Matrix b, float alpha, float beta) {
+        int size = rows * cols + (b.rows * b.cols);
+        if (size > 30000) {
+            return mulGPU(b, alpha, beta);
+        } else {
+            return toStatic().mul(b.toStatic()).scalarMul(alpha).sum(beta);
+        }
+    }
+
+    public Matrix smartMul (Matrix b) {
+        int size = rows * cols + (b.rows * b.cols);
+        if (size > 30000) {
+            return mulGPU(b, 1, 0);
+        } else {
+            return toStatic().mul(b.toStatic());
+        }
     }
 
     // Scalar mul
@@ -528,6 +544,41 @@ public abstract class Matrix {
                 return Matrix.this.get(col, row);
             }
         };
+    }
+
+    // Determinant
+    public double determinant () {
+        if (cols == 1) {
+            return get(0, 0);
+        } else if (cols == 2) {
+            return get(0,0) * get(1, 1) - get(0, 1) * get(1, 0);
+        }
+
+        double result = 0;
+
+        for (int i=0;i<cols;i++) {
+            int k = i;
+            Matrix matrix = new Matrix(rows-1, cols-1) {
+                @Override
+                public double get(int row, int col) {
+                    return Matrix.this.get(row + 1, col < k ? col : col + 1);
+                }
+            };
+
+            double mul = get(0, i);
+            if (i%2 == 1) {
+                mul = -mul;
+            }
+
+            result += mul * matrix.determinant();
+        }
+
+        return result;
+    }
+
+    // Inverted
+    public Matrix inverted () {
+        return scalarMul(1 / determinant());
     }
 
     // Identity

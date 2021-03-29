@@ -364,7 +364,7 @@ public abstract class Vector {
 
     // Distance
     public double dist (Vector b) {
-        return Math.sqrt(this.subtr(b).getMagnitude());
+        return this.subtr(b).getSqrtMagnitude();
     }
 
     // Magnitude

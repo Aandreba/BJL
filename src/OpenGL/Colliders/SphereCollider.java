@@ -1,0 +1,28 @@
+package OpenGL.Colliders;
+
+import OpenGL.Extras.Vector.StatVector3;
+import OpenGL.Extras.Vector.Vector3;
+
+public class SphereCollider implements Collider {
+    public Vector3 position;
+    public float radius;
+
+    public SphereCollider(Vector3 position, float radius) {
+        this.position = position;
+        this.radius = radius;
+    }
+
+    public SphereCollider(StatVector3 position, float radius) {
+        this.position = position.toRelative();
+        this.radius = radius;
+    }
+
+    @Override
+    public boolean isCollidingAt (Vector3 position) {
+        return this.position.dist(position) <= radius;
+    }
+
+    public boolean isCollidingWith (SphereCollider collider) {
+        return this.position.dist(collider.position) <= radius + collider.radius;
+    }
+}

@@ -95,19 +95,49 @@ public abstract class Matrix4 extends Matrix {
         };
     }
 
-    // Identity
-    @Override
-    public Matrix4 identity () {
-        return new Matrix4 () {
+    public Matrix4 transposed () {
+        return new Matrix4() {
             @Override
             public double get(int row, int col) {
-                if (row == col) {
-                    return 1;
-                }
-
-                return 0;
+                return Matrix4.this.get(col, row);
             }
         };
+    }
+
+    // Identity
+    @Override
+    public StatMatrix4 identity () {
+        return identity;
+    }
+
+    // determinnat
+    @Override
+    public double determinant() {
+        double result = 0;
+
+        for (int i=0;i<4;i++) {
+            int k = i;
+            Matrix3 matrix = new Matrix3() {
+                @Override
+                public double get(int row, int col) {
+                    return Matrix4.this.get(row + 1, col < k ? col : col + 1);
+                }
+            };
+
+            double mul = get(0, i);
+            if (i == 1 || i == 3) {
+                mul = -mul;
+            }
+
+            result += mul * matrix.determinant();
+        }
+
+        return result;
+    }
+
+    // Inverted
+    public Matrix4 inverted () {
+        return scalarMul(1 / determinant());
     }
 
     @Override
@@ -120,5 +150,14 @@ public abstract class Matrix4 extends Matrix {
         }
 
         return ret;
+    }
+
+    public Matrix3 toMatrix3 () {
+        return new Matrix3() {
+            @Override
+            public double get(int row, int col) {
+                return Matrix4.this.get(row, col);
+            }
+        };
     }
 }

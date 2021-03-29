@@ -1,7 +1,6 @@
 package Units;
 
 import Extras.Mathf;
-
 import java.text.NumberFormat;
 
 public class Angle {
@@ -29,8 +28,8 @@ public class Angle {
     }
 
     // Add
-    public Angle add (double m) {
-        return new Angle(this.value + m);
+    public Angle add (double rad) {
+        return new Angle(this.value + rad);
     }
 
     public Angle add (Angle angle) {
@@ -38,8 +37,8 @@ public class Angle {
     }
 
     // Subtr
-    public Angle subtr (double m) {
-        return new Angle(this.value - m);
+    public Angle subtr (double rad) {
+        return new Angle(this.value - rad);
     }
 
     public Angle subtr (Angle angle) {
@@ -47,8 +46,8 @@ public class Angle {
     }
 
     // Mul
-    public Angle mul (double m) {
-        return new Angle(this.value * m);
+    public Angle mul (double rad) {
+        return new Angle(this.value * rad);
     }
 
     public Angle mul (Angle angle) {

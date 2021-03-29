@@ -145,6 +145,16 @@ public class StatVector2 extends StatVector {
         };
     }
 
+    @Override
+    public Vector2 abs() {
+        return new Vector2() {
+            @Override
+            public double get (int pos) {
+                return Math.abs(StatVector2.this.get(pos));
+            }
+        };
+    }
+
     public Vector2 toRelative () {
         return new Vector2() {
             @Override
