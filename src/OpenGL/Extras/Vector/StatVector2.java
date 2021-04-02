@@ -155,6 +155,11 @@ public class StatVector2 extends StatVector {
         };
     }
 
+    @Override
+    public Vector2 getNormalized() {
+        return div(getSqrtMagnitude());
+    }
+
     public Vector2 toRelative () {
         return new Vector2() {
             @Override

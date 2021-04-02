@@ -38,7 +38,7 @@ public class Controller extends Movement {
     }
 
     public Controller(Joystick joystick, Window window, float speed, float sensitivity) {
-        this(joystick, window, window.mainCamera, speed, sensitivity);
+        this(joystick, window, window.getMainCamera(), speed, sensitivity);
     }
 
     public Controller(Joystick joystick, Window window) {
@@ -52,10 +52,10 @@ public class Controller extends Movement {
     }
 
     @Override
-    public void rotate(Time delta) {
+    public void rotate (Time delta) {
         StatVector2 rot = window.input.getJoystick(joystick, rotate);
         StatVector3 target = new StatVector3(-Mathf.roundTo(rot.get(1), accuracy), -Mathf.roundTo(rot.get(0), accuracy), 0);
-        Vector3 dt = target.mul(window.mainCamera.getFov().getValue()).subtr(transform.rotation.toRelative());
+        Vector3 dt = target.mul(window.getMainCamera().getFov().getValue()).subtr(transform.rotation.toRelative());
 
         transform.rotation.add(dt.mul(sensitivity));
     }

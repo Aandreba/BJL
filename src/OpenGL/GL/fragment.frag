@@ -45,9 +45,7 @@ uniform float reflectance;
 
 // FUNCTIONS //
 vec3 calcLight (vec3 lightColor, float lightIntensity, vec3 dir, vec3 pos, vec3 normal, vec3 color) {
-    return color * lightColor * lightIntensity * reflectance;
-
-    /*// Diffuse
+    // Diffuse
     float factorD = max(dot(normal, dir), 0);
     vec3 diffuse = color * lightColor * lightIntensity * factorD;
 
@@ -57,7 +55,7 @@ vec3 calcLight (vec3 lightColor, float lightIntensity, vec3 dir, vec3 pos, vec3 
     float factorS = max(dot(camDir, reflected), 0);
     vec3 specular = color * lightIntensity * pow(factorS, 32) * reflectance * lightColor;
 
-    return specular + diffuse;*/
+    return specular + diffuse;
 }
 
 vec3 calcLightPoint (PointLight light, vec3 pos, vec3 normal, vec3 color) {
@@ -92,11 +90,9 @@ in vec3 outNormal;
 out vec4 color;
 
 void main () {
-    vec3 startColor;
+    vec3 startColor = defColor;
     if (hasTexture == 1) {
-        startColor = texture(textureSampler, outTexCoord).xyz;
-    } else {
-        startColor = defColor;
+        startColor *= texture(textureSampler, outTexCoord).xyz;
     }
 
     vec3 delta = vec3(0, 0, 0);
@@ -110,5 +106,5 @@ void main () {
         delta += calcLightSpot(spot, worldCoord.xyz, outNormal, startColor);
     }
 
-    color = vec4(startColor * delta, 1);
+    color = vec4(startColor + startColor * delta, 1);
 }

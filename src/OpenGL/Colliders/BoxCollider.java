@@ -54,6 +54,19 @@ public class BoxCollider implements Collider {
         return dist.x() <= this.scale.x() && dist.y() <= this.scale.y() && dist.z() <= this.scale.z();
     }
 
+    @Override
+    public boolean isCollidingWith (SphereCollider collider) {
+        Vector3 closest = new Vector3() {
+            @Override
+            public double get(int pos) {
+                return Math.max(position.get(pos) - scale.get(pos), Math.min(position.get(pos) + scale.get(pos), collider.position.get(pos)));
+            }
+        };
+
+        double dist = closest.subtr(collider.position).getSqrtMagnitude();
+        return dist < collider.radius;
+    }
+
     public boolean isCollidingWith (BoxCollider collider) {
         Vector3 dist = this.position.subtr(collider.position).abs();
         Vector3 size = this.scale.sum(collider.scale);

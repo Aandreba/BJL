@@ -2,6 +2,7 @@ package Vector;
 
 import Matrix.Matrix;
 import Extras.Rand;
+import OpenGL.Extras.Vector.Vector3;
 
 import java.nio.ByteBuffer;
 
@@ -248,6 +249,11 @@ public abstract class Vector {
         };
     }
 
+    // Dot
+    public double dot (Vector b) {
+        return mul(b).getSum();
+    }
+
     // Round
     public Vector round () {
         return new Vector(length) {
@@ -260,7 +266,6 @@ public abstract class Vector {
 
     public Vector round (int to) {
         double k = Math.pow(10,to);
-
         return this.mul(k).round().div(k);
     }
 
@@ -364,7 +369,7 @@ public abstract class Vector {
 
     // Distance
     public double dist (Vector b) {
-        return this.subtr(b).getSqrtMagnitude();
+        return subtr(b).getSqrtMagnitude();
     }
 
     // Magnitude
@@ -378,7 +383,17 @@ public abstract class Vector {
 
     // Normalized
     public Vector getNormalized () {
-        return div(getSqrtMagnitude());
+        double sqrt = getSqrtMagnitude();
+        if (Double.isNaN(sqrt) || sqrt == 0) {
+            return new Vector (length) {
+                @Override
+                public double get(int pos) {
+                    return 0;
+                }
+            };
+        } else {
+            return div(getSqrtMagnitude());
+        }
     }
 
     // Self sum

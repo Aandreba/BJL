@@ -1,5 +1,10 @@
 package Extras;
 
+import Matrix.Matrix;
+import Matrix.StatMatrix;
+import OpenGL.Extras.Vector.StatVector2;
+import OpenGL.Extras.Vector.Vector2;
+import OpenGL.Extras.Vector.Vector3;
 import Vector.StatVector;
 import Vector.Vector;
 
@@ -150,5 +155,43 @@ public class Rand {
 
     public static <T> T choice (T... vals) {
         return vals[Rand.getInt(0, vals.length - 1)];
+    }
+
+    public static StatMatrix noise2D (int size, long seed) {
+        Random random = new Random(seed);
+        StatVector2[][] dirs = new StatVector2[size][size];
+
+        for (int i=0;i<size;i++) {
+            for (int j=0;j<size;j++) {
+                dirs[i][j] = new Vector2() {
+                    @Override
+                    public double get(int pos) {
+                        return 2 * random.nextDouble() * size - size;
+                    }
+                }.toStatic();
+            }
+        }
+
+        for (int i=0;i<size;i++) {
+            for (int j=0;j<size;j++) {
+                Vector2 vector = dirs[i][j].toRelative();
+
+                for (int x=0;x<size;x++) {
+                    for (int y=0;y<size;y++) {
+                        if (i == x && j == y) {
+                            continue;
+                        }
+                        StatVector2 vector2 = dirs[x][y];
+
+                        Vector2 dist = vector.subtr(vector2);
+                        Vector2 dir = dist.getNormalized();
+                        // TODO
+                        //double angle =
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 }

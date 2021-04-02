@@ -95,6 +95,42 @@ public abstract class Vector2 extends Vector {
         };
     }
 
+    public Vector2 sum (StatVector2 b) {
+        return new Vector2() {
+            @Override
+            public double get(int pos) {
+                return Vector2.this.get(pos) + b.get(pos);
+            }
+        };
+    }
+
+    public Vector2 subtr (StatVector2 b) {
+        return new Vector2() {
+            @Override
+            public double get(int pos) {
+                return Vector2.this.get(pos) - b.get(pos);
+            }
+        };
+    }
+
+    public Vector2 mul (StatVector2 b) {
+        return new Vector2() {
+            @Override
+            public double get(int pos) {
+                return Vector2.this.get(pos) * b.get(pos);
+            }
+        };
+    }
+
+    public Vector2 div (StatVector2 b) {
+        return new Vector2() {
+            @Override
+            public double get(int pos) {
+                return Vector2.this.get(pos) / b.get(pos);
+            }
+        };
+    }
+
     @Override
     public Vector2 abs() {
         return new Vector2() {
@@ -103,6 +139,11 @@ public abstract class Vector2 extends Vector {
                 return Math.abs(Vector2.this.get(pos));
             }
         };
+    }
+
+    @Override
+    public Vector2 getNormalized() {
+        return div(getSqrtMagnitude());
     }
 
     @Override

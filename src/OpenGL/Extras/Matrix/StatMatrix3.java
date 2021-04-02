@@ -131,12 +131,11 @@ public class StatMatrix3 extends StatMatrix {
     }
 
     @Override
-    public StatMatrix3 clone() {
+    public StatMatrix3 toStatic() {
         StatMatrix3 ret = new StatMatrix3();
-
         for (int i=0;i<4;i++) {
             for (int j=0;j<4;j++) {
-                ret.set(i,j, get(i,j));
+                ret.set(i, j, get(i, j));
             }
         }
 

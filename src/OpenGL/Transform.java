@@ -7,9 +7,10 @@ import Units.Angle;
 
 public class Transform {
     final public StatVector3 position, scale, rotation;
-    protected Matrix4 translationMatrix, rotationXMatrix, rotationYMatrix, rotationZMatrix, rotationMatrix, scaleMatrix;
+    protected Matrix4 translationMatrix, rotationXMatrix, rotationYMatrix, rotationZMatrix, rotationMatrix, scaleMatrix, matrix;
 
     public Transform () {
+        System.out.println(StatVector3.class);
         this.position = new StatVector3();
         this.scale = new StatVector3(1, 1, 1);
         this.rotation = new StatVector3();
@@ -92,9 +93,10 @@ public class Transform {
         };
 
         this.rotationMatrix = rotationXMatrix.mul(rotationYMatrix).mul(rotationZMatrix);
+        this.matrix = Matrix4.identity.mul(translationMatrix).mul(rotationMatrix).mul(scaleMatrix);
     }
 
-    public void setPosition (float x, float y, float z) {
+    public void setPosition (double x, double y, double z) {
         this.position.set(0, x);
         this.position.set(1, y);
         this.position.set(2, z);
@@ -112,7 +114,7 @@ public class Transform {
         this.rotation.set(2, rot.get(2));
     }
 
-    public void setRotation (float x, float y, float z) {
+    public void setRotation (double x, double y, double z) {
         this.rotation.set(0, x);
         this.rotation.set(1, y);
         this.rotation.set(2, z);
@@ -148,6 +150,24 @@ public class Transform {
         this.scale.set(2, scale);
     }
 
+    public void setScale (float x, float y, float z) {
+        this.scale.set(0, x);
+        this.scale.set(1, y);
+        this.scale.set(2, z);
+    }
+
+    public void setScale (Vector3 scale) {
+        this.scale.set(0, scale.x());
+        this.scale.set(1, scale.y());
+        this.scale.set(2, scale.z());
+    }
+
+    public void setScale (StatVector3 scale) {
+        this.scale.set(0, scale.x());
+        this.scale.set(1, scale.y());
+        this.scale.set(2, scale.z());
+    }
+
     public StatVector3 translateVector (Vector3 trans) {
         float sinY = getRotationY().sinf();
         float cosY = getRotationY().cosf();
@@ -167,8 +187,20 @@ public class Transform {
         this.position.add(translateVector(trans));
     }
 
-    public Matrix4 getMatrix () {
-        return Matrix4.identity.toRelative().mul(translationMatrix).mul(rotationMatrix).mul(scaleMatrix);
+    public void moveTowards (Vector3 position, float step) {
+        this.position.add(translateVector(position.subtr(this.position).getNormalized().mul(step)));
+    }
+
+    public void moveTowards (Vector3 position) {
+        this.position.add(translateVector(position.subtr(this.position).getNormalized()));
+    }
+
+    public void moveTowards (StatVector3 position, float step) {
+        this.position.add(translateVector(position.subtr(this.position).getNormalized().mul(step)));
+    }
+
+    public void moveTowards (StatVector3 position) {
+        this.position.add(translateVector(position.subtr(this.position).getNormalized()));
     }
 
     public static Matrix4 translationMatrixOf (Vector3 position) {

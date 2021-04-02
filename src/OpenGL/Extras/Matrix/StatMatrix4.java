@@ -155,7 +155,7 @@ public class StatMatrix4 extends StatMatrix {
     }
 
     @Override
-    public StatMatrix4 clone() {
+    public StatMatrix4 toStatic () {
         StatMatrix4 ret = new StatMatrix4();
 
         for (int i=0;i<4;i++) {

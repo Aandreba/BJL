@@ -11,6 +11,7 @@ public class Material {
 
     public Material(Texture texture, float reflectance) {
         this.texture = texture;
+        this.color = Color.WHITE;
         this.reflectance = reflectance;
     }
 
@@ -20,7 +21,7 @@ public class Material {
     }
 
     public void setAsUniform (Shader shader) {
-        shader.setUniform("defColor", color != null ? color : Color.BLACK);
+        shader.setUniform("defColor", color);
         shader.setUniform("reflectance", reflectance);
         shader.setUniform("hasTexture", texture != null ? 1 : 0);
     }

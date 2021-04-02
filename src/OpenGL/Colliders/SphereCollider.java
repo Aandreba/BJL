@@ -22,7 +22,13 @@ public class SphereCollider implements Collider {
         return this.position.dist(position) <= radius;
     }
 
+    @Override
     public boolean isCollidingWith (SphereCollider collider) {
         return this.position.dist(collider.position) <= radius + collider.radius;
+    }
+
+    @Override
+    public boolean isCollidingWith (BoxCollider collider) {
+        return collider.isCollidingWith(this);
     }
 }

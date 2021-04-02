@@ -20,7 +20,9 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.Objects;
+import java.util.function.Function;
 
 import static jcuda.jcublas.JCublas2.*;
 import static jcuda.jcublas.cublasOperation.CUBLAS_OP_N;
@@ -31,7 +33,7 @@ import static org.jocl.blast.CLBlast.CLBlastSgemm;
 import static org.jocl.blast.CLBlastLayout.CLBlastLayoutRowMajor;
 import static org.jocl.blast.CLBlastTranspose.CLBlastTransposeNo;
 
-public abstract class Matrix {
+public abstract class Matrix implements Iterable<Vector> {
     protected int rows, cols;
 
     public Matrix (int rows, int cols) {
@@ -120,6 +122,23 @@ public abstract class Matrix {
         }
 
         return ret;
+    }
+
+    @Override
+    public Iterator<Vector> iterator() {
+        return new Iterator<Vector>() {
+            int i = 0;
+
+            @Override
+            public boolean hasNext() {
+                return i+i < cols;
+            }
+
+            @Override
+            public Vector next() {
+                return get(i++);
+            }
+        };
     }
 
     // Sums
@@ -532,6 +551,30 @@ public abstract class Matrix {
             public double get(int row, int col) {
                 double v = Matrix.this.get(row, col);
                 return isMax ? Math.min(v,value) : Math.max(v,value);
+            }
+        };
+    }
+
+    // Applying function
+    public Matrix applying (Function<Double, Double> func) {
+        return new Matrix (rows, cols) {
+            @Override
+            public double get(int row, int col) {
+                return func.apply(Matrix.this.get(row, col));
+            }
+        };
+    }
+
+    public Matrix applyingVectors (Function<Vector, Vector> func) {
+        Vector[] vectors = new Vector[rows];
+        for (int i=0;i<rows;i++) {
+            vectors[i] = func.apply(get(i));
+        }
+
+        return new Matrix (rows, cols) {
+            @Override
+            public double get(int row, int col) {
+                return vectors[row].get(col);
             }
         };
     }

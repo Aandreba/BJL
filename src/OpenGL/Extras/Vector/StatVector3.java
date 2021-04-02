@@ -178,7 +178,17 @@ public class StatVector3 extends StatVector {
     }
 
     public Vector3 getNormalized () {
-        return div(getSqrtMagnitude());
+        double sqrt = getSqrtMagnitude();
+        if (Double.isNaN(sqrt) || sqrt == 0) {
+            return new Vector3 () {
+                @Override
+                public double get(int pos) {
+                    return 0;
+                }
+            };
+        } else {
+            return div(sqrt);
+        }
     }
 
     // New
@@ -212,6 +222,21 @@ public class StatVector3 extends StatVector {
                 }
             }
         };
+    }
+
+    // Round
+    public Vector3 round () {
+        return new Vector3 () {
+            @Override
+            public double get(int pos) {
+                return Math.round(StatVector3.this.get(pos));
+            }
+        };
+    }
+
+    public Vector3 round (int to) {
+        double k = Math.pow(10,to);
+        return this.mul(k).round().div(k);
     }
 
     public Vector3 toRelative () {

@@ -1,6 +1,6 @@
 package OpenGL;
 
-import OpenGL.Extras.Matrix.StatMatrix4;;
+;
 import OpenGL.Input.Input;
 import OpenGL.Light.DirectionalLight;
 import OpenGL.Light.PointLight;
@@ -23,8 +23,9 @@ import static org.lwjgl.system.MemoryUtil.*;
 public abstract class Window extends ArrayList<GameObject> implements Runnable {
     final public long id;
     final public String title;
-    final public Camera mainCamera;
     final public Input input;
+    private Camera mainCamera;
+    private HUD hud;
 
     private int width, height;
     private boolean resized, vSync;
@@ -66,6 +67,11 @@ public abstract class Window extends ArrayList<GameObject> implements Runnable {
             this.width = w;
             this.height = h;
             this.resized = true;
+
+            mainCamera.setWindow(this);
+            if (hud != null) {
+                hud.setWindow(this);
+            }
         });
 
         // Setup a key callback. It will be called every time a key is pressed, repeated or released.
@@ -119,7 +125,12 @@ public abstract class Window extends ArrayList<GameObject> implements Runnable {
         glfwShowWindow(this.id);
 
         GL.createCapabilities();
-        glEnable(GL_CULL_FACE);
+        //glEnable(GL_CULL_FACE);
+        glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LESS);
+
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
 
     public abstract void update (Time deltaTime);
@@ -130,6 +141,10 @@ public abstract class Window extends ArrayList<GameObject> implements Runnable {
 
     public int getHeight() {
         return height;
+    }
+
+    public float getAspectRatio () {
+        return width * 1f / height;
     }
 
     public boolean isResized() {
@@ -157,17 +172,44 @@ public abstract class Window extends ArrayList<GameObject> implements Runnable {
         glClearColor(this.bkgColor.getRed() / 255f,this.bkgColor.getGreen() / 255f,this.bkgColor.getBlue() / 255f,this.bkgColor.getAlpha() / 255f);
     }
 
+    public Camera getMainCamera() {
+        return mainCamera;
+    }
+
+    public void setMainCamera (Camera mainCamera) {
+        this.mainCamera = mainCamera;
+        this.mainCamera.setWindow(this);
+    }
+
+    public HUD getHud () {
+        return hud;
+    }
+
+    public void setHud (HUD hud) {
+        this.hud = hud;
+        this.hud.setWindow(this);
+    }
+
+    public HUD createHUD () throws Exception {
+        HUD hud = new HUD();
+        setHud(hud);
+
+        return hud;
+    }
+
     public boolean windowShouldClose () {
         return glfwWindowShouldClose(this.id);
     }
 
-    public StatMatrix4 getProjectionMatrix () {
-        return this.mainCamera.getProjectionMatrix(this);
-    }
+    public void render (Time delta) {
+        if (isResized()) {
+            glViewport(0, 0, getWidth(), getHeight());
+            setResized(false);
+        }
 
-    public void render () {
         shader.bind();
-        shader.setUniform("project", getProjectionMatrix().toRelative());
+
+        shader.setUniform("project", mainCamera.getProjectionMatrix());
         shader.setUniform("view", mainCamera.view);
         shader.setUniform("textureSampler", 0);
 
@@ -185,7 +227,31 @@ public abstract class Window extends ArrayList<GameObject> implements Runnable {
             }
         }
 
+        Rigidbody.collisions.clear();
+
+        // Setup initial velocities
         for (GameObject object: this) {
+            if (object.rb != null) {
+                if (object.rb.applyGravity) {
+                    object.rb.addAcceleration(Rigidbody.gravity, delta);
+                }
+
+                object.rb.setLastVelocity(object.rb.velocity);
+                object.rb.setLastAngularVelocity(object.rb.angularVelocity);
+            }
+        }
+
+        for (GameObject object: this) {
+            if (object.rb != null) {
+                object.rb.update(this, delta);
+            }
+        }
+
+        for (GameObject object: this) {
+            if (object.rb != null) {
+                object.rb.applyChange(object, delta);
+            }
+
             object.render(this);
         }
 
@@ -213,9 +279,13 @@ public abstract class Window extends ArrayList<GameObject> implements Runnable {
             clear();
             input.update();
             update(deltaTime);
-            render();
-            updateFrame();
+            render(deltaTime);
 
+            if (hud != null) {
+                hud.render();
+            }
+
+            updateFrame();
             lastTime = thisTime;
         }
     }
@@ -233,8 +303,10 @@ public abstract class Window extends ArrayList<GameObject> implements Runnable {
     }
 
     public void cleanup () {
-        if (this.shader != null) {
-            this.shader.cleanup();
+        this.shader.cleanup();
+
+        if (this.hud != null) {
+            this.hud.cleanup();
         }
 
         for (GameObject object: this) {

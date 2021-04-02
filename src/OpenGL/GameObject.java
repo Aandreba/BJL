@@ -1,9 +1,13 @@
 package OpenGL;
 
-import OpenGL.Extras.Vector.StatVector3;
+import OpenGL.Colliders.BoxCollider;
+import OpenGL.Colliders.Collider;
+import OpenGL.Colliders.SphereCollider;
 import OpenGL.Extras.Vector.Vector3;
+import Units.Mass;
 
 import java.awt.*;
+import java.util.ArrayList;
 
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL11.GL_UNSIGNED_INT;
@@ -12,20 +16,23 @@ import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
 
 public class GameObject {
+    final public Transform transform;
+    public ArrayList<String> tags;
     public Mesh mesh;
-    public Transform transform;
     public Material material;
+    public Collider collider;
+    public Rigidbody rb;
 
-    public GameObject(Mesh mesh, Transform transform, Material material) {
+    public GameObject (Mesh mesh, Transform transform, Material material) {
         this.mesh = mesh;
         this.transform = transform;
         this.material = material;
+        this.tags = new ArrayList<>();
     }
 
     public GameObject (Mesh mesh, Material material, Vector3 pos, Vector3 rot, float scale) {
         this(mesh, material);
 
-        this.transform = new Transform();
         if (pos != null) {
             this.transform.setPosition(pos);
         }
@@ -41,18 +48,49 @@ public class GameObject {
         this.mesh = mesh;
         this.transform = new Transform();
         this.material = material;
+        this.tags = new ArrayList<>();
+    }
+
+    public GameObject (Mesh mesh, Color color) {
+        this(mesh, new Material(color, 1f));
+    }
+
+    public GameObject (Mesh mesh, Texture texture) {
+        this(mesh, new Material(texture, 1f));
+    }
+
+    public void createBoxCollider () {
+        this.collider = new BoxCollider(new Vector3() {
+            @Override
+            public double get(int pos) {
+                return transform.position.get(pos);
+            }
+        }, new Vector3() {
+            @Override
+            public double get(int pos) {
+                return transform.scale.get(pos);
+            }
+        });
+    }
+
+    public void createSphereCollider () {
+        this.collider = new SphereCollider(new Vector3() {
+            @Override
+            public double get(int pos) {
+                return transform.position.get(pos);
+            }
+        }, (float) transform.scale.getMean());
+    }
+
+    public void createRigidbody (Mass mass) {
+        this.rb = new Rigidbody(this, mass);
     }
 
     /**
      * Render mesh on screen
      */
     public void render (Window window) {
-        if (window.isResized()) {
-            glViewport(0, 0, window.getWidth(), window.getHeight());
-            window.setResized(false);
-        }
-
-        window.shader.setUniform("transform", this.transform.getMatrix());
+        window.shader.setUniform("transform", this.transform.matrix);
         material.setAsUniform(window.shader);
 
         if (material.texture != null) {
@@ -67,7 +105,7 @@ public class GameObject {
         glEnableVertexAttribArray(2);
 
         // Draw the vertices
-        glDrawElements(GL_TRIANGLES, mesh.getTriangles().length, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, mesh.getTriangleCount() * 3, GL_UNSIGNED_INT, 0);
 
         // Restore state
         glDisableVertexAttribArray(0);

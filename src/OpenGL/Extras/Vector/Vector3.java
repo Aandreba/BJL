@@ -188,6 +188,21 @@ public abstract class Vector3 extends Vector {
         };
     }
 
+    // Round
+    public Vector3 round () {
+        return new Vector3 () {
+            @Override
+            public double get(int pos) {
+                return Math.round(Vector3.this.get(pos));
+            }
+        };
+    }
+
+    public Vector3 round (int to) {
+        double k = Math.pow(10,to);
+        return this.mul(k).round().div(k);
+    }
+
     @Override
     public StatVector3 toStatic() {
         return new StatVector3(get(0), get(1), get(2));

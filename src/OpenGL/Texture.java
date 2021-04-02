@@ -22,7 +22,7 @@ public class Texture {
 
             buffer = stbi_load(file, w, h, c, 4);
             if (buffer == null) {
-                throw new Exception("Image file [" + file  + "] not loaded: " + stbi_failure_reason());
+                throw new Exception("Extras.Image file [" + file  + "] not loaded: " + stbi_failure_reason());
             }
 
             this.width = w.get();
@@ -45,5 +45,15 @@ public class Texture {
 
     public void cleanup () {
         glDeleteTextures(this.id);
+    }
+
+    @Override
+    public String toString() {
+        return "Texture{" +
+                "id=" + id +
+                ", width=" + width +
+                ", height=" + height +
+                ", channels=" + channels +
+                '}';
     }
 }

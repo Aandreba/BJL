@@ -3,6 +3,8 @@ package Matrix;
 import Vector.RelVector;
 import Vector.Vector;
 
+import java.util.Iterator;
+
 public abstract class RelMatrix extends Matrix {
     public RelMatrix (int rows, int cols) {
         super(rows, cols);

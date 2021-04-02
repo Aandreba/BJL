@@ -15,7 +15,7 @@ public abstract class Movement {
     }
 
     public Movement(Window window) {
-        this (window, window.mainCamera);
+        this (window, window.getMainCamera());
     }
 
     public abstract Vector3 movementTranslate(Time delta);

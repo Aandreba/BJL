@@ -1,14 +1,15 @@
 package OpenGL;
 
 import Matrix.RelMatrix;
+import Vector.RelVector;
 import OpenGL.Extras.Vector.StatVector3;
+import OpenGL.Extras.Vector.Vector2;
 import OpenGL.Extras.Vector.Vector3;
 import Vector.Vector;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import java.util.Arrays;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
@@ -99,11 +100,14 @@ public class Mesh {
     public void calculateTexCoords () {
         this.texCoords = new float[this.texCoords.length];
         RelMatrix matrix = vertexMatrix();
+        RelMatrix coords = textureMatrix();
 
         for (int i=0;i<matrix.getRows();i++) {
             Vector vertex = matrix.get(i).getNormalized();
-            this.texCoords[i * 2] = (vertex.getFloat(0) + 1) / 2;
-            this.texCoords[i * 2 + 1] = (vertex.getFloat(1) + 1) / 2;
+            RelVector texture = coords.get(i);
+
+            texture.set(vertex.sum(1).div(-2));
+            texture.set(0, -texture.get(0) + 1);
         }
     }
 
@@ -179,6 +183,10 @@ public class Mesh {
         return vertexCount;
     }
 
+    public int getTriangleCount() {
+        return triangleCount;
+    }
+
     /**
      * Set vertex position
      * @param id Vertex position in matrix
@@ -245,6 +253,26 @@ public class Mesh {
     }
 
     /**
+     * Set texture coord
+     * @param id Vertex position in matrix
+     * @param x X axis position (from 0 to 1)
+     * @param y Y axis position (from 0 to 1)
+     */
+    public void setTexCoord (int id, float x, float y) {
+        this.texCoords[2 * id] = x;
+        this.texCoords[2 * id + 1] = y;
+    }
+
+    public Vector2 getTexCoord (int id) {
+        return new Vector2 () {
+            @Override
+            public double get(int pos) {
+                return texCoords[2 * id + pos];
+            }
+        };
+    }
+
+    /**
      * Draw mesh to be later rendered
      */
     public void draw () {
@@ -274,7 +302,7 @@ public class Mesh {
         this.tVbo = glGenBuffers();
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this.tVbo);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, tBuffer, GL_STATIC_DRAW);
-        //memFree(tBuffer);
+        memFree(tBuffer);
 
         // Others
         glBindBuffer(GL_ARRAY_BUFFER, 0);

@@ -3,7 +3,9 @@ package OpenGL.Shaders;
 import Extras.Files;
 import OpenGL.Extras.Matrix.Matrix4;
 import OpenGL.Extras.Matrix.StatMatrix4;
+import OpenGL.Extras.Vector.StatVector2;
 import OpenGL.Extras.Vector.StatVector3;
+import OpenGL.Extras.Vector.Vector2;
 import OpenGL.Extras.Vector.Vector3;
 import OpenGL.Light.DirectionalLight;
 import OpenGL.Light.PointLight;
@@ -59,7 +61,7 @@ public class Shader {
     }
 
     public void createFragmentShader (String code) throws Exception {
-        this.vertex = createShader(code, GL_FRAGMENT_SHADER);
+        this.fragment = createShader(code, GL_FRAGMENT_SHADER);
     }
 
     public void createFragmentShader (File file) throws Exception {
@@ -100,6 +102,18 @@ public class Shader {
 
     public void setUniform (String uniformName, float value) {
         glUniform1f(uniforms.get(uniformName), value);
+    }
+
+    public void setUniform (String uniformName, Vector2 value) {
+        glUniform2f(uniforms.get(uniformName), value.xf(), value.yf());
+    }
+
+    public void setUniform (String uniformName, StatVector2 value) {
+        glUniform2f(uniforms.get(uniformName), value.xf(), value.yf());
+    }
+
+    public void setUniform (String uniformName, float x, float y) {
+        glUniform2f(uniforms.get(uniformName), x, y);
     }
 
     public void setUniform (String uniformName, Vector3 value) {

@@ -1,11 +1,14 @@
 package OpenGL;
 
-import Matrix.Matrix;
 import OpenGL.Extras.Matrix.Matrix4;
 import OpenGL.Extras.Matrix.StatMatrix4;
 import Units.Angle;
 
+import static org.lwjgl.glfw.GLFW.*;
+
 public class Camera extends Transform {
+    private Window window;
+
     final private StatMatrix4 proj;
     final public Matrix4 view;
 
@@ -34,10 +37,15 @@ public class Camera extends Transform {
     }
 
     public Camera () {
-        this(new Angle(60, Angle.Type.Degrees), 0.01f, 1000);
+        this(new Angle(60, Angle.Type.Degrees), 1000f, 0.01f);
     }
 
-    public Angle getFov() {
+    protected void setWindow (Window window) {
+        this.window = window;
+        this.proj.set(0, 0, proj.get(1, 1) / window.getAspectRatio());
+    }
+
+    public Angle getFov () {
         return fov;
     }
 
@@ -46,20 +54,20 @@ public class Camera extends Transform {
         this.proj.set(1, 1, 1 / (float) Math.tan(fov.getValue() / 2));
     }
 
-    public float getZFar() {
+    public float getZFar () {
         return zFar;
     }
 
-    public void setZFar(float zFar) {
+    public void setZFar (float zFar) {
         this.zFar = zFar;
         zUpdate();
     }
 
-    public float getZNear() {
+    public float getZNear () {
         return zNear;
     }
 
-    public void setZNear(float zNear) {
+    public void setZNear (float zNear) {
         this.zNear = zNear;
         zUpdate();
     }
@@ -72,10 +80,7 @@ public class Camera extends Transform {
         this.proj.set(2, 3, -2 * zFar * zNear / zm);
     }
 
-    public StatMatrix4 getProjectionMatrix (Window window) {
-        StatMatrix4 clone = this.proj.clone();
-        clone.set(0, 0, clone.get(1, 1) / (window.getWidth() * 1f / window.getHeight()));
-
-        return clone;
+    public StatMatrix4 getProjectionMatrix () {
+        return proj.toStatic();
     }
 }

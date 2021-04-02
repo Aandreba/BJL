@@ -34,7 +34,7 @@ public class KeyMouse extends Movement {
     }
 
     public KeyMouse (Window window, float speed) {
-        this(window, window.mainCamera, speed);
+        this(window, window.getMainCamera(), speed);
     }
 
     public KeyMouse (Window window) {
