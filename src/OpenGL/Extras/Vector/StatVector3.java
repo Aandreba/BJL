@@ -130,6 +130,24 @@ public class StatVector3 extends StatVector {
         };
     }
 
+    public Vector3 invDiv (Vector3 b) {
+        return new Vector3 () {
+            @Override
+            public double get(int pos) {
+                return b.get(pos) / StatVector3.this.get(pos);
+            }
+        };
+    }
+
+    public Vector3 invDiv (double b) {
+        return new Vector3 () {
+            @Override
+            public double get(int pos) {
+                return b / StatVector3.this.get(pos);
+            }
+        };
+    }
+
     // StatVector3
     public Vector3 sum (StatVector3 b) {
         return new Vector3 () {
@@ -163,6 +181,25 @@ public class StatVector3 extends StatVector {
             @Override
             public double get(int pos) {
                 return StatVector3.this.get(pos) / b.get(pos);
+            }
+        };
+    }
+
+    public Vector3 invDiv (StatVector3 b) {
+        return new Vector3 () {
+            @Override
+            public double get(int pos) {
+                return b.get(pos) / StatVector3.this.get(pos);
+            }
+        };
+    }
+
+    // Pow
+    public Vector3 pow (double b) {
+        return new Vector3() {
+            @Override
+            public double get(int pos) {
+                return Math.pow(StatVector3.this.get(pos), b);
             }
         };
     }

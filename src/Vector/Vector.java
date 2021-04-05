@@ -229,6 +229,34 @@ public abstract class Vector {
         };
     }
 
+    // Inv div
+    public Vector invDiv (Vector b) {
+        return new Vector (length) {
+            @Override
+            public double get(int pos) {
+                return b.get(pos) / Vector.this.get(pos);
+            }
+        };
+    }
+
+    public Vector invDiv (double b) {
+        return new Vector (length) {
+            @Override
+            public double get(int pos) {
+                return b / Vector.this.get(pos);
+            }
+        };
+    }
+
+    public <T extends Number> Vector invDiv (T b) {
+        return new Vector (length) {
+            @Override
+            public double get(int pos) {
+                return b.doubleValue() / Vector.this.get(pos);
+            }
+        };
+    }
+
     // Pow
     public Vector pow (double b) {
         return new Vector(length) {

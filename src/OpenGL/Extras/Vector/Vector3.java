@@ -104,6 +104,24 @@ public abstract class Vector3 extends Vector {
         };
     }
 
+    public Vector3 invDiv (Vector3 b) {
+        return new Vector3 () {
+            @Override
+            public double get(int pos) {
+                return b.get(pos) / Vector3.this.get(pos);
+            }
+        };
+    }
+
+    public Vector3 invDiv (double b) {
+        return new Vector3 () {
+            @Override
+            public double get(int pos) {
+                return b / Vector3.this.get(pos);
+            }
+        };
+    }
+
     // StatVector3
     public Vector3 sum (StatVector3 b) {
         return new Vector3 () {
@@ -137,6 +155,26 @@ public abstract class Vector3 extends Vector {
             @Override
             public double get(int pos) {
                 return Vector3.this.get(pos) / b.get(pos);
+            }
+        };
+    }
+
+    public Vector3 invDiv (StatVector3 b) {
+        return new Vector3 () {
+            @Override
+            public double get(int pos) {
+                return b.get(pos) / Vector3.this.get(pos);
+            }
+        };
+    }
+
+
+    // Pow
+    public Vector3 pow (double b) {
+        return new Vector3() {
+            @Override
+            public double get(int pos) {
+                return Math.pow(Vector3.this.get(pos), b);
             }
         };
     }

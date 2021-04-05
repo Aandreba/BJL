@@ -1,5 +1,6 @@
 import Extras.Rand;
 import OpenGL.*;
+import OpenGL.Extras.Gravity.Newton;
 import OpenGL.Extras.Move.KeyMouse;
 import OpenGL.Extras.Vector.StatVector3;
 import OpenGL.Input.Buttons.KeyCode;
@@ -42,28 +43,28 @@ public class Main {
                 }
             }
         };
+
         window.directionals[0] = light;
         window.spots[0] = spot;
 
         GameObject terrain = createTerrain();
-        //GameObject box = createBox(Color.WHITE);
         GameObject sphere = createSphere(Color.RED);
-        //GameObject bunny = createBunny(Color.RED);
+        GameObject box = createBox(Color.BLUE);
+        //sphere2.tags.add("two");
 
-        //box.transform.setPosition(0, 5, -2);
-        sphere.transform.setPosition(0, 3, -2);
-        //bunny.transform.setPosition(0, 0, -2);
+        //box.rb.setAngularVelocity(-1, 0, 0);
+        sphere.transform.setPosition(0, 11, -2);
+        sphere.rb.setVelocity(2.5, 0, 0);
+        box.transform.setPosition(0, 17, -2);
+        box.rb.setVelocity(3, 0, 0);
 
-        sphere.rb.setVelocity(0, 0, 1);
-
-        window.getMainCamera().setPosition(0, 5, 5);
+        window.getMainCamera().setPosition(0, 15, 15);
         window.run();
     }
 
     public static GameObject createTerrain () throws Exception {
         GameObject terrain = new GameObject(new Cube(), new Material(new Texture("sample.bmp"), 1f));
-        terrain.transform.scale.addX(10);
-        terrain.transform.scale.addZ(10);
+        terrain.transform.setScale(10f);
         terrain.transform.position.addY(-2);
         terrain.transform.position.addZ(-2);
         //terrain.transform.scale.addZ(100f);
@@ -84,7 +85,7 @@ public class Main {
         sphere.transform.position.addZ(-2);
 
         sphere.createBoxCollider();
-        sphere.createRigidbody(new Mass(Rand.getDouble(2, 70)));
+        sphere.createRigidbody(new Mass(2));
         sphere.rb.drag = 0.47f;
 
         window.add(sphere);
@@ -98,7 +99,7 @@ public class Main {
         sphere.transform.position.addZ(-2);
 
         sphere.createSphereCollider();
-        sphere.createRigidbody(new Mass(Rand.getDouble(2, 70)));
+        sphere.createRigidbody(new Mass(2));
         sphere.rb.drag = 0.47f;
 
         window.add(sphere);

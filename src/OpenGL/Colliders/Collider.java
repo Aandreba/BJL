@@ -19,4 +19,16 @@ public interface Collider {
 
         return false;
     }
+
+    StatVector3 pointOfCollisionWith (SphereCollider collider);
+    StatVector3 pointOfCollisionWith (BoxCollider collider);
+    default StatVector3 pointOfCollisionWith (Collider collider) {
+        if (collider instanceof SphereCollider) {
+            return pointOfCollisionWith((SphereCollider) collider);
+        } else if (collider instanceof BoxCollider) {
+            return pointOfCollisionWith((BoxCollider) collider);
+        }
+
+        return null;
+    }
 }

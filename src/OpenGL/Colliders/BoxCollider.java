@@ -56,12 +56,7 @@ public class BoxCollider implements Collider {
 
     @Override
     public boolean isCollidingWith (SphereCollider collider) {
-        Vector3 closest = new Vector3() {
-            @Override
-            public double get(int pos) {
-                return Math.max(position.get(pos) - scale.get(pos), Math.min(position.get(pos) + scale.get(pos), collider.position.get(pos)));
-            }
-        };
+        StatVector3 closest = pointOfCollisionWith(collider);
 
         double dist = closest.subtr(collider.position).getSqrtMagnitude();
         return dist < collider.radius;
@@ -71,5 +66,26 @@ public class BoxCollider implements Collider {
         Vector3 dist = this.position.subtr(collider.position).abs();
         Vector3 size = this.scale.sum(collider.scale);
         return dist.x() <= size.x() && dist.y() <= size.y() && dist.z() <= size.z();
+    }
+
+    @Override
+    public StatVector3 pointOfCollisionWith (BoxCollider collider) {
+        if (scale.getMean() > collider.scale.getMean()) {
+            Vector3 dir = position.subtr(collider.position).getNormalized().round();
+            return dir.mul(scale).toStatic();
+        }
+
+        Vector3 dir = collider.position.subtr(position).getNormalized().round();
+        return dir.mul(collider.scale).toStatic();
+    }
+
+    @Override
+    public StatVector3 pointOfCollisionWith (SphereCollider collider) {
+        return new Vector3() {
+            @Override
+            public double get(int pos) {
+                return Math.max(position.get(pos) - scale.get(pos), Math.min(position.get(pos) + scale.get(pos), collider.position.get(pos)));
+            }
+        }.toStatic();
     }
 }

@@ -1,40 +1,16 @@
 package OpenGL;
 
-import Extras.Sys;
+import OpenGL.Colliders.Collision;
+import OpenGL.Extras.Gravity.Gravity;
+import OpenGL.Extras.Gravity.Normal;
+import OpenGL.Extras.Vector.StatVector2;
 import OpenGL.Extras.Vector.StatVector3;
+import OpenGL.Extras.Vector.Vector2;
 import OpenGL.Extras.Vector.Vector3;
-import Units.*;
-import Vector.StatVector;
-import Vector.Vector;
-
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import Units.*;
 
 public class Rigidbody {
-    class Collision {
-        GameObject a;
-        GameObject b;
-
-        public Collision(GameObject a, GameObject b) {
-            this.a = a;
-            this.b = b;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Collision collision = (Collision) o;
-            return (a.equals(collision.a) || a.equals(collision.b)) &&
-                    (b.equals(collision.b) || b.equals(collision.a));
-        }
-    }
-
-    final public static float G = 6.674e-11f;
-    final public static double COR = 0.9f;
-    final public static StatVector3 gravity = new StatVector3(0, -9.81, 0);
-
     // Earth
     final public static Temp temperature = new Temp(15, Temp.Type.Celsius);
     final public static Pressure pressure = new Pressure(1, Pressure.Type.Atmosphere);
@@ -52,10 +28,11 @@ public class Rigidbody {
 
     final public StatVector3 velocity; // in m/s
     final public StatVector3 angularVelocity; // in rad/s
+    final public Vector3 linearVelocity; // in m / s
     final public Vector3 momentum;
 
-    final private StatVector3 lastVelocity;
-    final private StatVector3 lastAngularVelocity;
+    final public StatVector3 lastVelocity;
+    final public StatVector3 lastAngularVelocity;
 
     public Rigidbody(GameObject object, Mass mass) {
         this.object = object;
@@ -72,6 +49,8 @@ public class Rigidbody {
 
         this.velocity = StatVector3.zero.toStatic();
         this.angularVelocity = StatVector3.zero.toStatic();
+
+        this.linearVelocity = linearVelocity(angularVelocity, object.transform.rotation, object.transform.scale);
         this.momentum = velocity.mul(mass.getValue());
     }
 
@@ -79,6 +58,14 @@ public class Rigidbody {
         this.isFreezeX = val;
         this.isFreezeY = val;
         this.isFreezeZ = val;
+    }
+
+    public double getMomentOfInertia () {
+        return mass.getValue() * object.transform.scale.getMagnitude();
+    }
+
+    public Vector3 getAngularMomentum () {
+        return angularVelocity.mul(getMomentOfInertia());
     }
 
     // Lineal
@@ -94,6 +81,14 @@ public class Rigidbody {
 
     public void setVelocity (StatVector3 v) {
         setVelocity(v.x(), v.y(), v.z());
+    }
+
+    public void addImpulse (Vector3 ns, Time delta) {
+        this.addForce(ns.div(delta.getValue()), delta);
+    }
+
+    public void addImpulse (StatVector3 ns, Time delta) {
+        this.addForce(ns.div(delta.getValue()), delta);
     }
 
     public void addForce (Vector3 newton, Time delta) {
@@ -166,9 +161,9 @@ public class Rigidbody {
     }
 
     public void setLastAngularVelocity (StatVector3 velocity) {
-        this.angularVelocity.set(0, velocity.x());
-        this.angularVelocity.set(1, velocity.y());
-        this.angularVelocity.set(2, velocity.z());
+        this.lastAngularVelocity.set(0, velocity.x());
+        this.lastAngularVelocity.set(1, velocity.y());
+        this.lastAngularVelocity.set(2, velocity.z());
     }
 
     public void applyChange(GameObject object, Time delta) {
@@ -198,11 +193,6 @@ public class Rigidbody {
 
     public void update (Window window, Time delta) {
         if (isKinematic) {
-            Vector3 dir1 = lastVelocity.getNormalized();
-            double m1 = mass.getValue();
-            double v1i = getLastSpeed();
-            double p1i = m1 * v1i;
-
             for (GameObject windowObj : window) {
                 if (windowObj.collider == null || windowObj.rb == null || windowObj.equals(object)) {
                     continue;
@@ -213,36 +203,16 @@ public class Rigidbody {
                     continue;
                 }
 
-                if (windowObj.collider.isCollidingWith(object.collider)) {
-                    Rigidbody windowRb = windowObj.rb;
-                    Vector3 dir2 = windowRb.lastVelocity.getNormalized();
-
-                    double m2 = windowRb.mass.getValue();
-                    double v2i = windowRb.getLastSpeed(); // Initial velocity #2
-                    double p2i = m2 * v2i; // Initial momentum #2
-                    double m1m2 = m1 + m2;
-
-                    double angleCos = (p1i * dir1.x() + p2i * dir2.x()) / (p1i + p2i);
-                    double angleSin = Math.sin(Math.acos(angleCos));
-
-                    double angleZCos = (p1i * dir1.z() + p2i * dir2.z()) / (p1i + p2i);
-
-                    double v1f = (COR * m2 * (v2i - v1i) + p1i + p2i)
-
-                    System.out.println(angleCos * v1f+", "+angleSin * v1f+", "+angleZCos * v1f);
-                    System.out.println(angleCos * v2f+", "+angleSin * v2f+", "+angleZCos * v2f);
-                    System.out.println();
-
-                    this.setVelocity(angleCos * v1f, angleSin * v1f, angleZCos * v1f);
-                    windowRb.setVelocity(angleCos * v2f, angleSin * v2f, angleZCos * v2f);
+                if (collision.areColliding) {
+                    collision.calculateCollision();
                 }
 
                 collisions.add(collision);
             }
         }
 
-        this.addForce(velocity.getNormalized().mul(-dragForce()), delta);
-        this.addAngularForce(angularVelocity.getNormalized().mul(-angularDragForce()), delta);
+        this.addAcceleration(velocity.getNormalized().mul(-drag), delta);
+        this.addAngularAcceleration(angularVelocity.getNormalized().mul(-drag), delta);
 
         if (isFreezeX) {
             this.velocity.set(0, 0);
@@ -259,5 +229,62 @@ public class Rigidbody {
 
     public static double airDensity (Pressure pressure, Temp temperature) {
         return pressure.getValue(Pressure.Type.Pascal) / (287.058 * temperature.getValue(Temp.Type.Kelvin));
+    }
+
+    public static Vector3 linearVelocity (StatVector3 av, StatVector3 rotation, StatVector3 scale) {
+        // Rotation on X axis (Z & Y position axis)
+        Vector2 rotXDir = new Vector2() {
+            @Override
+            public double get(int pos) {
+                if (pos == 0) {
+                    return -Math.sin(rotation.x());
+                }
+
+                return Math.cos(rotation.x());
+            }
+        };
+
+        Vector2 rotX = rotXDir.mul(av.x() * scale.z());
+
+        // Rotation on Y axis (X & Z position axis)
+        Vector2 rotYDir = new Vector2() {
+            @Override
+            public double get(int pos) {
+                if (pos == 0) {
+                    return Math.sin(rotation.y());
+                }
+
+                return Math.cos(rotation.y());
+            }
+        };
+
+        Vector2 rotY = rotYDir.mul(av.y() * scale.x());
+
+        // Rotation on Z axis (Y & X position axis)
+        Vector2 rotZDir = new Vector2() {
+            @Override
+            public double get(int pos) {
+                if (pos == 0) {
+                    return Math.sin(rotation.z());
+                }
+
+                return Math.cos(rotation.z());
+            }
+        };
+
+        Vector2 rotZ = rotZDir.mul(av.z() * scale.y());
+
+        return new Vector3() {
+            @Override
+            public double get(int pos) {
+                if (pos == 0) {
+                    return rotY.x() + rotZ.y();
+                } else if (pos == 1) {
+                    return rotX.y() + rotZ.x();
+                }
+
+                return rotX.x() + rotY.y();
+            }
+        };
     }
 }

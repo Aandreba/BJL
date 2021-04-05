@@ -10,7 +10,6 @@ public class Transform {
     protected Matrix4 translationMatrix, rotationXMatrix, rotationYMatrix, rotationZMatrix, rotationMatrix, scaleMatrix, matrix;
 
     public Transform () {
-        System.out.println(StatVector3.class);
         this.position = new StatVector3();
         this.scale = new StatVector3(1, 1, 1);
         this.rotation = new StatVector3();

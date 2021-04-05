@@ -1,6 +1,8 @@
 package OpenGL;
 
 ;
+import OpenGL.Extras.Gravity.Gravity;
+import OpenGL.Extras.Gravity.Normal;
 import OpenGL.Input.Input;
 import OpenGL.Light.DirectionalLight;
 import OpenGL.Light.PointLight;
@@ -31,6 +33,7 @@ public abstract class Window extends ArrayList<GameObject> implements Runnable {
     private boolean resized, vSync;
     private Color bkgColor;
     public Shader shader;
+    public Gravity gravityType = new Normal();
 
     public PointLight[] points = new PointLight[5];
     public DirectionalLight[] directionals = new DirectionalLight[5];
@@ -92,6 +95,23 @@ public abstract class Window extends ArrayList<GameObject> implements Runnable {
         if (!glfwInit()) {
             throw new IllegalStateException("Unable to initialize GLFW");
         }
+    }
+
+    @Override
+    public boolean add (GameObject gameObject) {
+        gameObject.window = this;
+        return super.add(gameObject);
+    }
+
+    @Override
+    public boolean remove(Object o) {
+        if (o instanceof GameObject && super.remove(o)) {
+            GameObject object = (GameObject) o;
+            object.window = null;
+            return true;
+        }
+
+        return false;
     }
 
     public void pushFrame () {
@@ -233,7 +253,7 @@ public abstract class Window extends ArrayList<GameObject> implements Runnable {
         for (GameObject object: this) {
             if (object.rb != null) {
                 if (object.rb.applyGravity) {
-                    object.rb.addAcceleration(Rigidbody.gravity, delta);
+                    object.rb.addAcceleration(gravityType.gravityAccFor(object), delta);
                 }
 
                 object.rb.setLastVelocity(object.rb.velocity);
@@ -252,7 +272,7 @@ public abstract class Window extends ArrayList<GameObject> implements Runnable {
                 object.rb.applyChange(object, delta);
             }
 
-            object.render(this);
+            object.render();
         }
 
         shader.unbind();

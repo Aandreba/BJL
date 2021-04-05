@@ -22,6 +22,7 @@ public class GameObject {
     public Material material;
     public Collider collider;
     public Rigidbody rb;
+    protected Window window;
 
     public GameObject (Mesh mesh, Transform transform, Material material) {
         this.mesh = mesh;
@@ -89,7 +90,7 @@ public class GameObject {
     /**
      * Render mesh on screen
      */
-    public void render (Window window) {
+    public void render () {
         window.shader.setUniform("transform", this.transform.matrix);
         material.setAsUniform(window.shader);
 

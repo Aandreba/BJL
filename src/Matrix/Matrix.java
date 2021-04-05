@@ -403,6 +403,11 @@ public abstract class Matrix implements Iterable<Vector> {
         };
     }
 
+    // Div
+    public Matrix div (Matrix b) {
+        return mul(b.inverted());
+    }
+
     // Scalar div
     public Matrix scalarDiv (Matrix b) {
         return new Matrix(rows, cols) {
@@ -469,7 +474,16 @@ public abstract class Matrix implements Iterable<Vector> {
     }
 
     // Pow
-    public Matrix pow (double b) {
+    public Matrix pow (int b) {
+        Matrix r = this;
+        for (int i=1;i<b;i++) {
+            r = r.mul(r);
+        }
+
+        return r;
+    }
+
+    public Matrix scalarPow(double b) {
         return new Matrix(rows, cols) {
             @Override
             public double get(int row, int col) {
@@ -531,7 +545,7 @@ public abstract class Matrix implements Iterable<Vector> {
     public Matrix round (int to) {
         double k = Math.pow(10,to);
 
-        return this.scalarMul(k).round().scalarMul(k);
+        return scalarMul(k).round().scalarDiv(k);
     }
 
     // Clamp

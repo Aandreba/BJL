@@ -131,6 +131,16 @@ public abstract class Vector2 extends Vector {
         };
     }
 
+    // Pow
+    public Vector2 pow (double b) {
+        return new Vector2 () {
+            @Override
+            public double get(int pos) {
+                return Math.pow(Vector2.this.get(pos), b);
+            }
+        };
+    }
+
     @Override
     public Vector2 abs() {
         return new Vector2() {
