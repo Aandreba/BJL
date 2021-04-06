@@ -50,6 +50,24 @@ public class Time implements Comparable<Time> {
         return new Time(this.time - time.time);
     }
 
+    // Mul
+    public Time mul (double sec) {
+        return new Time(this.time * sec);
+    }
+
+    public Time mul (Time time) {
+        return new Time(this.time * time.time);
+    }
+
+    // Div
+    public Time div (double sec) {
+        return new Time(this.time / sec);
+    }
+
+    public Time div (Time time) {
+        return new Time(this.time / time.time);
+    }
+
     // Get value
     public double getValue (Type type) {
         return time / type.w;

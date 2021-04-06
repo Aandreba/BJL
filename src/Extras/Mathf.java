@@ -1,5 +1,9 @@
 package Extras;
 
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
+import java.util.Arrays;
+
 public class Mathf {
     final public static float PI = (float) Math.PI;
 
@@ -38,6 +42,64 @@ public class Mathf {
         }
     }
 
+    public static short toUnsigned (byte value) {
+        return (short) (value + 128);
+    }
+
+    public static int toUnsigned (short value) {
+        return value + 32768;
+    }
+
+    public static long toUnsigned (int value) {
+        return value + 2147483648L;
+    }
+
+    public static boolean getBit (int pos, byte b) {
+        return ((b >> pos) & 1) == 1;
+    }
+
+    public static int getUnsignedInteger (int from, int to, ByteBuffer bb) {
+        int value = 0;
+
+        for (int i=from;i<to;i++) {
+            int bytePos = i / 8;
+            int bitPos = i % 8;
+
+            byte b = bb.get(bytePos);
+            if (getBit(7 - bitPos, b)) {
+                value += Math.pow(2, to - i - 1);
+            }
+        }
+
+        return value;
+    }
+
+    public static float getUnsignedFraction (int from, int to, ByteBuffer bb) {
+        float value = 1;
+
+        for (int i=from;i<to;i++) {
+            int bytePos = i / 8;
+            int bitPos = i % 8;
+
+            byte b = bb.get(bytePos);
+            if (getBit(7 - bitPos, b)) {
+                value += Math.pow(2, from - i - 1);
+            }
+        }
+
+        return value;
+    }
+
+    public static float[] compossition (float value) {
+        ByteBuffer bb = ByteBuffer.allocate(16).putFloat(value);
+
+        boolean isNegative = getBit(0, bb.get(0));
+        int exponent = getUnsignedInteger(1, 9, bb);
+        float significand = getUnsignedFraction(9, 31, bb);
+
+        return new float[] { isNegative ? 1 : 0, exponent - 127, significand };
+    }
+
     public static double clamp (double value, double min, double max) {
         return value < min ? min : (value > max ? max : value);
     }
@@ -50,5 +112,38 @@ public class Mathf {
     public static float roundTo (float val, int decimals) {
         float pow = (float)Math.pow(10,decimals);
         return Math.round(val * pow) / pow;
+    }
+
+    public static long factorial (long value) {
+        long v = 1;
+        for (long i=2;i<=value;i++) {
+            v *= i;
+        }
+
+        return v;
+    }
+
+    public static int factorial (int value) {
+        int v = 1;
+        for (int i=2;i<=value;i++) {
+            v *= i;
+        }
+
+        return v;
+    }
+
+    public static float factorial (float value, int sums) {
+        float[] parts = compossition(value);
+        float sum = 0;
+
+        for (int k=0;k<sums;i++) {
+            float v = 0;
+        }
+
+        return 0;
+    }
+
+    public static float factorial (int dividend, int divisor) {
+
     }
 }
