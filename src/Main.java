@@ -52,9 +52,9 @@ public class Main {
         GameObject box = createBox(Color.BLUE);
         //sphere2.tags.add("two");
 
-        //box.rb.setAngularVelocity(-1, 0, 0);
+        //terrain.rb.setAngularVelocity(0, 0, 1);
         sphere.transform.setPosition(0, 11, -2);
-        sphere.rb.setVelocity(2.5, 0, 0);
+        sphere.rb.setVelocity(2.5, 0, 1);
         box.transform.setPosition(0, 17, -2);
         box.rb.setVelocity(3, 0, 0);
 

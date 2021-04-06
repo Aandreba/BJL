@@ -204,15 +204,17 @@ public class Rigidbody {
                 }
 
                 if (collision.areColliding) {
+                    System.out.println(collision.a.tags+", "+collision.b.tags);
                     collision.calculateCollision();
+                    System.exit(1);
                 }
 
                 collisions.add(collision);
             }
         }
 
-        this.addAcceleration(velocity.getNormalized().mul(-drag), delta);
-        this.addAngularAcceleration(angularVelocity.getNormalized().mul(-drag), delta);
+        this.addAcceleration(velocity.getNormalized().pow(2).mul(-drag), delta);
+        this.addAngularAcceleration(angularVelocity.getNormalized().pow(2).mul(-angularDrag), delta);
 
         if (isFreezeX) {
             this.velocity.set(0, 0);

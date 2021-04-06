@@ -131,7 +131,7 @@ public class Collision {
         };
     }
 
-    private Matrix calculate2D () {
+    private Matrix calculate2D (int xPos, int yPos) {
         StatVector3 p0 = pi; // P1 initial if P2 static
         StatVector3 n0 = p0.getNormalized().toStatic();
 
@@ -145,17 +145,17 @@ public class Collision {
 
         StatVector3 direction = new StatVector3(n0.x(), -n0.y(), n0.z());
 
-        double phi = Math.acos(n0.x());
-        double beta = Math.acos(direction.x());
+        double phi = Math.acos(n0.get(xPos));
+        double beta = Math.acos(direction.get(xPos));
         double alpha = Math.PI - phi - beta;
 
         double cosA = Math.cos(alpha);
         double tanA = Math.tan(alpha);
-        double cosB = direction.x();
-        double sinB = direction.y();
+        double cosB = direction.get(xPos);
+        double sinB = direction.get(yPos);
 
-        double v2f = (p0.x() - p0.y() * tanA) / (m2 * (sinB * tanA + cosB));
-        double v1f = (p0.x() - m2 * v2f * cosB) / (m1 * cosA);
+        double v2f = (p0.get(xPos) - p0.get(yPos) * tanA) / (m2 * (sinB * tanA + cosB));
+        double v1f = (p0.get(xPos) - m2 * v2f * cosB) / (m1 * cosA);
 
         Vector3 v1 = new StatVector3(cosA, Math.sin(alpha), 0).mul(v1f);
         Vector3 v2 = new StatVector3(cosB, sinB, 0).mul(v2f);
@@ -172,9 +172,64 @@ public class Collision {
         };
     }
 
+    private Matrix calculate2DPoint (int xPos, int yPos, StatVector3 p0, StatVector3 n0) {
+        StatVector3 direction = new StatVector3(n0.x(), -n0.y(), n0.z());
+
+        double phi = Math.acos(n0.get(xPos));
+        double beta = Math.acos(direction.get(xPos));
+        double alpha = Math.PI - phi - beta;
+
+        double cosA = Math.cos(alpha);
+        double tanA = Math.tan(alpha);
+        double cosB = direction.get(xPos);
+        double sinB = direction.get(yPos);
+
+        double v2f = (p0.get(xPos) - p0.get(yPos) * tanA) / (m2 * (sinB * tanA + cosB));
+        double v1f = (p0.get(xPos) - m2 * v2f * cosB) / (m1 * cosA);
+
+        Vector3 v1 = new StatVector3(cosA, Math.sin(alpha), 0).mul(v1f);
+        Vector3 v2 = new StatVector3(cosB, sinB, 0).mul(v2f);
+
+        return new Matrix (2, 3) {
+            @Override
+            public double get(int row, int col) {
+                int pos = col == xPos ? 0 : (col == yPos ? 1 : 2);
+                if (row == 0) {
+                    return v1.get(pos);
+                }
+
+                return v2.get(pos);
+            }
+        };
+    }
+
     public void calculateCollision () {
-        Matrix vel = calculate2D().round(10);
-        System.out.println(vel);
+        Vector3 d1 = x1.subtr(collisionPoint);
+        Vector3 v1i = this.v1i.sum(av1i.cross(d1));
+        Vector3 p1i = v1i.mul(m1);
+
+        Vector3 d2 = x2.subtr(collisionPoint);
+        Vector3 v2i = this.v2i.sum(av2i.cross(d2));
+        Vector3 p2i = v2i.mul(m2);
+
+        StatVector3 p0 = p1i.sum(p2i).toStatic(); // P1 initial if P2 static
+        StatVector3 n0 = p0.getNormalized().toStatic();
+
+        Matrix vel1 = calculate2DPoint(0, 1, p0, n0);
+        Matrix vel2 = calculate2DPoint(2, 1, p0, n0);
+
+        Matrix vel = new Matrix (3, 2) {
+            @Override
+            public double get(int row, int col) {
+                if (col == 0) {
+                    return vel1.get(row, 0);
+                } else if (col == 1) {
+                    return vel1.get(row, 1);
+                }
+
+                return vel2.get(row, 2);
+            }
+        };
 
         rb1.setVelocity(vel.get(0).get(0), vel.get(0).get(1), vel.get(0).get(2));
         rb2.setVelocity(vel.get(1).get(0), vel.get(1).get(1), vel.get(1).get(2));

@@ -3,6 +3,7 @@ package Vector;
 import Matrix.Matrix;
 import Extras.Rand;
 import OpenGL.Extras.Vector.Vector3;
+import Units.Angle;
 
 import java.nio.ByteBuffer;
 
@@ -464,6 +465,10 @@ public abstract class Vector {
         }
 
         return true;
+    }
+
+    public Angle angleWith (Vector b) {
+        return new Angle(Math.acos(dot(b) / (getSqrtMagnitude() * b.getSqrtMagnitude())));
     }
 
     // String
