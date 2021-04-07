@@ -1,12 +1,10 @@
 package OpenGL.Extras.Move;
 
-import Extras.Mathf;
+import Extras.Mathx;
 import OpenGL.Extras.Vector.StatVector2;
 import OpenGL.Extras.Vector.StatVector3;
-import OpenGL.Extras.Vector.Vector2;
 import OpenGL.Extras.Vector.Vector3;
 import OpenGL.Input.Buttons.GamepadButton;
-import OpenGL.Input.Buttons.KeyCode;
 import OpenGL.Input.Gamepad.GamepadAxes;
 import OpenGL.Input.Joystick;
 import OpenGL.Transform;
@@ -54,7 +52,7 @@ public class Controller extends Movement {
     @Override
     public void rotate (Time delta) {
         StatVector2 rot = window.input.getJoystick(joystick, rotate);
-        StatVector3 target = new StatVector3(-Mathf.roundTo(rot.get(1), accuracy), -Mathf.roundTo(rot.get(0), accuracy), 0);
+        StatVector3 target = new StatVector3(-Mathx.roundTo(rot.get(1), accuracy), -Mathx.roundTo(rot.get(0), accuracy), 0);
         Vector3 dt = target.mul(window.getMainCamera().getFov().getValue()).subtr(transform.rotation.toRelative());
 
         transform.rotation.add(dt.mul(sensitivity));

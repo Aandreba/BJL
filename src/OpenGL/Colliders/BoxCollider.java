@@ -81,11 +81,19 @@ public class BoxCollider implements Collider {
 
     @Override
     public StatVector3 pointOfCollisionWith (SphereCollider collider) {
-        return new Vector3() {
+        Vector3 closest = new Vector3() {
             @Override
             public double get(int pos) {
                 return Math.max(position.get(pos) - scale.get(pos), Math.min(position.get(pos) + scale.get(pos), collider.position.get(pos)));
             }
-        }.toStatic();
+        };
+
+        return closest.toStatic();
+        /*return new Vector3() {
+            @Override
+            public double get(int pos) {
+                return Math.max(position.get(pos) - scale.get(pos), Math.min(position.get(pos) + scale.get(pos), collider.position.get(pos)));
+            }
+        }.toStatic();*/
     }
 }

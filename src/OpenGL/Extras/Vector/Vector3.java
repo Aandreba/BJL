@@ -245,4 +245,13 @@ public abstract class Vector3 extends Vector {
     public StatVector3 toStatic() {
         return new StatVector3(get(0), get(1), get(2));
     }
+
+    public static Vector3 from (Vector vector) {
+        return new Vector3() {
+            @Override
+            public double get(int pos) {
+                return vector.get(pos);
+            }
+        };
+    }
 }

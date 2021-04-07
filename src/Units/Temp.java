@@ -1,9 +1,6 @@
 package Units;
 
-import Extras.Mathf;
-
 import java.text.NumberFormat;
-import java.util.function.Function;
 
 public class Temp {
     public enum Type {

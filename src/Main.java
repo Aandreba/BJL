@@ -48,30 +48,31 @@ public class Main {
         window.spots[0] = spot;
 
         GameObject terrain = createTerrain();
-        GameObject sphere = createSphere(Color.RED);
+        //GameObject sphere = createSphere(Color.RED);
         GameObject box = createBox(Color.BLUE);
         //sphere2.tags.add("two");
 
-        //terrain.rb.setAngularVelocity(0, 0, 1);
-        sphere.transform.setPosition(0, 11, -2);
-        sphere.rb.setVelocity(2.5, 0, 1);
-        box.transform.setPosition(0, 17, -2);
-        box.rb.setVelocity(3, 0, 0);
+        terrain.rb.setAngularVelocity(0, 1, 0);
+        //sphere.transform.setPosition(0, 11, -2);
+        //sphere.rb.setVelocity(2.5, 0, 1);
+        box.transform.setPosition(0, 15, -2);
+        box.rb.setVelocity(0.1, 0, 0); // TODO
 
         window.getMainCamera().setPosition(0, 15, 15);
         window.run();
     }
 
     public static GameObject createTerrain () throws Exception {
-        GameObject terrain = new GameObject(new Cube(), new Material(new Texture("sample.bmp"), 1f));
+        GameObject terrain = new GameObject(new Sphere(), new Material(new Texture("sample.bmp"), 1f));
         terrain.transform.setScale(10f);
         terrain.transform.position.addY(-2);
         terrain.transform.position.addZ(-2);
         //terrain.transform.scale.addZ(100f);
-        terrain.createBoxCollider();
+        terrain.createSphereCollider();
 
         terrain.createRigidbody(new Mass(1, Mass.Astronomical.EarthMasses));
         //terrain.rb.setFreeze(true);
+        terrain.rb.angularDrag = 0;
         terrain.rb.applyGravity = false;
 
         window.add(terrain);

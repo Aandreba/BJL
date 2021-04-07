@@ -34,7 +34,7 @@ import static org.jocl.blast.CLBlastLayout.CLBlastLayoutRowMajor;
 import static org.jocl.blast.CLBlastTranspose.CLBlastTransposeNo;
 
 public abstract class Matrix implements Iterable<Vector> {
-    protected int rows, cols;
+    final public int rows, cols;
 
     public Matrix (int rows, int cols) {
         this.rows = rows;

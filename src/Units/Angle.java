@@ -1,6 +1,6 @@
 package Units;
 
-import Extras.Mathf;
+import Extras.Mathx;
 import java.text.NumberFormat;
 
 public class Angle {
@@ -60,7 +60,7 @@ public class Angle {
     }
 
     public float sinf () {
-        return Mathf.sin(value);
+        return Mathx.sin(value);
     }
 
     public double cos () {
@@ -68,7 +68,7 @@ public class Angle {
     }
 
     public float cosf () {
-        return Mathf.cos(value);
+        return Mathx.cos(value);
     }
 
     public double tan () {
@@ -76,7 +76,7 @@ public class Angle {
     }
 
     public float tanf () {
-        return Mathf.tan(value);
+        return Mathx.tan(value);
     }
 
     // Get value

@@ -1,24 +1,24 @@
 package OpenGL.Primitives;
 
-import Extras.Mathf;
+import Extras.Mathx;
 import OpenGL.Mesh;
 
 public class Sphere extends Mesh {
     public Sphere(int rows, int cols) {
         super ((rows + 1) * cols, (rows + 1) * cols * 2);
 
-        float angleStep = Mathf.PI / rows;
-        float colStep = 2 * Mathf.PI / cols; // in radians
+        float angleStep = Mathx.PI / rows;
+        float colStep = 2 * Mathx.PI / cols; // in radians
 
         for (int i=0;i<=rows;i++) {
             float angle = i * angleStep;
-            float y = Mathf.cos(angle);
-            float xz = Mathf.sin(angle);
+            float y = Mathx.cos(angle);
+            float xz = Mathx.sin(angle);
 
             for (int j=0;j<cols;j++) {
                 float colAngle = colStep * j;
-                float z = xz * Mathf.sin(colAngle);
-                float x = xz * Mathf.cos(colAngle);
+                float z = xz * Mathx.sin(colAngle);
+                float x = xz * Mathx.cos(colAngle);
 
                 int self = (i * cols) + j;
                 this.setVertex(self, x, y, z);

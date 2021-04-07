@@ -136,12 +136,20 @@ public class Rigidbody {
         setAngularVelocity(v.x(), v.y(), v.z());
     }
 
-    public void addAngularForce (Vector3 newton, Time delta) {
-        this.addAngularAcceleration(newton.div(mass.getValue()), delta);
+    public void addAngularImpulse (Vector3 ns, Time delta) {
+        this.addAngularForce(ns.div(delta.getValue()), delta);
     }
 
-    public void addAngularForce (StatVector3 newton, Time delta) {
-        this.addAngularAcceleration(newton.div(mass.getValue()), delta);
+    public void addAngularImpulse (StatVector3 ns, Time delta) {
+        this.addAngularForce(ns.div(delta.getValue()), delta);
+    }
+
+    public void addAngularForce (Vector3 newtons, Time delta) {
+        this.addAngularAcceleration(newtons.div(getMomentOfInertia()), delta);
+    }
+
+    public void addAngularForce (StatVector3 newtons, Time delta) {
+        this.addAngularAcceleration(newtons.div(getMomentOfInertia()), delta);
     }
 
     public void addAngularAcceleration (Vector3 radss, Time delta) {
@@ -205,8 +213,10 @@ public class Rigidbody {
 
                 if (collision.areColliding) {
                     System.out.println(collision.a.tags+", "+collision.b.tags);
-                    collision.calculateCollision();
-                    System.exit(1);
+                    System.out.println(collision.collisionPoint);
+                    collision.calculateCollision(delta);
+                    System.out.println();
+                    //System.exit(1);
                 }
 
                 collisions.add(collision);

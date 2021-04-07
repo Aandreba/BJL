@@ -8,7 +8,7 @@ import Units.Angle;
 import java.nio.ByteBuffer;
 
 public abstract class Vector {
-    protected int length;
+    final public int length;
 
     public Vector (int length) {
         this.length = length;
@@ -382,6 +382,16 @@ public abstract class Vector {
             public double get(int pos) {
                 double v = Vector.this.get(pos);
                 return Math.max(min, Math.min(v, max));
+            }
+        };
+    }
+
+    public Vector clamp (Vector min, Vector max) {
+        return new Vector(length) {
+            @Override
+            public double get(int pos) {
+                double v = Vector.this.get(pos);
+                return Math.max(min.get(pos), Math.min(v, max.get(pos)));
             }
         };
     }
