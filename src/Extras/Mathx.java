@@ -7,12 +7,15 @@ import java.util.function.Function;
 
 public class Mathx {
     final public static int standardAccuracy = 1000000;
+    final public static float PI = (float) Math.PI;
 
     public interface SimpleFunction {
         double apply (double value);
     }
 
-    final public static float PI = (float) Math.PI;
+    public interface SummationFunction {
+        double apply (int position);
+    }
 
     public static float sin (float x) {
         return (float) Math.sin(x);
@@ -67,9 +70,7 @@ public class Mathx {
             js[i] = a + h * i;
         }
 
-        double sum = summation(1, n / 3d, 1, k -> {
-            int j = (int) k;
-
+        double sum = summation(1, n / 3, j -> {
             double x = function.apply(js[3 * j - 3]);
             double y = 3 * function.apply(js[3 * j - 2]);
             double z = 3 * function.apply(js[3 * j - 1]);
@@ -81,9 +82,9 @@ public class Mathx {
         return sum * 3 * h / 8;
     }
 
-    public static double summation (double from, double to, double stepSize, SimpleFunction function) {
+    public static double summation (int from, int to, SummationFunction function) {
         double v = 0;
-        for (double n=from;n<=to;n+=stepSize) {
+        for (int n=from;n<=to;n++) {
             v += function.apply(n);
         }
 

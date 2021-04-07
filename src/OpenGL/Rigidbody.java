@@ -8,6 +8,8 @@ import OpenGL.Extras.Vector.StatVector3;
 import OpenGL.Extras.Vector.Vector2;
 import OpenGL.Extras.Vector.Vector3;
 import java.util.ArrayList;
+import java.util.Vector;
+
 import Units.*;
 
 public class Rigidbody {
@@ -33,6 +35,8 @@ public class Rigidbody {
 
     final public StatVector3 lastVelocity;
     final public StatVector3 lastAngularVelocity;
+    final public StatVector3 acceleration;
+    final public StatVector3 angularAcceleration;
 
     public Rigidbody(GameObject object, Mass mass) {
         this.object = object;
@@ -46,6 +50,8 @@ public class Rigidbody {
 
         this.lastVelocity = StatVector3.zero.toStatic();
         this.lastAngularVelocity = StatVector3.zero.toStatic();
+        this.acceleration = StatVector3.zero.toStatic();
+        this.angularAcceleration = StatVector3.zero.toStatic();
 
         this.velocity = StatVector3.zero.toStatic();
         this.angularVelocity = StatVector3.zero.toStatic();
@@ -115,7 +121,12 @@ public class Rigidbody {
         this.setVelocity(this.velocity.sum(ms));
     }
 
-    public void setLastVelocity (StatVector3 velocity) {
+    public void setLastVelocity (Time delta) {
+        Vector3 acc = velocity.subtr(this.lastVelocity).div(delta.getValue());
+        this.acceleration.set(0, acc.x());
+        this.acceleration.set(1, acc.y());
+        this.acceleration.set(2, acc.z());
+
         this.lastVelocity.set(0, velocity.x());
         this.lastVelocity.set(1, velocity.y());
         this.lastVelocity.set(2, velocity.z());
@@ -168,10 +179,15 @@ public class Rigidbody {
         this.setAngularVelocity(this.angularVelocity.sum(rads));
     }
 
-    public void setLastAngularVelocity (StatVector3 velocity) {
-        this.lastAngularVelocity.set(0, velocity.x());
-        this.lastAngularVelocity.set(1, velocity.y());
-        this.lastAngularVelocity.set(2, velocity.z());
+    public void setLastAngularVelocity (Time delta) {
+        Vector3 acc = angularVelocity.subtr(this.lastAngularVelocity).div(delta.getValue());
+        this.angularAcceleration.set(0, acc.x());
+        this.angularAcceleration.set(1, acc.y());
+        this.angularAcceleration.set(2, acc.z());
+
+        this.lastAngularVelocity.set(0, angularVelocity.x());
+        this.lastAngularVelocity.set(1, angularVelocity.y());
+        this.lastAngularVelocity.set(2, angularVelocity.z());
     }
 
     public void applyChange(GameObject object, Time delta) {

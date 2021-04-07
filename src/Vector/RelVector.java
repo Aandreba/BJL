@@ -15,6 +15,14 @@ public abstract class RelVector extends Vector {
         }
     }
 
+    public void set (int start, Vector vector) {
+        int k = Math.min(length - start, vector.getLength());
+
+        for (int i=start;i<k;i++) {
+            set(i, vector.get(i));
+        }
+    }
+
     public void add (Vector b) {
         for (int i=0;i<length;i++) {
             set(i, get(i) + b.get(i));

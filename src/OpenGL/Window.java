@@ -257,8 +257,8 @@ public abstract class Window extends ArrayList<GameObject> implements Runnable {
                     object.rb.addAcceleration(gravityType.gravityAccFor(object), delta);
                 }
 
-                object.rb.setLastVelocity(object.rb.velocity);
-                object.rb.setLastAngularVelocity(object.rb.angularVelocity);
+                object.rb.setLastVelocity(delta);
+                object.rb.setLastAngularVelocity(delta);
             }
         }
 
