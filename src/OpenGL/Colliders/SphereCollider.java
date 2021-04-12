@@ -7,12 +7,12 @@ public class SphereCollider implements Collider {
     public Vector3 position;
     public float radius;
 
-    public SphereCollider(Vector3 position, float radius) {
+    public SphereCollider (Vector3 position, float radius) {
         this.position = position;
         this.radius = radius;
     }
 
-    public SphereCollider(StatVector3 position, float radius) {
+    public SphereCollider (StatVector3 position, float radius) {
         this.position = position.toRelative();
         this.radius = radius;
     }
@@ -34,13 +34,9 @@ public class SphereCollider implements Collider {
 
     @Override
     public StatVector3 pointOfCollisionWith (SphereCollider collider) {
-        if (radius > collider.radius) {
-            Vector3 dir = position.subtr(collider.position).getNormalized();
-            return dir.mul(radius).toStatic();
-        }
+        Vector3 delta = collider.position.subtr(position);
 
-        Vector3 dir = collider.position.subtr(position).getNormalized();
-        return dir.mul(collider.radius).toStatic();
+        return position.sum(delta.getNormalized().mul(radius)).toStatic();
     }
 
     @Override

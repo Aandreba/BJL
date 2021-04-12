@@ -229,7 +229,6 @@ public class Rigidbody {
 
                 if (collision.areColliding) {
                     System.out.println(collision.a.tags+", "+collision.b.tags);
-                    System.out.println(collision.collisionPoint);
                     collision.calculateCollision(delta);
                     System.out.println();
                     //System.exit(1);

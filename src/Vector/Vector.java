@@ -477,10 +477,6 @@ public abstract class Vector {
         return true;
     }
 
-    public Angle angleWith (Vector b) {
-        return new Angle(Math.acos(dot(b) / (getSqrtMagnitude() * b.getSqrtMagnitude())));
-    }
-
     // String
     @Override
     public String toString() {

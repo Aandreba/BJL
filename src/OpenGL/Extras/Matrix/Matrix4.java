@@ -110,7 +110,7 @@ public abstract class Matrix4 extends Matrix {
         return identity;
     }
 
-    // determinnat
+    // Determinnat
     @Override
     public double determinant() {
         double result = 0;

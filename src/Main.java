@@ -41,6 +41,14 @@ public class Main {
                 if (input.isPressed(KeyCode.Right)) {
                     light.angle = light.angle.add(new Angle(-10 * sec, Angle.Type.Degrees));
                 }
+
+                if (input.isPressed(KeyCode.Up)) {
+                    get(0).transform.rotation.addY(sec);
+                }
+
+                if (input.isPressed(KeyCode.Down)) {
+                    get(0).transform.rotation.addY(-sec);
+                }
             }
         };
 
@@ -48,24 +56,26 @@ public class Main {
         window.spots[0] = spot;
 
         GameObject terrain = createTerrain();
-        //GameObject sphere = createSphere(Color.RED);
-        GameObject box = createBox(Color.BLUE);
+        GameObject sphere = createSphere(Color.RED);
+        //GameObject box = createBox(Color.BLUE);
         //sphere2.tags.add("two");
 
-        terrain.rb.setAngularVelocity(0, 1, 0);
-        //sphere.transform.setPosition(0, 11, -2);
-        //sphere.rb.setVelocity(2.5, 0, 1);
-        box.transform.setPosition(0, 15, -2);
-        box.rb.setVelocity(0.1, 0, 0); // TODO
+        terrain.rb.setAngularVelocity(0, 0, 1);
+        sphere.transform.setPosition(0, 12.5, -2);
+        sphere.rb.setVelocity(-1, 0, 0);
+        //sphere.rb.angularDrag = 0;
+        //box.transform.setPosition(0, 15, -2);
+        //box.rb.setVelocity(0, 0, 0);
+        //box.rb.applyGravity = false;
 
         window.getMainCamera().setPosition(0, 15, 15);
         window.run();
     }
 
     public static GameObject createTerrain () throws Exception {
-        GameObject terrain = new GameObject(new Sphere(), new Material(new Texture("sample.bmp"), 1f));
+        GameObject terrain = new GameObject(new Sphere(50, 50), new Material(new Texture("sample.bmp"), 1f));
         terrain.transform.setScale(10f);
-        terrain.transform.position.addY(-2);
+        terrain.transform.position.addY(0);
         terrain.transform.position.addZ(-2);
         //terrain.transform.scale.addZ(100f);
         terrain.createSphereCollider();

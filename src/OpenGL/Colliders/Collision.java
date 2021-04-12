@@ -1,17 +1,19 @@
 package OpenGL.Colliders;
 
 import Matrix.Matrix;
-import Matrix.VectorMatrix;
+import OpenGL.Extras.Vector.StatVector2;
 import OpenGL.Extras.Vector.StatVector3;
+import OpenGL.Extras.Vector.Vector2;
 import OpenGL.Extras.Vector.Vector3;
 import OpenGL.GameObject;
 import OpenGL.Rigidbody;
 import Units.Time;
-import Vector.StatVector;
 import Vector.Vector;
 
+import java.util.Arrays;
+
 public class Collision {
-    final public static double COR = 0.9f;
+    final public static double COR = 1f;
 
     final public GameObject a, b;
     final private Rigidbody rb1, rb2;
@@ -25,6 +27,7 @@ public class Collision {
     final private StatVector3 v1i, v2i; // Initial velocity
     final private StatVector3 av1i, av2i; // Initial angular velocity
     final private StatVector3 p1i, p2i, pi; // Initial momentum
+    final private double ke1i, ke2i, kei; // Initial kinetic energy (2x)
 
     public Collision(GameObject a, GameObject b) {
         this.a = a;
@@ -58,6 +61,10 @@ public class Collision {
             p1i = null;
             p2i = null;
             pi = null;
+
+            ke1i = 0;
+            ke2i = 0;
+            kei = 0;
             return;
         }
 
@@ -87,6 +94,10 @@ public class Collision {
         p1i = v1i.mul(m1).toStatic();
         p2i = v2i.mul(m2).toStatic();
         pi = p1i.sum(p2i).toStatic();
+
+        ke1i = m1 * v1i.getMagnitude();
+        ke2i = m2 * v2i.getMagnitude();
+        kei = ke1i + ke2i;
     }
 
     /**
@@ -117,8 +128,8 @@ public class Collision {
         double p1 = p1i.get(pos);
         double p2 = p2i.get(pos);
 
-        double v1 = (COR * m2 * (u2 - u1) + p1 + p2) / m1m2;
-        double v2 = (COR * m1 * (u1 - u2) + p1 + p2) / m1m2;
+        double v1 = (m2 * (u2 - u1) + p1 + p2) / m1m2;
+        double v2 = (m1 * (u1 - u2) + p1 + p2) / m1m2;
 
         return new Matrix (2, 3) {
             @Override
@@ -175,114 +186,72 @@ public class Collision {
         };
     }
 
-    private Matrix calculate1DPoint (int pos, StatVector3 p0, StatVector3 n0, Vector3 v1i, Vector3 v2i) {
-        double m1m2 = m1 + m2;
+    public void calculate3D (Vector3 p0) {
+        StatVector3 d = x2.subtr(collisionPoint).getNormalized().toStatic(); // Direction #2
+        StatVector3 n = p0.getNormalized().subtr(d).getNormalized().toStatic(); // Direction #1
+        //System.out.println(n+", "+d);
+        //System.exit(1);
 
-        double u1 = v1i.get(pos);
-        double u2 = v2i.get(pos);
-        double pi = p0.get(pos);
+        StatVector3 n2 = n.pow(2).toStatic();
+        StatVector3 d2 = d.pow(2).toStatic();
 
-        double v1 = (m2 * (u2 - u1) + pi) / m1m2;
-        double v2 = (m1 * (u1 - u2) + pi) / m1m2;
+        StatVector3 phi = n2.mul(m1 * COR * kei).subtr(p0).div(m2).toStatic();
+        StatVector3 alpha = n2.mul(m1).sum(d2.mul(m2)).toStatic();
 
-        return new Matrix (2, 3) {
-            @Override
-            public double get(int row, int col) {
-                if (row == 0 && col == pos) {
-                    return v1;
-                } else if (row == 1 && col == pos) {
-                    return v2;
-                }
-
-                return 0;
+        StatVector3 v2 = d.mul(alpha.mul(phi).sum(d2.mul(p0.pow(2))).pow(1/2d)).sum(d2.mul(p0)).div(alpha).toStatic();
+        for (int i=0;i<3;i++) {
+            if (Double.isNaN(v2.get(i))) {
+                v2.set(i, 0);
             }
-        };
-    }
-
-    private Matrix calculate2DPoint (int xPos, int yPos, StatVector3 p0, StatVector3 n0, Vector3 v1i, Vector3 v2i) {
-        StatVector3 direction = new StatVector3(n0.x(), -n0.y(), n0.z());
-        double sum = n0.abs().get(xPos) + n0.abs().get(yPos);
-
-        if (n0.abs().get(xPos) == sum) {
-            return calculate1DPoint(xPos, p0, n0, v1i, v2i);
-        } else if (n0.abs().get(yPos) == sum) {
-            return calculate1DPoint(yPos, p0, n0, v1i, v2i);
         }
 
-        double phi = Math.acos(n0.get(xPos));
-        double beta = Math.acos(direction.get(xPos));
-        double alpha = Math.PI - phi - beta;
+        StatVector3 v1 = p0.subtr(v2.mul(m2)).div(m1).toStatic();
+        rb1.setVelocity(v1.round(5));
+        rb2.setVelocity(v2.round(5));
 
-        double cosA = Math.cos(alpha);
-        double tanA = Math.tan(alpha);
-        double cosB = direction.get(xPos);
-        double sinB = direction.get(yPos);
+        System.out.println(n+", "+d);
+        System.out.println(v1+", "+v2);
+    }
 
-        double v2f = (p0.get(xPos) - p0.get(yPos) * tanA) / (m2 * (sinB * tanA + cosB));
-        double v1f = (p0.get(xPos) - m2 * v2f * cosB) / (m1 * cosA);
+    public StatVector3 calculateAngular (StatVector3 w, Vector3 d, StatVector3 scale) {
+        /*
+            rad --> (x, y)
 
-        Vector3 v1 = new StatVector3(cosA, Math.sin(alpha), 0).mul(v1f);
-        Vector3 v2 = new StatVector3(cosB, sinB, 0).mul(v2f);
+            0 --> (0, 1)
+            pi/2 --> (-1, 0)
+            pi --> (0, -1)
+            3pi/4 --> (1, 0)
 
-        return new Matrix (2, 3) {
-            @Override
-            public double get(int row, int col) {
-                int pos = col == xPos ? 0 : (col == yPos ? 1 : 2);
-                if (row == 0) {
-                    return v1.get(pos);
-                }
+            rad --> (-sin, cos)
+         */
+        StatVector3 norm = d.getNormalized().toStatic();
 
-                return v2.get(pos);
-            }
-        };
+        StatVector2 nx = new StatVector2(-norm.z(), Math.sin(Math.acos(-norm.z()))).mul(w.x()).div(scale.zy()).toStatic(); // X axis [Z, Y] (-w)
+        StatVector2 ny = new StatVector2(-Math.sin(Math.acos(-norm.x())), -norm.x()); // Y axis [X, Z] (-w)
+        Vector2 nz = ny.mul(w.z()).div(scale.xy()); // Z axis [X, Y] (-w)
+        ny = ny.mul(w.y()).div(scale.xz()).toStatic();
+
+        StatVector3 n = new StatVector3(ny.x() + nz.x(), nx.y() + nz.y(), nx.x() + ny.y());
+        return n;
     }
 
     public void calculateCollision (Time delta) {
-        double sec = delta.getValue();
-
-        Vector3 d1 = x1.subtr(collisionPoint);
-        Vector3 v1i = this.v1i.sum(av1i.cross(d1));
+        Vector3 d1 = collisionPoint.subtr(x1);
+        StatVector3 v1i = this.v1i.sum(calculateAngular(av1i, d1, s1)).toStatic();
         Vector3 p1i = v1i.mul(m1);
 
-        Vector3 d2 = x2.subtr(collisionPoint);
-        Vector3 v2i = this.v2i.sum(av2i.cross(d2));
+        Vector3 d2 = collisionPoint.subtr(x2);
+        StatVector3 v2i = this.v2i.sum(calculateAngular(av2i, d2, s2)).toStatic();
         Vector3 p2i = v2i.mul(m2);
 
-        StatVector3 p0 = p1i.sum(p2i).toStatic(); // P1 initial if P2 static
-        StatVector3 n0 = p0.getNormalized().toStatic();
+        Vector3 p0 = p1i.sum(p2i);
 
-        Matrix vel1 = calculate2DPoint(0, 1, p0, n0, v1i, v2i);
-        Matrix vel2 = calculate2DPoint(2, 1, p0, n0, v1i, v2i);
+        System.out.println(this.v1i+", "+this.v2i);
+        System.out.println(v1i+", "+v2i);
+        //System.exit(1);
 
-        Matrix vel = new Matrix(2, 3) {
-            @Override
-            public double get(int row, int col) {
-                return Math.max(vel1.get(row, col), vel2.get(row, col));
-            }
-        }.round(5);
-
-        Matrix impulse = new Matrix(2, 3) {
-            @Override
-            public double get(int row, int col) {
-                if (row == 0) {
-                    return (vel.get(row, col) - v1i.get(col)) * m1;
-                }
-
-                return (vel.get(row, col) - v2i.get(col)) * m2;
-            }
-        };
-
-        System.out.println(Vector3.from(impulse.get(0))+", "+Vector3.from(impulse.get(1)));
-        System.out.println(d1.cross(Vector3.from(impulse.get(0))).div(rb1.getMomentOfInertia())+", "+d2.cross(Vector3.from(impulse.get(1))));
-
-        rb1.addImpulse(Vector3.from(impulse.get(0)), delta);
-        rb2.addImpulse(Vector3.from(impulse.get(1)), delta);
-
-        rb1.addAngularImpulse(d1.cross(Vector3.from(impulse.get(0))), delta);
-        rb2.addAngularImpulse(d2.cross(Vector3.from(impulse.get(1))), delta);
-
-        /*rb1.setAngularVelocity(Vector3.from(angular.get(0)));
-        rb2.setAngularVelocity(Vector3.from(angular.get(1)));*/
+        calculate3D(p0);
+        System.exit(1); // TODO
     }
 
     @Override

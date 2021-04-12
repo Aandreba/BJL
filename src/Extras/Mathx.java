@@ -17,6 +17,10 @@ public class Mathx {
         double apply (int position);
     }
 
+    public interface Summation2Function {
+        double apply (int x, int y);
+    }
+
     public static float sin (float x) {
         return (float) Math.sin(x);
     }
@@ -89,18 +93,6 @@ public class Mathx {
         }
 
         return v;
-    }
-
-    public static short toUnsigned (byte value) {
-        return (short) (value + 128);
-    }
-
-    public static int toUnsigned (short value) {
-        return value + 32768;
-    }
-
-    public static long toUnsigned (int value) {
-        return value + 2147483648L;
     }
 
     public static boolean getBit (int pos, byte b) {

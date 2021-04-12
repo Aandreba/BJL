@@ -57,6 +57,42 @@ public class StatVector3 extends StatVector {
         return getFloat(2);
     }
 
+    public Vector2 xy () {
+        return new Vector2() {
+            @Override
+            public double get(int pos) {
+                if (pos == 0) {
+                    return StatVector3.this.x();
+                }
+                return StatVector3.this.y();
+            }
+        };
+    }
+
+    public Vector2 zy () {
+        return new Vector2() {
+            @Override
+            public double get(int pos) {
+                if (pos == 0) {
+                    return StatVector3.this.z();
+                }
+                return StatVector3.this.y();
+            }
+        };
+    }
+
+    public Vector2 xz () {
+        return new Vector2() {
+            @Override
+            public double get(int pos) {
+                if (pos == 0) {
+                    return StatVector3.this.x();
+                }
+                return StatVector3.this.z();
+            }
+        };
+    }
+
     // Vector3
     public Vector3 sum (Vector3 b) {
         return new Vector3 () {
