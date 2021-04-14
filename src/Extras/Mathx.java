@@ -1,5 +1,7 @@
 package Extras;
 
+import Units.Angle;
+
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.Arrays;
@@ -45,16 +47,11 @@ public class Mathx {
         return (float) Math.tan(x);
     }
 
-    public static float asin (float x) {
-        if (x > 0 && x < 0.95f) {
-            return 1.08f * x * x * x - 0.9f * x * x + 1.2f * x; // Max error: 0.0192
-        } else if (x <= 0 && x >= -0.5f) {
-            x += 1;
-            return 0.6f * x * x * x - 1.2f * x * x + 1.8f * x - 1.2f; // Max error: 0.0195
-        } else {
-            return (float) Math.asin(x);
-        }
-    }
+    public static Angle asin (double x) { return new Angle(Math.asin(x)); }
+
+    public static Angle acos (double x) { return new Angle(Math.acos(x)); }
+
+    public static Angle atan (double x) { return new Angle(Math.atan(x)); }
 
     public static double log (double value, double base) {
         return Math.log10(value) / Math.log10(base);
@@ -143,6 +140,10 @@ public class Mathx {
 
     public static double clamp (double value, double min, double max) {
         return value < min ? min : (value > max ? max : value);
+    }
+
+    public static int roundToInt (double val) {
+        return (int) Math.round(val);
     }
 
     public static double roundTo (double val, int decimals) {
