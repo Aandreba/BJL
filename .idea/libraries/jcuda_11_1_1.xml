@@ -3,6 +3,7 @@
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/lib/jcuda-11.1.1.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/jcuda-natives-11.1.1-windows-x86_64.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jcuda-natives-11.1.1-linux-x86_64.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

@@ -44,7 +44,6 @@ public class Device {
     final public long clockFreq;
     final public long memAllocSize;
     final public long globalMemSize;
-    final public cudaDeviceProp cudaProperties;
 
     public Device (cl_device_id id, Platform platform) {
         this.id = id;
@@ -71,20 +70,6 @@ public class Device {
         this.clockFreq = Params.getLong(id, CL_DEVICE_MAX_CLOCK_FREQUENCY);
         this.memAllocSize = Params.getLong(id, CL_DEVICE_MAX_MEM_ALLOC_SIZE);
         this.globalMemSize = Params.getLong(id, CL_DEVICE_GLOBAL_MEM_SIZE);
-
-        // CUDA
-        int[] count = new int[]{0};
-        cudaGetDeviceCount(count);
-
-        if (count[0] <= 0 || !this.isCudaCapable()) {
-            this.cudaProperties = null;
-            return;
-        }
-
-        cudaDeviceProp prop = new cudaDeviceProp();
-        cudaGetDeviceProperties(prop, 0);
-
-        this.cudaProperties = prop;
     }
 
     public boolean isCudaCapable () {

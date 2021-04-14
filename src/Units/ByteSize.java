@@ -1,5 +1,7 @@
 package Units;
 
+import java.text.NumberFormat;
+
 public class ByteSize {
     public interface Type {
         double getWeight();
@@ -100,5 +102,36 @@ public class ByteSize {
 
     public double getValue () {
         return value;
+    }
+
+    public String toString (Class<? extends Type> units) {
+        Type[] values = null;
+
+        if (units.equals(SI.class)) {
+            values = SI.values();
+        } else if (units.equals(ISO.class)) {
+            values = ISO.values();
+        } else if (units.equals(Base.class)) {
+            values = Base.values();
+        }
+
+        NumberFormat format = NumberFormat.getNumberInstance();
+        format.setMaximumFractionDigits(1);
+
+        for (Type type: values) {
+            double v = value / type.getWeight();
+
+            if (v >= 1) {
+                return format.format(v)+" "+type.getSymbol();
+            }
+        }
+
+        Type last = values[values.length - 1];
+        return format.format(value / last.getWeight())+" "+last.getSymbol();
+    }
+
+    @Override
+    public String toString() {
+        return toString(ISO.class);
     }
 }
