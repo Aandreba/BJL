@@ -1,5 +1,7 @@
 package Extras.Request;
 
+import Extras.JSON.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,10 +45,16 @@ public class HTTPResponse {
 
         this.cookies = new HashMap<>();
         String cookieString = conn.getHeaderField("Set-Cookie");
-        List<HttpCookie> cookieList = HttpCookie.parse(cookieString);
-        cookieList.forEach(x -> cookies.put(x.getName(), x.getValue()));
+        if (cookieString != null) {
+            List<HttpCookie> cookieList = HttpCookie.parse(cookieString);
+            cookieList.forEach(x -> cookies.put(x.getName(), x.getValue()));
+        }
 
         conn.disconnect();
+    }
+
+    public JSONObject getJSON () {
+        return new JSONObject(response);
     }
 
     @Override

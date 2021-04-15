@@ -54,7 +54,7 @@ public class Regex {
         return result;
     }
 
-    public static void replace (StringBuilder builder, String replacement, String regex) {
+    public static void replace (StringBuilder builder, String regex, String replacement) {
         Matcher matcher = getMatcher(builder, regex);
         while (matcher.find()) {
             int start = matcher.start();

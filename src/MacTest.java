@@ -1,32 +1,25 @@
-import Extras.JSON.JSON;
+import Extras.JSON.JSONObject;
 import Extras.Request.HTTP;
-import Extras.Request.HTTPResponse;
+import Extras.System.CPU;
 import Extras.System.SystemInfo;
-import OpenGL.GameObject;
-import OpenGL.Primitives.Cube;
-import OpenGL.Window;
-import Units.Time;
+import Units.Frequency;
 
-import java.awt.*;
+import java.util.ArrayList;
 
 public class MacTest {
     public static void main (String[] args) throws Exception {
-        String text = "{\n" +
-                "  \"departamento\":8,\n" +
-                "  \"nombredepto\":\"Ventas\",\n" +
-                "  \"director\": \"Juan Rodríguez\",\n" +
-                "  \"empleados\":[\n" +
-                "    {\n" +
-                "      \"nombre\":\"Pedro\",\n" +
-                "      \"apellido\":\"Fernández\"\n" +
-                "    },{\n" +
-                "      \"nombre\":\"Jacinto\",\n" +
-                "      \"apellido\":\"Benavente\"\n" +
-                "    } \n" +
-                "  ]\n" +
-                "}";
+        CPU cpu = SystemInfo.CPU;
+        System.out.println(cpu);
 
-        JSON json = new JSON(text);
+        JSONObject json = new JSONObject();
+        json.set("name", cpu.name);
+        json.set("cores", cpu.cores);
+        json.set("threads", cpu.threads);
+        json.set("architecture", cpu.architecture.toString());
+        json.set("64 bit", cpu.is64bit);
+        json.set("freq", cpu.minFreq.toString(), cpu.maxFreq.toString());
+
+        System.out.println();
         System.out.println(json);
     }
 }
