@@ -1,10 +1,8 @@
-package Extras.System;
+package System;
 
 import Extras.Files;
 import Units.ByteSize;
 import java.awt.*;
-import java.io.File;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 public class SystemInfo {

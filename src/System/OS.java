@@ -1,4 +1,4 @@
-package Extras.System;
+package System;
 
 public enum OS {
     Windows,

@@ -1,8 +1,9 @@
 package Units;
 
+import java.io.Serializable;
 import java.text.NumberFormat;
 
-public class Temp {
+public class Temp implements Serializable {
     public enum Type {
         Celsius (1, 0, "ºC"),
         Fahrenheit (5/9d, -32, "ºF"),

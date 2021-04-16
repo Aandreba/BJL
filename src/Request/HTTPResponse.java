@@ -1,11 +1,10 @@
-package Extras.Request;
+package Request;
 
-import Extras.JSON.JSONObject;
+import CSV.CSV;
+import JSON.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.HttpCookie;
 import java.net.HttpURLConnection;
 import java.util.HashMap;
@@ -55,6 +54,18 @@ public class HTTPResponse {
 
     public JSONObject getJSON () {
         return new JSONObject(response);
+    }
+
+    public CSV getCSV (String separator, char newLine) {
+        return new CSV(response, separator, newLine);
+    }
+
+    public CSV getCSV (String separator) {
+        return new CSV(response, separator);
+    }
+
+    public CSV getCSV () {
+        return new CSV(response);
     }
 
     @Override

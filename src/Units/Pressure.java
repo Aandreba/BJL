@@ -1,8 +1,9 @@
 package Units;
 
+import java.io.Serializable;
 import java.text.NumberFormat;
 
-public class Pressure {
+public class Pressure implements Serializable {
     public enum Type {
         PSI(6894.757293168, "psi"),
         Atmosphere (101325, "atm"),

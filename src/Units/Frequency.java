@@ -1,8 +1,9 @@
 package Units;
 
+import java.io.Serializable;
 import java.text.NumberFormat;
 
-public class Frequency implements Comparable<Frequency> {
+public class Frequency implements Comparable<Frequency>, Serializable {
     public enum Type {
         TeraHertz(1e12, "THz"),
         GigaHertz(1e9, "GHz"),

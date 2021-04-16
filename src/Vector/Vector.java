@@ -6,6 +6,7 @@ import OpenGL.Extras.Vector.Vector3;
 import Units.Angle;
 
 import java.nio.ByteBuffer;
+import java.util.Collection;
 
 public abstract class Vector {
     final public int length;

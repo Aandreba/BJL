@@ -1,8 +1,9 @@
 package Units;
 
+import java.io.Serializable;
 import java.text.NumberFormat;
 
-public class Time implements Comparable<Time> {
+public class Time implements Comparable<Time>, Serializable {
     public enum Type {
         Years(31557600, "y"),
         Months(1036800, "M"),

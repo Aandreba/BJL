@@ -1,8 +1,9 @@
 package Units;
 
+import java.io.Serializable;
 import java.text.NumberFormat;
 
-public class Mass implements Comparable<Mass> {
+public class Mass implements Comparable<Mass>, Serializable {
     public interface Type {
         double getWeight();
         String getSymbol();

@@ -1,23 +1,25 @@
-package Extras.JSON;
+package JSON;
 
-import Extras.Regex;
-
-import java.lang.reflect.Array;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
 import java.util.*;
 
-public class JSONObject extends ArrayList<JSONEntry> {
+public class JSONObject implements Map<String, Object>, Iterable<JSONEntry> {
+    final private ArrayList<JSONEntry> entries;
+
     public JSONObject () {
         super();
+        this.entries = new ArrayList<>();
     }
 
     public JSONObject (Map<? extends String, ?> map) {
-        super();
-        setAll(map);
+        this();
+        putAll(map);
     }
 
     public JSONObject (String string) {
-        super();
+        this();
 
         if (string == null || string.length() <= 0) {
             return;
@@ -44,19 +46,36 @@ public class JSONObject extends ArrayList<JSONEntry> {
 
             builder.deleteCharAt(0);
             JSONEntry entry = entryFinder(builder, key);
-            add(entry);
+            entries.add(entry);
         }
     }
 
-    public Object get (String key) {
-        return get(indexOf(key)).value;
+    private int indexOf (Object key) {
+        if (!(key instanceof String)) { return -1; }
+        String string = (String) key;
+
+        for (int i=0;i<size();i++) {
+            if (entries.get(i).key.equals(string)) {
+                return i;
+            }
+        }
+
+        return -1;
     }
 
     public <T> T getAs (String key) {
         return (T) get(key);
     }
 
+    public <T> T getAs (String key, Class<T> clss) {
+        return getAs(key);
+    }
+
     public String getString (String key) {
+        return getAs(key);
+    }
+
+    public boolean getBool (String key) {
         return getAs(key);
     }
 
@@ -68,24 +87,12 @@ public class JSONObject extends ArrayList<JSONEntry> {
         return getAs(key);
     }
 
-    public <T> ArrayList<T> getAsArray (String key) {
-        ArrayList base = getArray(key);
-        ArrayList<T> result = new ArrayList<>();
-        base.forEach(x -> result.add((T) x));
-
-        return result;
-    }
-
-    public boolean getBool (String key) {
-        return getAs(key);
-    }
-
     public Number getNumber (String key) {
         return getAs(key);
     }
 
-    public double getDouble (String key) {
-        return getNumber(key).doubleValue();
+    public int getInt (String key) {
+        return getNumber(key).intValue();
     }
 
     public float getFloat (String key) {
@@ -96,66 +103,117 @@ public class JSONObject extends ArrayList<JSONEntry> {
         return getNumber(key).longValue();
     }
 
-    public int getInt (String key) {
-        return getNumber(key).intValue();
+    public double getDouble (String key) {
+        return getNumber(key).doubleValue();
     }
 
-    public void set (String key, Object value) {
-        JSONEntry entry;
-        try {
-            entry = new JSONEntry(key, new JSONObject((Map<String,Object>) value));
-        } catch (Exception e) {
-            entry = new JSONEntry(key, value);
-        }
-
-        int index = indexOf(key);
-        if (index == -1) {
-            add(entry);
-        } else {
-            set(index, entry);
-        }
+    @Override
+    public int size() {
+        return entries.size();
     }
 
-    public void set (String key, List values) {
-        JSONEntry entry = new JSONEntry(key, values);
-
-        int index = indexOf(key);
-        if (index == -1) {
-            add(entry);
-        } else {
-            set(index, entry);
-        }
+    @Override
+    public boolean isEmpty() {
+        return entries.isEmpty();
     }
 
-    public void set (String key, Object... values) {
-        ArrayList objects = new ArrayList();
-        Collections.addAll(objects, values);
-
-        set(key, objects);
+    @Override
+    public Object remove(Object key) {
+        return entries.remove(indexOf(key));
     }
 
-    public void setAll (Map<? extends String, ?> map) {
-        for (Map.Entry<? extends String, ?> entry: map.entrySet()) {
-            set(entry.getKey(), entry.getValue());
-        }
+    @Override
+    public void clear() {
+        entries.clear();
     }
 
-    public boolean isNull (String key) {
-        return get(key) == null;
+    @Override
+    public Iterator<JSONEntry> iterator() {
+        return new Iterator<JSONEntry>() {
+            int i = 0;
+
+            @Override
+            public boolean hasNext() {
+                return i+1 < size();
+            }
+
+            @Override
+            public JSONEntry next() {
+                return entries.get(i++);
+            }
+        };
     }
 
-    public boolean containsKey (String key) {
+    @Override
+    public boolean containsKey(Object key) {
         return indexOf(key) != -1;
     }
 
+    @Override
     public boolean containsValue (Object value) {
-        for (JSONEntry entry: this) {
-            if (entry.value.equals(value)) {
+        for (int i=0;i<size();i++) {
+            if (entries.get(i).value.equals(value)) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    @Override
+    public Object get (Object key) {
+        return get(indexOf(key));
+    }
+
+    @Override
+    public Object put (String key, Object value) {
+        JSONEntry entry = new JSONEntry(key, value);
+        int index = indexOf(key);
+
+        if (index == -1) {
+            entries.add(entry);
+        } else {
+            entries.set(index, entry);
+        }
+
+        return value;
+    }
+
+    @Override
+    public void putAll (Map<? extends String, ?> m) {
+        for (Map.Entry<? extends String,?> entry: m.entrySet()) {
+            put(entry.getKey(), entry.getValue());
+        }
+    }
+
+    @Override
+    public Set<String> keySet() {
+        HashSet<String> set = new HashSet<>();
+        for (JSONEntry entry: this) {
+            set.add(entry.key);
+        }
+
+        return set;
+    }
+
+    @Override
+    public Collection<Object> values() {
+        ArrayList<Object> set = new ArrayList<>();
+        for (JSONEntry entry: this) {
+            set.add(entry.value);
+        }
+
+        return set;
+    }
+
+    @Override
+    public Set<Entry<String, Object>> entrySet() {
+        HashSet<Entry<String, Object>> set = new HashSet<>();
+        for (JSONEntry entry: this) {
+            set.add(entry);
+        }
+
+        return set;
     }
 
     @Override
@@ -165,13 +223,41 @@ public class JSONObject extends ArrayList<JSONEntry> {
             builder.append(entry.toString()+", ");
         }
 
-        return builder.substring(0, builder.length() - 2) + "}";
+        if (builder.length() < 2) {
+            return "{}";
+        } else {
+            return builder.substring(0, builder.length() - 2) + "}";
+        }
     }
 
-    // Byte JSON
-    public ByteBuffer toBJSON () {
-        // TODO
-        return null;
+    public static JSONObject parseObject (Object object) {
+        JSONObject result = new JSONObject();
+        Field[] fields = object.getClass().getDeclaredFields();
+
+        for (Field field: fields) {
+            try {
+                result.put(field.getName(), field.get(object));
+            } catch (Exception e){};
+        }
+
+        return result;
+    }
+
+    public static JSONObject parseStatics (Class clss) {
+        JSONObject result = new JSONObject();
+        Field[] fields = clss.getDeclaredFields();
+
+        for (Field field: fields) {
+            if (!Modifier.isStatic(field.getModifiers())) {
+                continue;
+            }
+
+            try {
+                result.put(field.getName(), field.get(null));
+            } catch (Exception e){};
+        }
+
+        return result;
     }
 
     private JSONEntry entryFinder (StringBuilder builder, String key) {
@@ -349,15 +435,5 @@ public class JSONObject extends ArrayList<JSONEntry> {
         }
 
         return result;
-    }
-
-    private int indexOf (String key) {
-        for (int i=0;i<size();i++) {
-            if (get(i).key.equals(key)) {
-                return i;
-            }
-        }
-
-        return -1;
     }
 }

@@ -1,8 +1,9 @@
 package Units;
 
+import java.io.Serializable;
 import java.text.NumberFormat;
 
-public class ByteSize {
+public class ByteSize implements Serializable {
     public interface Type {
         double getWeight();
         String getSymbol();

@@ -1,8 +1,9 @@
 package Units;
 
+import java.io.Serializable;
 import java.text.NumberFormat;
 
-public class Dist implements Comparable<Dist> {
+public class Dist implements Comparable<Dist>, Serializable {
     public interface Type {
         double getWeight();
         String getSymbol();

@@ -92,52 +92,6 @@ public class Mathx {
         return v;
     }
 
-    public static boolean getBit (int pos, byte b) {
-        return ((b >> pos) & 1) == 1;
-    }
-
-    public static int getUnsignedInteger (int from, int to, ByteBuffer bb) {
-        int value = 0;
-
-        for (int i=from;i<to;i++) {
-            int bytePos = i / 8;
-            int bitPos = i % 8;
-
-            byte b = bb.get(bytePos);
-            if (getBit(7 - bitPos, b)) {
-                value += Math.pow(2, to - i - 1);
-            }
-        }
-
-        return value;
-    }
-
-    public static float getUnsignedFraction (int from, int to, ByteBuffer bb) {
-        float value = 1;
-
-        for (int i=from;i<to;i++) {
-            int bytePos = i / 8;
-            int bitPos = i % 8;
-
-            byte b = bb.get(bytePos);
-            if (getBit(7 - bitPos, b)) {
-                value += Math.pow(2, from - i - 1);
-            }
-        }
-
-        return value;
-    }
-
-    public static float[] composition (float value) {
-        ByteBuffer bb = ByteBuffer.allocate(16).putFloat(value);
-
-        boolean isNegative = getBit(0, bb.get(0));
-        int exponent = getUnsignedInteger(1, 9, bb);
-        float significand = getUnsignedFraction(9, 31, bb);
-
-        return new float[] { isNegative ? 1 : 0, exponent - 127, significand };
-    }
-
     public static double clamp (double value, double min, double max) {
         return value < min ? min : (value > max ? max : value);
     }

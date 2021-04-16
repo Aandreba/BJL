@@ -1,9 +1,8 @@
-package Extras.Request;
+package Request;
 
 import Extras.Mathx;
 import Units.Time;
 
-import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;

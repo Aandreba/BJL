@@ -1,9 +1,11 @@
-package Extras.System;
+package System;
 
 import Units.ByteSize;
 import Units.Frequency;
 
-public class CPU {
+import java.io.Serializable;
+
+public class CPU implements Serializable {
     final public String name;
     final public int cores, threads;
     final public Arch architecture;

@@ -1,9 +1,11 @@
 package Units;
 
 import Extras.Mathx;
+
+import java.io.Serializable;
 import java.text.NumberFormat;
 
-public class Angle {
+public class Angle implements Serializable {
     public enum Type {
         Tau(2 * Math.PI, "τ"),
         Radians(1,"rad"),
