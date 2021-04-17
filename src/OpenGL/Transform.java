@@ -216,4 +216,13 @@ public class Transform {
             }
         };
     }
+
+    @Override
+    public String toString() {
+        return "Transform {" +
+                "position = " + position +
+                ", scale = " + scale +
+                ", rotation = " + rotation +
+                '}';
+    }
 }

@@ -165,6 +165,24 @@ public class StatVector2 extends StatVector {
         };
     }
 
+    public Vector2 forEachValue(ValueFunction function) {
+        return new Vector2 () {
+            @Override
+            public double get(int pos) {
+                return function.apply(StatVector2.this.get(pos));
+            }
+        };
+    }
+
+    public Vector2 forEachIndex(IndexFunction function) {
+        return new Vector2 () {
+            @Override
+            public double get(int pos) {
+                return function.apply(pos);
+            }
+        };
+    }
+
     @Override
     public Vector2 getNormalized() {
         return div(getSqrtMagnitude());

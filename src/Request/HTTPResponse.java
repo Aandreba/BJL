@@ -1,6 +1,6 @@
 package Request;
 
-import CSV.CSV;
+import Extras.CSV;
 import JSON.JSONObject;
 
 import java.io.IOException;

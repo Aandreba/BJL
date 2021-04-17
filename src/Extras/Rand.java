@@ -157,41 +157,11 @@ public class Rand {
         return vals[Rand.getInt(0, vals.length - 1)];
     }
 
-    public static StatMatrix noise2D (int size, long seed) {
-        Random random = new Random(seed);
-        StatVector2[][] dirs = new StatVector2[size][size];
+    public static double noise2D (Random random, double x) {
+        return 2 * random.nextDouble() - 1;
+    }
 
-        for (int i=0;i<size;i++) {
-            for (int j=0;j<size;j++) {
-                dirs[i][j] = new Vector2() {
-                    @Override
-                    public double get(int pos) {
-                        return 2 * random.nextDouble() * size - size;
-                    }
-                }.toStatic();
-            }
-        }
-
-        for (int i=0;i<size;i++) {
-            for (int j=0;j<size;j++) {
-                Vector2 vector = dirs[i][j].toRelative();
-
-                for (int x=0;x<size;x++) {
-                    for (int y=0;y<size;y++) {
-                        if (i == x && j == y) {
-                            continue;
-                        }
-                        StatVector2 vector2 = dirs[x][y];
-
-                        Vector2 dist = vector.subtr(vector2);
-                        Vector2 dir = dist.getNormalized();
-                        // TODO
-                        //double angle =
-                    }
-                }
-            }
-        }
-
-        return null;
+    public static double noise2D (double x) {
+        return noise2D(random, x);
     }
 }

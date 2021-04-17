@@ -1,28 +1,21 @@
 package OpenGL;
 
 import OpenGL.Colliders.Collision;
-import OpenGL.Extras.Gravity.Gravity;
-import OpenGL.Extras.Gravity.Normal;
-import OpenGL.Extras.Vector.StatVector2;
 import OpenGL.Extras.Vector.StatVector3;
-import OpenGL.Extras.Vector.Vector2;
 import OpenGL.Extras.Vector.Vector3;
 import java.util.ArrayList;
-import java.util.Vector;
 
 import Units.*;
 
 public class Rigidbody {
     // Earth
-    final public static Temp temperature = new Temp(15, Temp.Type.Celsius);
-    final public static Pressure pressure = new Pressure(1, Pressure.Type.Atmosphere);
-    final public static double airDensity = airDensity(pressure, temperature);
     final public static ArrayList<Collision> collisions = new ArrayList<>();
 
     final public GameObject object;
     final public Mass mass;
     public float drag;
     public float angularDrag;
+    public float cor;
     public boolean applyGravity;
     public boolean isKinematic;
     public boolean isTerrain;
@@ -30,7 +23,6 @@ public class Rigidbody {
 
     final public StatVector3 velocity; // in m/s
     final public StatVector3 angularVelocity; // in rad/s
-    final public Vector3 linearVelocity; // in m / s
     final public Vector3 momentum;
 
     final public StatVector3 lastVelocity;
@@ -42,8 +34,9 @@ public class Rigidbody {
         this.object = object;
         this.mass = mass;
 
-        this.drag = 1;
-        this.angularDrag = 0.5f;
+        this.drag = 0;
+        this.angularDrag = 0;
+        this.cor = 1;
         this.applyGravity = true;
         this.isKinematic = true;
         this.isTerrain = false;
@@ -55,8 +48,6 @@ public class Rigidbody {
 
         this.velocity = StatVector3.zero.toStatic();
         this.angularVelocity = StatVector3.zero.toStatic();
-
-        this.linearVelocity = linearVelocity(angularVelocity, object.transform.rotation, object.transform.scale);
         this.momentum = velocity.mul(mass.getValue());
     }
 
@@ -66,12 +57,20 @@ public class Rigidbody {
         this.isFreezeZ = val;
     }
 
-    public double getMomentOfInertia () {
-        return mass.getValue() * object.transform.scale.getMagnitude();
+    public double getMomentOfInertia (Vector3 relPos) {
+        return mass.getValue() * relPos.getMagnitude();
     }
 
-    public Vector3 getAngularMomentum () {
-        return angularVelocity.mul(getMomentOfInertia());
+    public double getMomentOfInertia (StatVector3 relPos) {
+        return mass.getValue() * relPos.getMagnitude();
+    }
+
+    public Vector3 getAngularMomentum (Vector3 relPos) {
+        return angularVelocity.mul(getMomentOfInertia(relPos));
+    }
+
+    public Vector3 getAngularMomentum (StatVector3 relPos) {
+        return angularVelocity.mul(getMomentOfInertia(relPos));
     }
 
     // Lineal
@@ -133,6 +132,46 @@ public class Rigidbody {
     }
 
     // Angular
+    public void setTorque (Vector3 torque, Vector3 relPos, Time delta) {
+        this.setAngularAcceleration(torque.div(getMomentOfInertia(relPos)).forEachValue(x -> Double.isNaN(x) || Double.isInfinite(x) ? 0 : x), delta);
+    }
+
+    public void setTorque (StatVector3 torque, Vector3 relPos, Time delta) {
+        this.setAngularAcceleration(torque.div(getMomentOfInertia(relPos)).forEachValue(x -> Double.isNaN(x) || Double.isInfinite(x) ? 0 : x), delta);
+    }
+
+    public void setTorque (Vector3 torque, StatVector3 relPos, Time delta) {
+        this.setAngularAcceleration(torque.div(getMomentOfInertia(relPos)).forEachValue(x -> Double.isNaN(x) || Double.isInfinite(x) ? 0 : x), delta);
+    }
+
+    public void setTorque (StatVector3 torque, StatVector3 relPos, Time delta) {
+        this.setAngularAcceleration(torque.div(getMomentOfInertia(relPos)).forEachValue(x -> Double.isNaN(x) || Double.isInfinite(x) ? 0 : x), delta);
+    }
+
+    public void setAngularForce (Vector3 newton, Vector3 relPos, Time delta) {
+        this.setTorque(relPos.cross(newton), relPos, delta);
+    }
+
+    public void setAngularForce (StatVector3 newton, Vector3 relPos, Time delta) {
+        this.setTorque(relPos.cross(newton), relPos, delta);
+    }
+
+    public void setAngularForce (Vector3 newton, StatVector3 relPos, Time delta) {
+        this.setTorque(relPos.cross(newton), relPos, delta);
+    }
+
+    public void setAngularForce (StatVector3 newton, StatVector3 relPos, Time delta) {
+        this.setTorque(relPos.cross(newton), relPos, delta);
+    }
+
+    public void setAngularAcceleration (Vector3 radss, Time delta) {
+        this.setAngularVelocity(radss.mul(delta.getValue()));
+    }
+
+    public void setAngularAcceleration (StatVector3 radss, Time delta) {
+        this.setAngularVelocity(radss.mul(delta.getValue()));
+    }
+
     public void setAngularVelocity(double x, double y, double z) {
         this.angularVelocity.set(0, x);
         this.angularVelocity.set(1, y);
@@ -147,20 +186,37 @@ public class Rigidbody {
         setAngularVelocity(v.x(), v.y(), v.z());
     }
 
-    public void addAngularImpulse (Vector3 ns, Time delta) {
-        this.addAngularForce(ns.div(delta.getValue()), delta);
+    public void addTorque (Vector3 torque, Vector3 relPos, Time delta) {
+        this.addAngularAcceleration(torque.div(getMomentOfInertia(relPos)).forEachValue(x -> Double.isNaN(x) || Double.isInfinite(x) ? 0 : x), delta);
     }
 
-    public void addAngularImpulse (StatVector3 ns, Time delta) {
-        this.addAngularForce(ns.div(delta.getValue()), delta);
+    public void addTorque (StatVector3 torque, Vector3 relPos, Time delta) {
+        this.addAngularAcceleration(torque.div(getMomentOfInertia(relPos)).forEachValue(x -> Double.isNaN(x) || Double.isInfinite(x) ? 0 : x), delta);
     }
 
-    public void addAngularForce (Vector3 newtons, Time delta) {
-        this.addAngularAcceleration(newtons.div(getMomentOfInertia()), delta);
+    public void addTorque (Vector3 torque, StatVector3 relPos, Time delta) {
+        this.addAngularAcceleration(torque.div(getMomentOfInertia(relPos)).forEachValue(x -> Double.isNaN(x) || Double.isInfinite(x) ? 0 : x), delta);
     }
 
-    public void addAngularForce (StatVector3 newtons, Time delta) {
-        this.addAngularAcceleration(newtons.div(getMomentOfInertia()), delta);
+    public void addTorque (StatVector3 torque, StatVector3 relPos, Time delta) {
+        this.addAngularAcceleration(torque.div(getMomentOfInertia(relPos)).forEachValue(x -> Double.isNaN(x) || Double.isInfinite(x) ? 0 : x), delta);
+    }
+
+    public void addAngularForce (Vector3 newton, Vector3 relPos, Time delta) {
+        this.addTorque(relPos.cross(newton), relPos, delta);
+    }
+
+    public void addAngularForce (StatVector3 newton, Vector3 relPos, Time delta) {
+        this.addTorque(relPos.cross(newton), relPos, delta);
+    }
+
+    public void addAngularForce (Vector3 newton, StatVector3 relPos, Time delta) {
+        this.addTorque(relPos.cross(newton), relPos, delta);
+    }
+
+    public void addAngularForce (StatVector3 newton, StatVector3 relPos, Time delta) {
+        System.out.println(relPos.cross(newton));
+        this.addTorque(relPos.cross(newton), relPos, delta);
     }
 
     public void addAngularAcceleration (Vector3 radss, Time delta) {
@@ -207,14 +263,6 @@ public class Rigidbody {
         return (float) this.lastVelocity.getSqrtMagnitude();
     }
 
-    protected double dragForce () {
-        return 0.5f * airDensity * velocity.getMagnitude() * 6 * Math.pow(2 * object.transform.scale.getMean(), 2) * drag;
-    }
-
-    protected double angularDragForce () {
-        return 0.5f * airDensity * velocity.getMagnitude() * 6 * Math.pow(2 * object.transform.scale.getMean(), 2) * angularDrag;
-    }
-
     public void update (Window window, Time delta) {
         if (isKinematic) {
             for (GameObject windowObj : window) {
@@ -228,18 +276,15 @@ public class Rigidbody {
                 }
 
                 if (collision.areColliding) {
-                    System.out.println(collision.a.tags+", "+collision.b.tags);
                     collision.calculateCollision(delta);
-                    System.out.println();
-                    //System.exit(1);
                 }
 
                 collisions.add(collision);
             }
         }
 
-        this.addAcceleration(velocity.getNormalized().pow(2).mul(-drag), delta);
-        this.addAngularAcceleration(angularVelocity.getNormalized().pow(2).mul(-angularDrag), delta);
+        this.addAcceleration(velocity.mul(-drag), delta);
+        this.addAngularAcceleration(angularVelocity.mul(-angularDrag), delta);
 
         if (isFreezeX) {
             this.velocity.set(0, 0);
@@ -252,66 +297,5 @@ public class Rigidbody {
         if (isFreezeZ) {
             this.velocity.set(2, 0);
         }
-    }
-
-    public static double airDensity (Pressure pressure, Temp temperature) {
-        return pressure.getValue(Pressure.Type.Pascal) / (287.058 * temperature.getValue(Temp.Type.Kelvin));
-    }
-
-    public static Vector3 linearVelocity (StatVector3 av, StatVector3 rotation, StatVector3 scale) {
-        // Rotation on X axis (Z & Y position axis)
-        Vector2 rotXDir = new Vector2() {
-            @Override
-            public double get(int pos) {
-                if (pos == 0) {
-                    return -Math.sin(rotation.x());
-                }
-
-                return Math.cos(rotation.x());
-            }
-        };
-
-        Vector2 rotX = rotXDir.mul(av.x() * scale.z());
-
-        // Rotation on Y axis (X & Z position axis)
-        Vector2 rotYDir = new Vector2() {
-            @Override
-            public double get(int pos) {
-                if (pos == 0) {
-                    return Math.sin(rotation.y());
-                }
-
-                return Math.cos(rotation.y());
-            }
-        };
-
-        Vector2 rotY = rotYDir.mul(av.y() * scale.x());
-
-        // Rotation on Z axis (Y & X position axis)
-        Vector2 rotZDir = new Vector2() {
-            @Override
-            public double get(int pos) {
-                if (pos == 0) {
-                    return Math.sin(rotation.z());
-                }
-
-                return Math.cos(rotation.z());
-            }
-        };
-
-        Vector2 rotZ = rotZDir.mul(av.z() * scale.y());
-
-        return new Vector3() {
-            @Override
-            public double get(int pos) {
-                if (pos == 0) {
-                    return rotY.x() + rotZ.y();
-                } else if (pos == 1) {
-                    return rotX.y() + rotZ.x();
-                }
-
-                return rotX.x() + rotY.y();
-            }
-        };
     }
 }

@@ -83,8 +83,8 @@ public class GameObject {
         }, (float) transform.scale.getMean());
     }
 
-    public void createRigidbody (Mass mass) {
-        this.rb = new Rigidbody(this, mass);
+    public Rigidbody createRigidbody (Mass mass) {
+        return this.rb = new Rigidbody(this, mass);
     }
 
     /**

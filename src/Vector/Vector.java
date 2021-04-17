@@ -7,6 +7,7 @@ import Units.Angle;
 
 import java.nio.ByteBuffer;
 import java.util.Collection;
+import java.util.function.Function;
 
 public abstract class Vector {
     final public int length;
@@ -403,6 +404,41 @@ public abstract class Vector {
             public double get(int pos) {
                 double v = Vector.this.get(pos);
                 return isMax ? Math.min(v,value) : Math.max(v,value);
+            }
+        };
+    }
+
+    public interface ValueFunction {
+        double apply (double value);
+    }
+
+    public Vector forEachValue(ValueFunction function) {
+        return new Vector (length) {
+            @Override
+            public double get(int pos) {
+                return function.apply(Vector.this.get(pos));
+            }
+        };
+    }
+
+    public interface IndexFunction {
+        double apply (int index);
+    }
+
+    public Vector forEachIndex(IndexFunction function) {
+        return new Vector (length) {
+            @Override
+            public double get(int pos) {
+                return function.apply(pos);
+            }
+        };
+    }
+
+    public static Vector forEachIndex(int length, IndexFunction function) {
+        return new Vector (length) {
+            @Override
+            public double get(int pos) {
+                return function.apply(pos);
             }
         };
     }

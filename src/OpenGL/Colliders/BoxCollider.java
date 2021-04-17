@@ -5,7 +5,14 @@ import OpenGL.Extras.Vector.Vector3;
 import OpenGL.Transform;
 
 public class BoxCollider implements Collider {
+    /**
+     * World coordinates
+     */
     Vector3 position;
+
+    /**
+     * Box scale in 3 dimensions
+     */
     Vector3 scale;
 
     public BoxCollider (Vector3 position, Vector3 scale) {
@@ -62,6 +69,7 @@ public class BoxCollider implements Collider {
         return dist < collider.radius;
     }
 
+    @Override
     public boolean isCollidingWith (BoxCollider collider) {
         Vector3 dist = this.position.subtr(collider.position).abs();
         Vector3 size = this.scale.sum(collider.scale);

@@ -1,8 +1,6 @@
 package OpenGL;
 
-;
-import OpenGL.Extras.Gravity.Gravity;
-import OpenGL.Extras.Gravity.Normal;
+import OpenGL.Extras.Vector.StatVector3;
 import OpenGL.Input.Input;
 import OpenGL.Light.DirectionalLight;
 import OpenGL.Light.PointLight;
@@ -34,7 +32,7 @@ public abstract class Window extends ArrayList<GameObject> implements Runnable {
     private boolean resized, vSync;
     private Color bkgColor;
     public Shader shader;
-    public Gravity gravityType = new Normal();
+    public StatVector3 gravity = new StatVector3(0, -9.81, 0);
 
     public PointLight[] points = new PointLight[5];
     public DirectionalLight[] directionals = new DirectionalLight[5];
@@ -254,7 +252,7 @@ public abstract class Window extends ArrayList<GameObject> implements Runnable {
         for (GameObject object: this) {
             if (object.rb != null) {
                 if (object.rb.applyGravity) {
-                    object.rb.addAcceleration(gravityType.gravityAccFor(object), delta);
+                    object.rb.addAcceleration(gravity, delta);
                 }
 
                 object.rb.setLastVelocity(delta);

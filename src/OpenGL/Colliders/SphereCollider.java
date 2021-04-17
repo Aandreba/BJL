@@ -4,7 +4,14 @@ import OpenGL.Extras.Vector.StatVector3;
 import OpenGL.Extras.Vector.Vector3;
 
 public class SphereCollider implements Collider {
+    /**
+     * World coordinates
+     */
     public Vector3 position;
+
+    /**
+     * Sphere radius
+     */
     public float radius;
 
     public SphereCollider (Vector3 position, float radius) {

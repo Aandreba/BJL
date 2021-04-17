@@ -1,6 +1,9 @@
 package Extras;
 import Units.ByteSize;
 
+import java.lang.reflect.Array;
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.BitSet;
 
@@ -61,7 +64,6 @@ public class BitBuffer {
 
     public BitBuffer add (float d) {
         int v = Float.floatToIntBits(d);
-        System.out.println(v);
         return add(v);
     }
 
@@ -78,6 +80,70 @@ public class BitBuffer {
     public BitBuffer add (double d) {
         long v = Double.doubleToLongBits(d);
         return add(v);
+    }
+
+    public BitBuffer add (byte... bytes) {
+        for (int i=0;i<bytes.length;i++) {
+            add(bytes[i]);
+        }
+
+        return this;
+    }
+
+    public BitBuffer add (char... chars) {
+        for (int i=0;i<chars.length;i++) {
+            add(chars[i]);
+        }
+
+        return this;
+    }
+
+    public BitBuffer add (short... shorts) {
+        for (int i=0;i<shorts.length;i++) {
+            add(shorts[i]);
+        }
+
+        return this;
+    }
+
+    public BitBuffer add (int... ints) {
+        for (int i=0;i<ints.length;i++) {
+            add(ints[i]);
+        }
+
+        return this;
+    }
+
+    public BitBuffer add (float... floats) {
+        for (int i=0;i<floats.length;i++) {
+            add(floats[i]);
+        }
+
+        return this;
+    }
+
+    public BitBuffer add (long... longs) {
+        for (int i=0;i<longs.length;i++) {
+            add(longs[i]);
+        }
+
+        return this;
+    }
+
+    public BitBuffer add (double... doubles) {
+        for (int i=0;i<doubles.length;i++) {
+            add(doubles[i]);
+        }
+
+        return this;
+    }
+
+    public BitBuffer add (CharSequence text) {
+        for (int i=0;i<text.length();i++) {
+            add(text.charAt(i));
+        }
+
+        return this;
     }
 
     public boolean get (int pos) {
@@ -139,12 +205,14 @@ public class BitBuffer {
 
     public int getInt (int pos) {
         byte[] bytes = getBytes(pos, 4);
-        /*
-         for (int i=0;i<4;i++) {
-            bytes[i] = (byte) (v >> (8 * i));
+        int result = 0;
+
+        for (int i=0;i<4;i++) {
+            int j = 3 - i;
+            result |= (bytes[i] & 0xFF) << (8 * j);
         }
-         */
-        return bytes[0] | (bytes[1] << 8) | (bytes[2] << 16) | (bytes[3] << 24);
+
+        return result;
     }
 
     public float getFloat (int pos) {
@@ -153,17 +221,72 @@ public class BitBuffer {
 
     public long getLong (int pos) {
         byte[] bytes = getBytes(pos, 8);
-        long ret = 0;
+        long result = 0;
 
         for (int i=0;i<8;i++) {
-            ret |= ((long) bytes[i] << (8 * (3 - i)));
+            int j = 7 - i;
+            result |= (long) (bytes[i] & 0xFF) << (8 * j);
         }
 
-        return ret;
+        return result;
     }
 
     public double getDouble (int pos) {
         return Double.longBitsToDouble(getLong(pos));
+    }
+
+    public BitBuffer set (int pos, boolean value) {
+        bits[pos] = value;
+        return this;
+    }
+
+    public BitBuffer set (int offset, byte value) {
+        boolean[] bits = getBits(value);
+        for (int i=0;i<8;i++) {
+            set(offset + i, bits[i]);
+        }
+
+        return this;
+    }
+
+    public BitBuffer set (int offset, char value) {
+        for (int i=0;i<2;i++) {
+            set(offset + (8 * i), (byte) (value >> (8 * i)));
+        }
+
+        return this;
+    }
+
+    public BitBuffer set (int offset, short value) {
+        for (int i=0;i<2;i++) {
+            set(offset + (8 * i), (byte) (value >> (8 * i)));
+        }
+
+        return this;
+    }
+
+    public BitBuffer set (int offset, int value) {
+        for (int i=0;i<4;i++) {
+            set(offset + (8 * i), (byte) (value >> (8 * i)));
+        }
+
+        return this;
+    }
+
+    public BitBuffer set (int offset, float value) {
+        return set(offset, Float.floatToIntBits(value));
+    }
+
+    public BitBuffer set (int offset, long value) {
+        for (int i=0;i<8;i++) {
+            set(offset + (8 * i), (byte) (value >> (8 * i)));
+        }
+
+        return this;
+    }
+
+    public BitBuffer set (int offset, double value) {
+        return set(offset, Double.doubleToLongBits(value));
     }
 
     public boolean[] array () {
@@ -171,7 +294,7 @@ public class BitBuffer {
     }
 
     public byte[] byteArray () {
-        return getBytes(0, bits.length / 8);
+        return getBytes(0, Mathx.ceil(bits.length / 8f));
     }
 
     public static boolean getBit (int pos, byte b) {

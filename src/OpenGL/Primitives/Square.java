@@ -23,7 +23,6 @@ public class Square extends Mesh {
 
     public Square (int points) {
         super(points * points, 2 * (points - 1) * (points - 1));
-        System.out.println(getTriangleCount());
 
         float step = 2f / points;
         int k = 0;

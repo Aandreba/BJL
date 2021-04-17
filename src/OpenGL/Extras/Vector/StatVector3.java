@@ -312,6 +312,24 @@ public class StatVector3 extends StatVector {
         return this.mul(k).round().div(k);
     }
 
+    public Vector3 forEachValue(ValueFunction function) {
+        return new Vector3 () {
+            @Override
+            public double get(int pos) {
+                return function.apply(StatVector3.this.get(pos));
+            }
+        };
+    }
+
+    public Vector3 forEachIndex(IndexFunction function) {
+        return new Vector3 () {
+            @Override
+            public double get(int pos) {
+                return function.apply(pos);
+            }
+        };
+    }
+
     public Vector3 toRelative () {
         return new Vector3() {
             @Override

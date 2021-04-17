@@ -1,15 +1,20 @@
 package Extras;
 
+import Extras.Tuples.Couple;
 import Units.Angle;
+import Vector.Vector;
 
-import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
-import java.util.Arrays;
-import java.util.function.Function;
+import java.awt.*;
+import java.text.NumberFormat;
+import java.util.ArrayList;
 
 public class Mathx {
     final public static int standardAccuracy = 1000000;
     final public static float PI = (float) Math.PI;
+    final public static float E = (float) Math.E;
+
+    final public static double GR = (1 + Math.sqrt(5)) / 2;
+    final public static float GRf = (float) GR;
 
     public interface SimpleFunction {
         double apply (double value);
@@ -19,9 +24,13 @@ public class Mathx {
         double apply (int position);
     }
 
-    public interface Summation2Function {
-        double apply (int x, int y);
-    }
+    public static float sqrt (float x) { return (float) Math.sqrt(x); }
+
+    public static float pow (float x, float n) { return (float) Math.pow(x, n); }
+
+    public static double root (double x, double n) { return Math.pow(x, 1/n); }
+
+    public static float root (float x, float n) { return pow(x, 1/n); }
 
     public static float sin (float x) {
         return (float) Math.sin(x);
@@ -55,6 +64,26 @@ public class Mathx {
 
     public static double log (double value, double base) {
         return Math.log10(value) / Math.log10(base);
+    }
+
+    public static int roundToInt (double val) {
+        return (int) Math.round(val);
+    }
+
+    public static int ceil (float value) {
+        return (int) Math.ceil(value);
+    }
+
+    public static long ceil (double value) {
+        return (long) Math.ceil(value);
+    }
+
+    public static int floor (float value) {
+        return (int) Math.floor(value);
+    }
+
+    public static long floor (double value) {
+        return (long) Math.floor(value);
     }
 
     public static double integral (double a, double b, SimpleFunction function) {
@@ -94,10 +123,6 @@ public class Mathx {
 
     public static double clamp (double value, double min, double max) {
         return value < min ? min : (value > max ? max : value);
-    }
-
-    public static int roundToInt (double val) {
-        return (int) Math.round(val);
     }
 
     public static double roundTo (double val, int decimals) {
@@ -148,5 +173,136 @@ public class Mathx {
 
     public static double gamma (double value, int accuracy) {
         return factorial(value - 1, accuracy);
+    }
+
+    public static long fibonacci (int index) {
+        if (index == 0) {
+            return 0;
+        } else if (index == 1) {
+            return 1;
+        }
+
+        return fibonacci(index - 1) + fibonacci(index - 2);
+    }
+
+    private static void writeGraphLimits (Image image, double minX, double maxX, double minY, double maxY) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+
+        int fontSize = roundToInt(root(pow(width,2) + pow(height,2), 4)) / 2;
+
+        String minYString = toString(minY);
+        String maxYString = toString(maxY);
+        int xHeight = (height + fontSize) / 2;
+        int yWidth = (width + fontSize) / 2;
+        String maxXString = toString(maxX);
+
+        image.addText(width / 2 - (fontSize * maxYString.length()) / 4, fontSize, maxYString, Image.defaultFont, Color.BLACK, fontSize);
+        image.addText(width / 2 - (fontSize * minYString.length()) / 4, height - fontSize, minYString, Image.defaultFont, Color.BLACK, fontSize);
+        image.addText(fontSize / 2, xHeight, toString(minX), Image.defaultFont, Color.BLACK, fontSize);
+        image.addText(width - (maxXString.length() + 1) * fontSize / 2, xHeight, maxXString, Image.defaultFont, Color.BLACK, fontSize);
+    }
+
+    public static Image plotGraph (int width, int height, Color bckg, Color color, Couple<? extends Number, ? extends Number>... values) {
+        Image image = new Image(width, height);
+
+        // Extract values into vector
+        Vector x = Vector.forEachIndex(values.length, i -> values[i].one.doubleValue());
+        Vector y = Vector.forEachIndex(values.length, i -> values[i].two.doubleValue());
+
+        double minX = x.min();
+        double maxX = x.max();
+        double minY = y.min();
+        double maxY = y.max();
+
+        // Write limits
+        writeGraphLimits(image, minX, maxX, minY, maxY);
+
+        // Plot values
+        double minmaxX = minX - maxX;
+        double maxminY = maxY - minY;
+        ArrayList<Couple<Integer,Integer>> points = new ArrayList<>();
+
+        for (int i=0;i<values.length;i++) {
+            double X = x.get(i);
+            double Y = y.get(i);
+
+            int w = Math.min(width - 1, roundToInt(width * (minX - X) / (minmaxX)));
+            int h = Math.min(height - 1, roundToInt(height * (maxY - Y) / (maxminY)));
+
+            points.add(new Couple<>(w, h));
+        }
+
+        for (int i=0;i<width;i++) {
+            for (int j=0;j<height;j++) {
+                Couple<Integer,Integer> point = new Couple<>(i, j);
+                image.setPixel(i, j, points.contains(point) ? color : bckg);
+            }
+        }
+
+        return image;
+    }
+
+    public static Image plotGraph (int width, int height, double minX, double maxX, double minY, double maxY, Color bckg, Color color, SimpleFunction formula) {
+        Image image = new Image(width, height);
+
+        // Write limits
+        writeGraphLimits(image, minX, maxX, minY, maxY);
+
+        // Plot values
+        double minmaxX = minX - maxX;
+        double maxminY = maxY - minY;
+
+        for (int i=0;i<width;i++) {
+            double x = (minmaxX * -i) / width + minX;
+            double y = formula.apply(x);
+            int h = Math.min(height - 1, roundToInt(height * (maxY - y) / (maxminY)));
+
+            for (int j=0;j<height;j++) {
+                image.setPixel(i, j, h == j ? color : bckg);
+            }
+        }
+
+        return image;
+    }
+
+    public static Image plotGraph (int width, int height, double from, double to, double step, Color bckg, Color color, SimpleFunction formula) {
+        ArrayList<Couple<Double,Double>> values = new ArrayList<>();
+        double x = from;
+
+        while (x <= to) {
+            double y = formula.apply(x);
+            if (Double.isNaN(y) || Double.isInfinite(y)) {
+                x += step;
+                continue;
+            }
+
+            values.add(new Couple<>(x,y));
+            x += step;
+        }
+
+        return plotGraph(width, height, bckg, color, values.toArray(Couple[]::new));
+    }
+
+    public static Image plotGraph (int width, int height, double from, double to, Color bckg, Color color, SimpleFunction formula) {
+        return plotGraph(width, height, from, to, (to - from) / width, bckg, color, formula);
+    }
+
+    public static String toString (double x) {
+        double abs = Math.abs(x);
+        boolean sign = x < 0;
+
+        if (abs == Math.PI || abs == Mathx.PI) {
+            return sign ? "-π" : "π";
+        } else if (abs == Math.E || abs == Mathx.E) {
+            return sign ? "-e" : "e";
+        } else if (abs == GR || abs == GRf) {
+            return sign ? "-φ" : "φ";
+        }
+
+        final NumberFormat format = NumberFormat.getNumberInstance();
+        String result = format.format(x);
+
+        return result.equals("-0") ? "0" : result;
     }
 }

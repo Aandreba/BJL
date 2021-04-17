@@ -204,7 +204,6 @@ public abstract class Vector3 extends Vector {
         };
     }
 
-
     // Pow
     public Vector3 pow (double b) {
         return new Vector3() {
@@ -275,6 +274,24 @@ public abstract class Vector3 extends Vector {
     public Vector3 round (int to) {
         double k = Math.pow(10,to);
         return this.mul(k).round().div(k);
+    }
+
+    public Vector3 forEachValue(ValueFunction function) {
+        return new Vector3 () {
+            @Override
+            public double get(int pos) {
+                return function.apply(Vector3.this.get(pos));
+            }
+        };
+    }
+
+    public Vector3 forEachIndex(IndexFunction function) {
+        return new Vector3 () {
+            @Override
+            public double get(int pos) {
+                return function.apply(pos);
+            }
+        };
     }
 
     @Override

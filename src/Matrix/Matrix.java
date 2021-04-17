@@ -33,14 +33,36 @@ import static org.jocl.blast.CLBlast.CLBlastSgemm;
 import static org.jocl.blast.CLBlastLayout.CLBlastLayoutRowMajor;
 import static org.jocl.blast.CLBlastTranspose.CLBlastTransposeNo;
 
+/**
+ * {@link Matrix} allows to easily do matrix operations
+ * @author Alex Andreba
+ * @since 0.1A
+ */
 public abstract class Matrix implements Iterable<Vector> {
-    final public int rows, cols;
+    /**
+     * Number of rows
+     */
+    final public int rows;
+
+    /**
+     * Number of columns
+     */
+    final public int cols;
 
     public Matrix (int rows, int cols) {
         this.rows = rows;
         this.cols = cols;
     }
 
+    /**
+     * Create matrix that returns random numbers
+     * @param rows Number of rows
+     * @param cols Number of cols
+     * @param from Minimum value
+     * @param to Maximum value
+     * @return Specified matrix
+     * @see Rand
+     */
     public static Matrix random (int rows, int cols, double from, double to) {
         return new Matrix (rows, cols) {
             @Override
@@ -50,24 +72,55 @@ public abstract class Matrix implements Iterable<Vector> {
         };
     }
 
+    /**
+     * Create matrix that returns random numbers between -1 and 1
+     * @see #random(int, int, double, double)
+     */
     public static Matrix random (int rows, int cols) {
         return random(rows, cols, -1, 1);
     }
 
+    /**
+     * Returns number of rows
+     * @deprecated Used for legacy content. Preferably use {@link #rows}
+     * @return Number of rows
+     */
+    @Deprecated
     public int getRows() {
         return rows;
     }
 
+    /**
+     * Returns number of columns
+     * @deprecated Used for legacy content. Preferably use {@link #cols}
+     * @return Number of columns
+     */
+    @Deprecated
     public int getCols() {
         return cols;
     }
 
+    /**
+     * Call to retrieve value from {@link Matrix}
+     * @param row Value's row
+     * @param col Value's col
+     * @return Value at specified position
+     */
     public abstract double get (int row, int col);
 
+    /**
+     * Retrieve specified value as a {@link Float}
+     * @see #get(int, int)
+     */
     public float getFloat (int row, int col) {
         return (float)get(row, col);
     }
 
+    /**
+     * Retrieve a full row
+     * @param row Desired row
+     * @return Specified row as a {@link Vector}
+     */
     public Vector get (int row) {
         return new Vector(cols) {
             @Override
@@ -77,6 +130,10 @@ public abstract class Matrix implements Iterable<Vector> {
         };
     }
 
+    /**
+     * Retrieve all values
+     * @return Array containing matrix's values
+     */
     public double[][] toArray () {
         double[][] array = new double[rows][cols];
 
@@ -89,6 +146,10 @@ public abstract class Matrix implements Iterable<Vector> {
         return array;
     }
 
+    /**
+     * Retrieve all values as {@link Float}
+     * @see #toArray()
+     */
     public float[][] toFloatArray () {
         float[][] array = new float[rows][cols];
 
@@ -101,6 +162,9 @@ public abstract class Matrix implements Iterable<Vector> {
         return array;
     }
 
+    /**
+     * @return {@link Matrix} as a {@link Vector} in row-major order
+     */
     public Vector toVector () {
         return new Vector(rows * cols) {
             @Override
@@ -113,6 +177,10 @@ public abstract class Matrix implements Iterable<Vector> {
         };
     }
 
+    /**
+     * Stores current {@link Matrix} values inside a {@link StatMatrix}
+     * @return Resulting {@link StatMatrix}
+     */
     public StatMatrix toStatic () {
         StatMatrix ret = new StatMatrix(rows, cols);
         for (int i=0;i<rows;i++) {
@@ -142,6 +210,12 @@ public abstract class Matrix implements Iterable<Vector> {
     }
 
     // Sums
+
+    /**
+     * Adds up two matrices
+     * @param b Matrix to sum
+     * @return Resulting {@link Matrix}
+     */
     public Matrix sum (Matrix b) {
         return new Matrix(rows, cols) {
             @Override
@@ -151,6 +225,11 @@ public abstract class Matrix implements Iterable<Vector> {
         };
     }
 
+    /**
+     * Sums
+     * @param b Matrix to sum
+     * @return Resulting {@link Matrix}
+     */
     public Matrix sum (Vector b) {
         return new Matrix(rows, cols) {
             @Override
