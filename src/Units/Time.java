@@ -13,7 +13,8 @@ public class Time implements Comparable<Time>, Serializable {
         Minutes(60, "m"),
         Seconds(1, "s"),
         Milliseconds(1e-3, "ms"),
-        Nanoseconds(1e-9, "ns");
+        Nanoseconds(1e-9, "ns"),
+        Picoseconds(1e-12, "ps");
 
         double w;
         String symbol;
@@ -101,7 +102,7 @@ public class Time implements Comparable<Time>, Serializable {
         }
 
         if (out.equals("")) {
-            return format.format(getValue(Type.Nanoseconds))+" ns";
+            return format.format(getValue(Type.Picoseconds))+" ps";
         }
 
         return out.substring(1);

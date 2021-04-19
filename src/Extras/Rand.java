@@ -54,12 +54,30 @@ public class Rand {
         return random.nextLong();
     }
 
+    public static long getULong () {
+        long ulong;
+        do {
+            ulong = random.nextLong();
+        } while (ulong < 0);
+
+        return ulong;
+    }
+
     public static long getLong (long from, long to) {
         return Math.round(getDouble(from, to));
     }
 
     // Int
     public static int getInt () {
+        return random.nextInt();
+    }
+
+    public static int getUInt () {
+        int uint;
+        do {
+            uint = random.nextInt();
+        } while (uint < 0);
+
         return random.nextInt();
     }
 

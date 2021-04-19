@@ -289,6 +289,17 @@ public class BitBuffer {
         return set(offset, Double.doubleToLongBits(value));
     }
 
+    public BitBuffer flipped () {
+        BitBuffer buffer = new BitBuffer(bits.length);
+
+        for (int i=0;i<bits.length;i++) {
+            int j = (bits.length - 1) - i;
+            buffer.set(j, bits[i]);
+        }
+
+        return buffer;
+    }
+
     public boolean[] array () {
         return bits;
     }

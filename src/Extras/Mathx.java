@@ -2,19 +2,24 @@ package Extras;
 
 import Extras.Tuples.Couple;
 import Units.Angle;
+import Units.ByteSize;
 import Vector.Vector;
 
 import java.awt.*;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.BitSet;
 
 public class Mathx {
     final public static int standardAccuracy = 1000000;
     final public static float PI = (float) Math.PI;
     final public static float E = (float) Math.E;
 
-    final public static double GR = (1 + Math.sqrt(5)) / 2;
+    final public static double sqrt5 = Math.sqrt(5);
+    final public static double GR = (1 + sqrt5) / 2;
     final public static float GRf = (float) GR;
+    final public static double GRlog = Math.log(GR);
 
     public interface SimpleFunction {
         double apply (double value);
@@ -86,6 +91,14 @@ public class Mathx {
         return (long) Math.floor(value);
     }
 
+    public static int getExponent (float value) {
+        final ByteSize size = new ByteSize(4);
+        final BitBuffer buffer = new BitBuffer(size).set(0, value).flipped();
+        byte exp = buffer.getByte(23);
+
+        return Byte.toUnsignedInt(exp) - 127;
+    }
+
     public static double integral (double a, double b, SimpleFunction function) {
         double h = (b - a) / 8;
         return h * (function.apply(a) + 3 * function.apply((2 * a + b) / 3) + 3 * function.apply((a + 2*b) / 3) + function.apply(b));
@@ -148,7 +161,6 @@ public class Mathx {
         if (value < 0) {
             return 0;
         }
-
         return Math.sqrt(2 * Math.PI * value) * Math.pow(value / Math.E, value);
     }
 
@@ -175,14 +187,70 @@ public class Mathx {
         return factorial(value - 1, accuracy);
     }
 
-    public static long fibonacci (int index) {
-        if (index == 0) {
-            return 0;
-        } else if (index == 1) {
-            return 1;
+    public static double fibonacci (int index) {
+        if (index >= 0) {
+            double res = Math.pow(GR, index) / sqrt5;
+            return index < 91 ? Math.round(res) : (index <= 1476 ? res : Double.NaN);
         }
 
-        return fibonacci(index - 1) + fibonacci(index - 2);
+        return Math.round((Math.pow(GR, index) - Math.pow(1 - GR, index)) / sqrt5);
+    }
+
+    public static double alexFibonacci (int index) {
+        double res = Math.pow(GR, index - GR);
+        return index < 91 ? Math.round(res) : (index <= 1476 ? res : Double.NaN);
+    }
+
+    public static double pascalTriangle (int row, int col) {
+        return factorial(row) * 1d / (factorial(col) * factorial(row - col));
+    }
+
+    public static double stirlingPascalTriangle (int row, int col) {
+        return stirlingFactorial(row) / (stirlingFactorial(col) * stirlingFactorial(row - col));
+    }
+
+    public static double binomial (double x, double y, int n) {
+        double nFactorial = factorial(n);
+
+        return summation(0, n, k -> {
+            double kFactorial = factorial(k);
+            double pascal = nFactorial / (kFactorial * factorial(n - k));
+
+            return pascal * Math.pow(x, n-k) * Math.pow(y,k);
+        });
+    }
+
+    public static double stirlingBinomial (double x, double y, int n) {
+        double nFactorial = stirlingFactorial(n);
+
+        return summation(0, n, k -> {
+            double kFactorial = stirlingFactorial(k);
+            double pascal = nFactorial / (kFactorial * stirlingFactorial(n - k));
+
+            return pascal * Math.pow(x, n-k) * Math.pow(y,k);
+        });
+    }
+
+    public static double binomial (double x, int n) {
+        double nFactorial = factorial(n);
+
+        return summation(0, n, k -> {
+            double kFactorial = factorial(k);
+            double pascal = nFactorial / (kFactorial * factorial(n - k));
+
+            return pascal * Math.pow(x, k);
+        });
+    }
+
+    public static double stirlingBinomial (double x, int n) {
+        double nFactorial = stirlingFactorial(n);
+
+        return summation(0, n, k -> {
+            double kFactorial = stirlingFactorial(k);
+            double pascal = nFactorial / (kFactorial * stirlingFactorial(n - k));
+
+            return pascal * Math.pow(x, k);
+        });
     }
 
     private static void writeGraphLimits (Image image, double minX, double maxX, double minY, double maxY) {
@@ -194,7 +262,6 @@ public class Mathx {
         String minYString = toString(minY);
         String maxYString = toString(maxY);
         int xHeight = (height + fontSize) / 2;
-        int yWidth = (width + fontSize) / 2;
         String maxXString = toString(maxX);
 
         image.addText(width / 2 - (fontSize * maxYString.length()) / 4, fontSize, maxYString, Image.defaultFont, Color.BLACK, fontSize);
@@ -203,7 +270,7 @@ public class Mathx {
         image.addText(width - (maxXString.length() + 1) * fontSize / 2, xHeight, maxXString, Image.defaultFont, Color.BLACK, fontSize);
     }
 
-    public static Image plotGraph (int width, int height, Color bckg, Color color, Couple<? extends Number, ? extends Number>... values) {
+    public static Image plotGraph (int width, int height, Color bckg, Color color, int spacing, Couple<? extends Number, ? extends Number>... values) {
         Image image = new Image(width, height);
 
         // Extract values into vector
@@ -230,12 +297,14 @@ public class Mathx {
             int w = Math.min(width - 1, roundToInt(width * (minX - X) / (minmaxX)));
             int h = Math.min(height - 1, roundToInt(height * (maxY - Y) / (maxminY)));
 
-            points.add(new Couple<>(w, h));
+            for (int k=-spacing;k<=spacing;k++) {
+                points.add(new Couple<>(w, h+k));
+            }
         }
 
         for (int i=0;i<width;i++) {
             for (int j=0;j<height;j++) {
-                Couple<Integer,Integer> point = new Couple<>(i, j);
+                Couple<Integer, Integer> point = new Couple<>(i, j);
                 image.setPixel(i, j, points.contains(point) ? color : bckg);
             }
         }
@@ -243,7 +312,7 @@ public class Mathx {
         return image;
     }
 
-    public static Image plotGraph (int width, int height, double minX, double maxX, double minY, double maxY, Color bckg, Color color, SimpleFunction formula) {
+    public static Image plotGraph (int width, int height, double minX, double maxX, double minY, double maxY, Color bckg, Color color, int spacing, SimpleFunction formula) {
         Image image = new Image(width, height);
 
         // Write limits
@@ -259,14 +328,14 @@ public class Mathx {
             int h = Math.min(height - 1, roundToInt(height * (maxY - y) / (maxminY)));
 
             for (int j=0;j<height;j++) {
-                image.setPixel(i, j, h == j ? color : bckg);
+                image.setPixel(i, j, Math.abs(j - h) <= spacing ? color : bckg);
             }
         }
 
         return image;
     }
 
-    public static Image plotGraph (int width, int height, double from, double to, double step, Color bckg, Color color, SimpleFunction formula) {
+    public static Image plotGraph (int width, int height, double from, double to, double step, Color bckg, Color color, int spacing, SimpleFunction formula) {
         ArrayList<Couple<Double,Double>> values = new ArrayList<>();
         double x = from;
 
@@ -281,11 +350,11 @@ public class Mathx {
             x += step;
         }
 
-        return plotGraph(width, height, bckg, color, values.toArray(Couple[]::new));
+        return plotGraph(width, height, bckg, color, spacing, values.toArray(Couple[]::new));
     }
 
-    public static Image plotGraph (int width, int height, double from, double to, Color bckg, Color color, SimpleFunction formula) {
-        return plotGraph(width, height, from, to, (to - from) / width, bckg, color, formula);
+    public static Image plotGraph (int width, int height, double from, double to, Color bckg, Color color, int spacing, SimpleFunction formula) {
+        return plotGraph(width, height, from, to, (to - from) / width, bckg, color, spacing, formula);
     }
 
     public static String toString (double x) {
