@@ -1,11 +1,14 @@
 package OpenGL.Input;
 
 import OpenGL.Extras.Vector.StatVector2;
+import OpenGL.Extras.Vector.Vector2;
+import OpenGL.Extras.Vector.Vector3;
 import OpenGL.Input.Buttons.GamepadButton;
 import OpenGL.Input.Buttons.KeyCode;
 import OpenGL.Input.Gamepad.GamepadAxes;
 import OpenGL.Input.Gamepad.GamepadAxis;
 import OpenGL.Input.Gamepad.GamepadState;
+import OpenGL.Transform;
 import OpenGL.Window;
 import java.util.HashMap;
 
@@ -85,6 +88,14 @@ public class Input {
 
     public boolean isPressed (Joystick joystick, GamepadButton key) {
         return buttonPressed.get(joystick).getOrDefault(key, false);
+    }
+
+    public boolean isHovering (Transform transform) {
+        StatVector2 rel = getMouseRel();
+        Vector2 pos = transform.position.xy();
+
+        Vector2 dist = rel.subtr(pos);
+        return dist.x() <= transform.scale.x() || dist.y() <= transform.scale.y();
     }
 
     public StatVector2 getMouse () {

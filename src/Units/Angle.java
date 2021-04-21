@@ -1,6 +1,8 @@
 package Units;
 
 import Extras.Mathx;
+import OpenGL.Extras.Vector.StatVector2;
+import OpenGL.Extras.Vector.Vector2;
 
 import java.io.Serializable;
 import java.text.NumberFormat;
@@ -81,6 +83,19 @@ public class Angle implements Serializable {
         return Mathx.tan(value);
     }
 
+    public Vector2 normal () {
+        return new Vector2() {
+            @Override
+            public double get (int pos) {
+                if (pos == 0) {
+                    return Angle.this.cos();
+                }
+
+                return Angle.this.sin();
+            }
+        };
+    }
+
     // Get value
     public double getValue (Type type) {
         return this.value / type.w;
@@ -104,6 +119,6 @@ public class Angle implements Serializable {
 
     @Override
     public String toString() {
-        return toString(Type.Radians);
+        return toString(Type.Degrees);
     }
 }

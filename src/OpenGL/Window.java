@@ -152,6 +152,8 @@ public abstract class Window extends ArrayList<GameObject> implements Runnable {
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
 
+    public abstract void start ();
+
     public abstract void update (Time deltaTime);
 
     public int getWidth() {
@@ -312,6 +314,7 @@ public abstract class Window extends ArrayList<GameObject> implements Runnable {
     @Override
     public void run() {
         try {
+            start();
             loop();
         } catch (Exception e) {
             e.printStackTrace();

@@ -8,13 +8,12 @@ import Vector.Vector;
 import java.awt.*;
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.BitSet;
 
 public class Mathx {
     final public static int standardAccuracy = 1000000;
     final public static float PI = (float) Math.PI;
     final public static float E = (float) Math.E;
+    final public static double pi2 = 2 * Math.PI;
 
     final public static double sqrt5 = Math.sqrt(5);
     final public static double GR = (1 + sqrt5) / 2;
@@ -25,7 +24,7 @@ public class Mathx {
         double apply (double value);
     }
 
-    public interface SummationFunction {
+    public interface IntegerFunction {
         double apply (int position);
     }
 
@@ -125,7 +124,7 @@ public class Mathx {
         return sum * 3 * h / 8;
     }
 
-    public static double summation (int from, int to, SummationFunction function) {
+    public static double summation (int from, int to, IntegerFunction function) {
         double v = 0;
         for (int n=from;n<=to;n++) {
             v += function.apply(n);
@@ -148,8 +147,8 @@ public class Mathx {
         return Math.round(val * pow) / pow;
     }
 
-    public static long factorial (int value) {
-        long v = 1;
+    public static double factorial (int value) {
+        double v = 1;
         for (int i=2;i<=value;i++) {
             v *= i;
         }
@@ -160,8 +159,11 @@ public class Mathx {
     public static double stirlingFactorial (double value) {
         if (value < 0) {
             return 0;
+        } else if (value == 0) {
+            return 1;
         }
-        return Math.sqrt(2 * Math.PI * value) * Math.pow(value / Math.E, value);
+
+        return Math.sqrt(pi2 * value) * Math.pow(value / Math.E, value);
     }
 
     public static float factorial (double value) {
@@ -174,8 +176,7 @@ public class Mathx {
         } else if (value > 0) {
             return integral(0, 1, accuracy, x -> x == 0 ? 0 : Math.pow(Math.log(1 / x), value));
         } else {
-            // TODO Negative factorial
-            return 0;
+            return gamma(1 + value, accuracy);
         }
     }
 
@@ -184,7 +185,18 @@ public class Mathx {
     }
 
     public static double gamma (double value, int accuracy) {
-        return factorial(value - 1, accuracy);
+        double[] lastFactorial = new double[]{ 1 };
+
+        double integral = integral(1, accuracy, accuracy, t -> Math.exp(-t) * Math.pow(t, value - 1));
+        double summation = summation(0, accuracy, k -> {
+            if (k > 0) {
+                lastFactorial[0] *= k;
+            }
+
+            return Math.pow(-1, k) / ((k + value) * lastFactorial[0]);
+        });
+
+        return integral + summation;
     }
 
     public static double fibonacci (int index) {
@@ -202,55 +214,43 @@ public class Mathx {
     }
 
     public static double pascalTriangle (int row, int col) {
-        return factorial(row) * 1d / (factorial(col) * factorial(row - col));
+        double n = 1;
+        double k = 1;
+        double nk = 1;
+        double val = 1;
+
+        int diff = row - col;
+        int max = Math.max(Math.max(row, col), diff);
+
+        for (int i=2;i<=max;i++) {
+            val *= i;
+
+            if (row == i) {
+                n = val;
+            }
+
+            if (col == i) {
+                k = val;
+            }
+
+            if (diff == i) {
+                nk = val;
+            }
+        }
+
+        return n / (k * nk);
     }
 
-    public static double stirlingPascalTriangle (int row, int col) {
+    public static double pascalTriangle (double row, double col) {
+        return pascalTriangle(row, col, standardAccuracy);
+    }
+
+    public static double pascalTriangle (double row, double col, int accuracy) {
+        return factorial(row, accuracy) / (factorial(col, accuracy) * factorial(row - col, accuracy));
+    }
+
+    public static double stirlingPascalTriangle (double row, double col) {
         return stirlingFactorial(row) / (stirlingFactorial(col) * stirlingFactorial(row - col));
-    }
-
-    public static double binomial (double x, double y, int n) {
-        double nFactorial = factorial(n);
-
-        return summation(0, n, k -> {
-            double kFactorial = factorial(k);
-            double pascal = nFactorial / (kFactorial * factorial(n - k));
-
-            return pascal * Math.pow(x, n-k) * Math.pow(y,k);
-        });
-    }
-
-    public static double stirlingBinomial (double x, double y, int n) {
-        double nFactorial = stirlingFactorial(n);
-
-        return summation(0, n, k -> {
-            double kFactorial = stirlingFactorial(k);
-            double pascal = nFactorial / (kFactorial * stirlingFactorial(n - k));
-
-            return pascal * Math.pow(x, n-k) * Math.pow(y,k);
-        });
-    }
-
-    public static double binomial (double x, int n) {
-        double nFactorial = factorial(n);
-
-        return summation(0, n, k -> {
-            double kFactorial = factorial(k);
-            double pascal = nFactorial / (kFactorial * factorial(n - k));
-
-            return pascal * Math.pow(x, k);
-        });
-    }
-
-    public static double stirlingBinomial (double x, int n) {
-        double nFactorial = stirlingFactorial(n);
-
-        return summation(0, n, k -> {
-            double kFactorial = stirlingFactorial(k);
-            double pascal = nFactorial / (kFactorial * stirlingFactorial(n - k));
-
-            return pascal * Math.pow(x, k);
-        });
     }
 
     private static void writeGraphLimits (Image image, double minX, double maxX, double minY, double maxY) {

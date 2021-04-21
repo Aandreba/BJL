@@ -1,5 +1,6 @@
 package Vector;
 
+import Extras.Mathx;
 import Matrix.Matrix;
 import Extras.Rand;
 import OpenGL.Extras.Vector.Vector3;
@@ -404,6 +405,25 @@ public abstract class Vector {
             public double get(int pos) {
                 double v = Vector.this.get(pos);
                 return isMax ? Math.min(v,value) : Math.max(v,value);
+            }
+        };
+    }
+
+    // Factorial
+    public Vector factorial () {
+        return new Vector (length) {
+            @Override
+            public double get(int pos) {
+                return Mathx.factorial(Vector.this.get(pos));
+            }
+        };
+    }
+
+    public Vector stirlingFactorial () {
+        return new Vector (length) {
+            @Override
+            public double get(int pos) {
+                return Mathx.stirlingFactorial(Vector.this.get(pos));
             }
         };
     }

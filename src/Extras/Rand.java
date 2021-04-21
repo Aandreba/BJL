@@ -4,7 +4,7 @@ import Matrix.Matrix;
 import Matrix.StatMatrix;
 import OpenGL.Extras.Vector.StatVector2;
 import OpenGL.Extras.Vector.Vector2;
-import OpenGL.Extras.Vector.Vector3;
+import Units.Angle;
 import Vector.StatVector;
 import Vector.Vector;
 
@@ -16,6 +16,7 @@ import java.util.Random;
 
 public class Rand {
     final private static Random random = new Random();
+    final private static FastNoiseLite noise = new FastNoiseLite();
 
     // Double
     public static double getDouble () {
@@ -175,11 +176,45 @@ public class Rand {
         return vals[Rand.getInt(0, vals.length - 1)];
     }
 
-    public static double noise2D (Random random, double x) {
-        return 2 * random.nextDouble() - 1;
+    public static float noise2D (float x, float y, int seed, FastNoiseLite.NoiseType type, float frequency) {
+        noise.SetSeed(seed);
+        noise.SetNoiseType(type);
+        noise.SetFrequency(frequency);
+
+        return noise.GetNoise(x, y);
     }
 
-    public static double noise2D (double x) {
-        return noise2D(random, x);
+    public static float noise2D (float x, float y) {
+        return noise2D(x, y, 1337, FastNoiseLite.NoiseType.OpenSimplex2, 0.01f);
+    }
+
+    public static double pseudoFourier (Random random, double x, int size) {
+        StatVector values = new StatVector(size);
+        double n2 = size * size;
+
+        for (int i=0;i<size;i++) {
+            double amplitude = 2 * random.nextDouble() - 1;
+            double frequency = size * random.nextDouble();
+
+            values.set(i, amplitude * Math.cos(Mathx.pi2 * frequency * x));
+        }
+
+        double sum = values.getSum() + Math.E;
+        double sumFactorial = Mathx.stirlingFactorial(sum) / size;
+        double factorialSum = values.stirlingFactorial().getSum() / n2;
+
+        return sum * sumFactorial * factorialSum / n2;
+    }
+
+    public static double pseudoFourier (long seed, double x, int size) {
+        return pseudoFourier(new Random(seed), x, size);
+    }
+
+    public static double pseudoFourier (double x, int size) {
+        return pseudoFourier(random, x, size);
+    }
+
+    public static double pseudoFourier2D (long seed, double x, double y, int size) {
+        return pseudoFourier(seed, (x * Math.sin(y)) / Mathx.pi2, size) + pseudoFourier(seed, (y * Math.cos(x)) / Mathx.pi2, size);
     }
 }

@@ -22,22 +22,6 @@ public class Benchmark extends ArrayList<Runnable> {
     }
 
     /**
-     * Benckmarks runnable
-     * @param epochs Amount of times runnable has to be run
-     * @param run Runnable to execute
-     * @return Time to execute {@param epochs} {@param run} in nanoseconds
-     */
-    public static Time benchmark (int epochs, Runnable run) {
-        long start = System.nanoTime();
-        for (int i=0;i<epochs;i++) {
-            run.run();
-        }
-        long end = System.nanoTime();
-
-        return new Time(end - start, Time.Type.Nanoseconds);
-    }
-
-    /**
      * Benchmarks runnable inside class
      * @param epochs Amount of times runnable has to be run
      * @param index Runnable's index
@@ -105,5 +89,21 @@ public class Benchmark extends ArrayList<Runnable> {
         } catch (Exception e) {
             preRun.add(index, run);
         }
+    }
+
+    /**
+     * Benckmarks runnable
+     * @param epochs Amount of times runnable has to be run
+     * @param run Runnable to execute
+     * @return Time to execute {@param epochs} {@param run} in nanoseconds
+     */
+    public static Time benchmark (int epochs, Runnable run) {
+        long start = System.nanoTime();
+        for (int i=0;i<epochs;i++) {
+            run.run();
+        }
+        long end = System.nanoTime();
+
+        return new Time(end - start, Time.Type.Nanoseconds);
     }
 }

@@ -91,6 +91,10 @@ public class GameObject {
      * Render mesh on screen
      */
     public void render () {
+        if (mesh == null) {
+            return;
+        }
+
         window.shader.setUniform("transform", this.transform.matrix);
         material.setAsUniform(window.shader);
 
@@ -117,7 +121,9 @@ public class GameObject {
     }
 
     public void cleanup () {
-        mesh.cleanup();
+        if (mesh != null) {
+            mesh.cleanup();
+        }
         material.cleanup();
     }
 }

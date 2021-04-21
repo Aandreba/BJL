@@ -138,24 +138,16 @@ public class Collision {
         };
     }
 
-    public StatVector3[] calculate3D (Vector3 p0) {
-        StatVector3 d = x2.subtr(x1).getNormalized().toStatic(); // Direction #2
-        StatVector3 n = p0.getNormalized().subtr(d).getNormalized().toStatic(); // Direction #1
-
+    public StatVector3[] calculate3D (Vector3 p0, StatVector3 n, StatVector3 d) {
         StatVector3 n2 = n.pow(2).toStatic();
         StatVector3 d2 = d.pow(2).toStatic();
 
         Vector3 phi = n2.mul(m1 * (cor1 * ke1i + cor2 * ke2i)).subtr(p0).div(m2);
         StatVector3 alpha = n2.mul(m1).sum(d2.mul(m2)).toStatic();
 
-        StatVector3 v2 = d.mul(alpha.mul(phi).sum(d2.mul(p0.pow(2))).pow(1/2d)).sum(d2.mul(p0)).div(alpha).toStatic();
-        for (int i=0;i<3;i++) {
-            if (Double.isNaN(v2.get(i))) {
-                v2.set(i, 0);
-            }
-        }
-
+        StatVector3 v2 = d.mul(alpha.mul(phi).sum(d2.mul(p0.pow(2))).pow(1/2d)).sum(d2.mul(p0)).div(alpha).forEachValue(x -> Double.isNaN(x) || Double.isInfinite(x) ? 0 : x).toStatic();
         StatVector3 v1 = p0.subtr(v2.mul(m2)).div(m1).toStatic();
+
         return new StatVector3[] { v1, v2 };
     }
 
@@ -169,7 +161,11 @@ public class Collision {
         Vector3 p2i = v2i.mul(m2);
 
         Vector3 p0 = p1i.sum(p2i);
-        StatVector3[] result = calculate3D(p0);
+        StatVector3 n = x1.subtr(collisionPoint).getNormalized().toStatic(); // Direction #1
+        StatVector3 d = x2.subtr(collisionPoint).getNormalized().toStatic(); // Direction #2
+
+        System.out.println(n+", "+d);
+        StatVector3[] result = calculate3D(p0, n, d);
 
         rb1.setAngularForce(result[0].mul(-m1), d1, delta);
         rb2.setAngularForce(result[1].mul(-m2), d2, delta);

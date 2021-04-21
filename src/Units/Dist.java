@@ -60,7 +60,8 @@ public class Dist implements Comparable<Dist>, Serializable {
     public enum Astronomical implements Type {
         Parsecs(3.0857e16,"pc"),
         LightYears(9.4607e15,"ly"),
-        AstronomicalUnits(1.495978707e11,"au");
+        AstronomicalUnits(1.495978707e11,"au"),
+        LightSeconds(299792458,"ls");
 
         double w;
         String s;

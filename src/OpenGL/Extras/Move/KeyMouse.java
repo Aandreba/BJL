@@ -39,13 +39,13 @@ public class KeyMouse extends Movement {
 
     @Override
     public Vector3 movementTranslate(Time delta) {
-        return new StatVector3(getValue(right, left), getValue(up, down), getValue(backward, forward)).toRelative().mul(delta.getValue());
+        return new StatVector3(getValue(right, left), getValue(up, down), getValue(backward, forward)).mul(speed * delta.getValue());
     }
 
     @Override
     public void rotate(Time delta) {
-        Vector2 rot = window.input.getMouseRel().toRelative().subtr(0.5f).mul(-2 * Math.PI);
-        transform.setRotation(new StatVector3(Mathx.roundTo(rot.y(), accuracy), Mathx.roundTo(rot.x(), accuracy), 0).toRelative());
+        Vector2 rot = window.input.getMouseRel().subtr(0.5f).mul(-2 * Math.PI);
+        transform.setRotation(new StatVector3(Mathx.roundTo(rot.y(), accuracy), Mathx.roundTo(rot.x(), accuracy), 0));
     }
 
     private int getValue (KeyCode plus, KeyCode minus) {

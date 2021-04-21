@@ -107,7 +107,19 @@ public class Transform {
         this.position.set(2, pos.get(2));
     }
 
+    public void setPosition (StatVector3 pos) {
+        this.position.set(0, pos.get(0));
+        this.position.set(1, pos.get(1));
+        this.position.set(2, pos.get(2));
+    }
+
     public void setRotation (Vector3 rot) {
+        this.rotation.set(0, rot.get(0));
+        this.rotation.set(1, rot.get(1));
+        this.rotation.set(2, rot.get(2));
+    }
+
+    public void setRotation (StatVector3 rot) {
         this.rotation.set(0, rot.get(0));
         this.rotation.set(1, rot.get(1));
         this.rotation.set(2, rot.get(2));

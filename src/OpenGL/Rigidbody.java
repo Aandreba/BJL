@@ -34,7 +34,7 @@ public class Rigidbody {
         this.object = object;
         this.mass = mass;
 
-        this.drag = 0;
+        this.drag = 0f;
         this.angularDrag = 0;
         this.cor = 1;
         this.applyGravity = true;

@@ -1,14 +1,16 @@
 import Extras.BitBuffer;
 import Extras.Mathx;
+import Extras.Rand;
+import OpenGL.*;
 import OpenGL.Extras.Move.KeyMouse;
+import OpenGL.Extras.Move.Movement;
 import OpenGL.Extras.Vector.StatVector3;
-import OpenGL.GameObject;
+import OpenGL.Extras.Vector.Vector3;
 import OpenGL.Input.Buttons.KeyCode;
 import OpenGL.Primitives.Cube;
 import OpenGL.Primitives.Objects.Terrain;
+import OpenGL.Primitives.Objects.Text;
 import OpenGL.Primitives.Sphere;
-import OpenGL.Rigidbody;
-import OpenGL.Texture;
 import OpenGL.Window;
 import Units.Mass;
 import Units.Time;
@@ -21,37 +23,58 @@ import java.util.Arrays;
 public class Test {
     public static void main (String[] args) throws Exception {
         Window window = new Window ("Hello world", 900, 900, false) {
-            KeyMouse move = new KeyMouse(this);
+            KeyMouse move = null;
 
             @Override
-            public void update(Time deltaTime) {
+            public void start () {
+                move = new KeyMouse(this, 10);
+            }
+
+            @Override
+            public void update (Time deltaTime) {
+                move.update(deltaTime);
+
                 if (input.isPressed(KeyCode.Escape)) {
+                    cleanup();
                     System.exit(1);
                 }
-                move.update(deltaTime);
             }
         };
 
-        Terrain terrain = new Terrain(50, new Texture("sample.bmp"));
-        terrain.updateNoise();
-        //System.out.println(terrain.mesh.vertexMatrix());
-        terrain.transform.setPosition(0, 0, -2);
-        //terrain.transform.setScale(50f);
+        /*HUD hud = window.createHUD();
+        Text text = new Text("Hi!", "Arial");
+        text.transform.setScale(0.25f);
+        text.transform.setPosition(0, 0, 0);
+        hud.add(text);*/
 
-        /*GameObject object = new GameObject(new Cube(), Color.RED);
-        object.transform.setScale(0.25f);
-        object.transform.setPosition(0, 10, -2);
-        object.createBoxCollider();
+        GameObject terrain = new GameObject(new Sphere(100, 100), Color.WHITE);
+        terrain.createSphereCollider();
+        terrain.createRigidbody(new Mass(Float.MAX_VALUE));
+        terrain.rb.applyGravity = false;
 
-        Rigidbody rb = object.createRigidbody(new Mass(1));
-        rb.cor = 0.5f;
-        rb.applyGravity = false;
-        rb.setAngularVelocity(0,0,0);
-        rb.setVelocity(-0.5, 0, 0);*/
+        terrain.transform.setScale(10);
+        terrain.transform.setPosition(0, -2, 0);
 
-        window.getMainCamera().setPosition(0, 0, 2);
+        GameObject ball = createBall();
+        GameObject ball2 = createBall();
+        ball2.transform.position.set(1, 30);
+
+        window.getMainCamera().setPosition(0, 25, -5);
         window.add(terrain);
-        //window.add(object);
+        window.add(ball);
+        window.add(ball2);
         window.run();
+    }
+
+    public static GameObject createBall () {
+        GameObject ball = new GameObject(new Sphere(), Rand.getColorRGB());
+        ball.transform.setPosition(0, 20, 0);
+        ball.transform.setScale(Rand.getFloat(0.5f, 2));
+
+        ball.createSphereCollider();
+        ball.createRigidbody(new Mass(Rand.getDouble(0.5, 10)));
+        ball.rb.cor = 0.9f;
+
+        return ball;
     }
 }
