@@ -11,6 +11,11 @@ public class Couple<A,B> {
         this.two = two;
     }
 
+    public Couple () {
+        this.one = null;
+        this.two = null;
+    }
+
     public Couple<B,A> flipped() {
         return new Couple<>(two, one);
     }

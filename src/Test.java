@@ -1,24 +1,13 @@
-import Extras.BitBuffer;
-import Extras.Mathx;
 import Extras.Rand;
 import OpenGL.*;
 import OpenGL.Extras.Move.KeyMouse;
-import OpenGL.Extras.Move.Movement;
-import OpenGL.Extras.Vector.StatVector3;
-import OpenGL.Extras.Vector.Vector3;
 import OpenGL.Input.Buttons.KeyCode;
-import OpenGL.Primitives.Cube;
-import OpenGL.Primitives.Objects.Terrain;
-import OpenGL.Primitives.Objects.Text;
 import OpenGL.Primitives.Sphere;
 import OpenGL.Window;
 import Units.Mass;
 import Units.Time;
 
 import java.awt.*;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 public class Test {
     public static void main (String[] args) throws Exception {

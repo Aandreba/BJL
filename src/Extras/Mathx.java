@@ -18,7 +18,6 @@ public class Mathx {
     final public static double sqrt5 = Math.sqrt(5);
     final public static double GR = (1 + sqrt5) / 2;
     final public static float GRf = (float) GR;
-    final public static double GRlog = Math.log(GR);
 
     public interface SimpleFunction {
         double apply (double value);

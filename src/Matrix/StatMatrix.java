@@ -12,7 +12,7 @@ public class StatMatrix extends RelMatrix {
         this.values = new double[rows][cols];
     }
 
-    public StatMatrix (double[][] values) {
+    public StatMatrix (double[]... values) {
         super(values.length, values[0].length);
         this.values = values;
     }
