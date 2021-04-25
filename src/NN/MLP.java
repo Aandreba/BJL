@@ -6,8 +6,9 @@ import Matrix.RelMatrix;
 import Matrix.StatMatrix;
 import NN.Functions.ActivationFunction;
 import NN.Functions.LossFunction;
-import Vector.Vector;
+import Vector.StatVector;
 import Vector.RelVector;
+import Vector.Vector;
 
 public class MLP {
     final private Layer[] layers;
@@ -50,18 +51,23 @@ public class MLP {
             out[i+1] = layers[i].activation.activate(net[i+1]).toStatic();
         }
 
-        StatMatrix dEdO = loss.derivative(out[layers.length], target).toStatic();
+        Matrix dEdO = loss.derivative(out[layers.length], target);
         for (int i=layers.length-1;i>=0;i--) {
             RelMatrix weights = layers[i].weights;
             RelVector biases = layers[i].biases;
-            StatMatrix dOdNET = layers[i].activation.derivative(net[i+1]).toStatic();
 
-            Matrix dEdNET = dEdO.scalarMul(dOdNET);
+            Matrix dOdNET = layers[i].activation.derivative(net[i+1]);
+            StatMatrix dEdNET = dEdO.scalarMul(dOdNET).toStatic();
             Matrix dEdW = out[i].transposed().mul(dEdNET);
 
             weights.add(dEdW.scalarMul(-lRate));
             biases.add(dEdNET.transposed().getRowMean().mul(-lRate));
-            //System.exit(1);
+
+            // Update error
+            Matrix dEkdNET = dEdO.scalarMul(dOdNET);
+            Matrix dNETdO = weights.transposed();
+
+            dEdO = dEkdNET.mul(dNETdO);
         }
     }
 }

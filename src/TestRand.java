@@ -7,10 +7,10 @@ import NN.MLP;
 
 public class TestRand {
     public static void main (String[] args) {
-        StatMatrix targetX = new StatMatrix(new double[][] { {0, 0}, {0, 0.5}, {0.5, 0}, {0.5, 0.5} });
-        StatMatrix targetY = new StatMatrix(new double[][] { {0}, {0.5}, {0.5}, {1} });
+        StatMatrix targetX = new StatMatrix(new double[][] { {0, 0}, {0, 1}, {1, 0}, {1, 1} });
+        StatMatrix targetY = new StatMatrix(new double[][] { {0}, {1}, {1}, {0} });
 
-        MLP mlp = new MLP(Sigmoid.sigmoid, 2, 1);
+        MLP mlp = new MLP(Sigmoid.sigmoid, 2, 5, 1);
 
         for (int i=0;i<1000000;i++) {
             mlp.backprop(MSE.mse, targetX, targetY);
