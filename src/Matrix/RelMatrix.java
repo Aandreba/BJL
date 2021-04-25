@@ -13,8 +13,14 @@ public abstract class RelMatrix extends Matrix {
     public abstract void set (int row, int col, double value);
 
     public void set (int row, Vector value) {
-        for (int i=0;i<value.getLength();i++) {
+        for (int i=0;i<value.length;i++) {
             set(row, i, value.get(i));
+        }
+    }
+
+    public void set (Matrix value) {
+        for (int i=0;i<value.rows;i++) {
+            set(i, value.get(i));
         }
     }
 

@@ -1,17 +1,18 @@
 package NN.Functions.Loss;
 
 import NN.Functions.LossFunction;
+import Vector.Vector;
 
-public class Quadratic implements LossFunction {
-    final public static Quadratic quadratic = new Quadratic();
+public class MSE implements LossFunction {
+    final public static MSE mse = new MSE();
 
     @Override
     public double loss (double output, double target) {
-        return Math.pow(output - target, 2);
+        return 0.5 * Math.pow(target - output, 2);
     }
 
     @Override
     public double derivative (double output, double target) {
-        return 2 * (output - target);
+        return output - target;
     }
 }

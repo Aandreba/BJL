@@ -18,6 +18,8 @@ public class MLP {
     final private RelMatrix[] weights;
     final private RelVector[] biases;
 
+    public double lRate = 0.1;
+
     public MLP (ActivationFunction activation, Layer... layers) {
         this.layers = layers;
         this.inputs = layers[0].weights.rows;
@@ -66,7 +68,7 @@ public class MLP {
         StatMatrix[] a = new StatMatrix[layers.length + 1]; // Activated layers
 
         z[0] = input.toStatic(); // First layer is input
-        a[0] = activation.activate(z[0]).toStatic();
+        a[0] = z[0];
 
         for (int i=0;i<layers.length;i++) { // Calculate rest of layers
             z[i+1] = this.layers[i].forward(z[i]).toStatic();
@@ -74,15 +76,22 @@ public class MLP {
         }
 
         // Backpropagation
-        for (int i=layers.length;i>0;i--) {
-            Matrix dCdA = loss.derivative(a[i], target); // Derivative of cost function over activated result
-            Matrix dAdZ = activation.derivative(z[i]); // Derivative of activated layer over unactivated layer
-            Matrix dZdW = a[i-1]; // Derivative of unactivated layer over layer weights
+        Matrix dEdA = loss.derivative(a[layers.length], target);
 
-            System.out.println(dZdW);
-            System.out.println(dAdZ);
-            System.out.println(dCdA);
-            System.exit(1);
+        for (int i=layers.length;i>0;i--) {
+            Matrix dAdZ = activation.derivative(z[i]);
+            StatMatrix biasGradient = dEdA.scalarMul(dAdZ).toStatic();
+            StatMatrix weightGradient = a[i-1].transposed().mul(biasGradient).toStatic();
+
+            Matrix dEdZ = dEdA.scalarMul(dAdZ);
+            dEdA = dEdZ.mul(weights[i-1].transposed()).toStatic();
+            /*System.out.println(dEdZ);
+            System.out.println(weights[i-1]);
+            System.out.println(dEdZ.mul(weights[i-1].transposed()));
+            System.exit(1);*/
+
+            weights[i-1].add(weightGradient.scalarMul(-lRate));
+            biases[i-1].add(biasGradient.transposed().getRowMean().mul(-lRate));
         }
     }
 
@@ -90,11 +99,11 @@ public class MLP {
         return layers[index];
     }
 
-    public RelMatrix[] getWeights() {
+    public RelMatrix[] getWeights () {
         return weights.clone();
     }
 
-    public RelVector[] getBiases() {
+    public RelVector[] getBiases () {
         return biases.clone();
     }
 
