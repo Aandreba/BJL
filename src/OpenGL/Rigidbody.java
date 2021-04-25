@@ -215,7 +215,6 @@ public class Rigidbody {
     }
 
     public void addAngularForce (StatVector3 newton, StatVector3 relPos, Time delta) {
-        System.out.println(relPos.cross(newton));
         this.addTorque(relPos.cross(newton), relPos, delta);
     }
 

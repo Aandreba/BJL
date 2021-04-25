@@ -1,122 +1,67 @@
 package NN;
 
-import Extras.Tuples.Couple;
+import Extras.Tuples.Triple;
 import Matrix.Matrix;
 import Matrix.RelMatrix;
 import Matrix.StatMatrix;
 import NN.Functions.ActivationFunction;
 import NN.Functions.LossFunction;
-import Vector.RelVector;
 import Vector.Vector;
-import Vector.StatVector;
+import Vector.RelVector;
 
 public class MLP {
-    final public int inputs, outputs;
-    final public ActivationFunction activation;
     final private Layer[] layers;
-
-    final private RelMatrix[] weights;
-    final private RelVector[] biases;
-
-    public double lRate = 0.1;
-
-    public MLP (ActivationFunction activation, Layer... layers) {
-        this.layers = layers;
-        this.inputs = layers[0].weights.rows;
-        this.outputs = layers[layers.length - 1].outputs;
-        this.activation = activation;
-
-        Couple<RelMatrix[], RelVector[]> arrays = createArrays();
-        this.weights = arrays.one;
-        this.biases = arrays.two;
-    }
+    double lRate = 0.01;
 
     public MLP (ActivationFunction activation, int... layers) {
-        this.inputs = layers[0];
-        this.outputs = layers[layers.length - 1];
         this.layers = new Layer[layers.length - 1];
-        this.activation = activation;
 
-        for (int i=1;i<layers.length;i++) {
-            this.layers[i-1] = new Layer(layers[i-1], layers[i]);
+        for (int i=0;i<this.layers.length;i++) {
+            this.layers[i] = new Layer(layers[i], layers[i+1], activation);
         }
+    }
 
-        Couple<RelMatrix[], RelVector[]> arrays = createArrays();
-        this.weights = arrays.one;
-        this.biases = arrays.two;
+    public MLP (Triple<Integer, Integer, ActivationFunction>... layers) {
+        this.layers = new Layer[layers.length];
+
+        for (int i=0;i<layers.length;i++) {
+            this.layers[i] = new Layer(layers[i].one, layers[i].two, layers[i].three);
+        }
     }
 
     public StatMatrix forward (Matrix input) {
         StatMatrix output = input.toStatic();
         for (int i=0;i<layers.length;i++) {
-            output = layers[i].activate(output, activation).toStatic();
+            output = layers[i].forward(output);
         }
 
         return output;
-    }
-
-    public StatVector forward (Vector input) {
-        return forward(input.toMatrix(input.length)).get(0).toStatic();
-    }
-
-    public StatVector forward (double... input) {
-        return forward(new StatVector(input));
     }
 
     public void backprop (LossFunction loss, Matrix input, Matrix target) {
-        StatMatrix[] z = new StatMatrix[layers.length + 1]; // Unactivated layers
-        StatMatrix[] a = new StatMatrix[layers.length + 1]; // Activated layers
+        StatMatrix[] net = new StatMatrix[layers.length + 1];
+        StatMatrix[] out = new StatMatrix[layers.length + 1];
 
-        z[0] = input.toStatic(); // First layer is input
-        a[0] = z[0];
-
-        for (int i=0;i<layers.length;i++) { // Calculate rest of layers
-            z[i+1] = this.layers[i].forward(z[i]).toStatic();
-            a[i+1] = activation.activate(z[i+1]).toStatic();
-        }
-
-        // Backpropagation
-        Matrix dEdA = loss.derivative(a[layers.length], target);
-
-        for (int i=layers.length;i>0;i--) {
-            Matrix dAdZ = activation.derivative(z[i]);
-            StatMatrix biasGradient = dEdA.scalarMul(dAdZ).toStatic();
-            StatMatrix weightGradient = a[i-1].transposed().mul(biasGradient).toStatic();
-
-            Matrix dEdZ = dEdA.scalarMul(dAdZ);
-            dEdA = dEdZ.mul(weights[i-1].transposed()).toStatic();
-            /*System.out.println(dEdZ);
-            System.out.println(weights[i-1]);
-            System.out.println(dEdZ.mul(weights[i-1].transposed()));
-            System.exit(1);*/
-
-            weights[i-1].add(weightGradient.scalarMul(-lRate));
-            biases[i-1].add(biasGradient.transposed().getRowMean().mul(-lRate));
-        }
-    }
-
-    public Layer getLayer (int index) {
-        return layers[index];
-    }
-
-    public RelMatrix[] getWeights () {
-        return weights.clone();
-    }
-
-    public RelVector[] getBiases () {
-        return biases.clone();
-    }
-
-    private Couple<RelMatrix[], RelVector[]> createArrays() {
-        Couple<RelMatrix[], RelVector[]> output = new Couple<>();
-        output.one = new RelMatrix[layers.length];
-        output.two = new RelVector[layers.length];
+        net[0] = input.toStatic();
+        out[0] = net[0];
 
         for (int i=0;i<layers.length;i++) {
-            output.one[i] = layers[i].weights;
-            output.two[i] = layers[i].biases;
+            net[i+1] = layers[i].unactivatedForward(out[i]);
+            out[i+1] = layers[i].activation.activate(net[i+1]).toStatic();
         }
 
-        return output;
+        StatMatrix dEdO = loss.derivative(out[layers.length], target).toStatic();
+        for (int i=layers.length-1;i>=0;i--) {
+            RelMatrix weights = layers[i].weights;
+            RelVector biases = layers[i].biases;
+            StatMatrix dOdNET = layers[i].activation.derivative(net[i+1]).toStatic();
+
+            Matrix dEdNET = dEdO.scalarMul(dOdNET);
+            Matrix dEdW = out[i].transposed().mul(dEdNET);
+
+            weights.add(dEdW.scalarMul(-lRate));
+            biases.add(dEdNET.transposed().getRowMean().mul(-lRate));
+            //System.exit(1);
+        }
     }
 }
