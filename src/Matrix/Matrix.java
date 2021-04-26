@@ -5,6 +5,7 @@ import OpenCL.Device.Device;
 import Extras.Rand;
 import Vector.Vector;
 import Vector.StatVector;
+import jcuda.jcublas.JCublas;
 import jcuda.jcublas.JCublas2;
 import jcuda.jcublas.cublasHandle;
 import jcuda.runtime.cudaMemcpyKind;
@@ -26,6 +27,7 @@ import java.util.function.Function;
 
 import static jcuda.jcublas.JCublas2.*;
 import static jcuda.jcublas.cublasOperation.CUBLAS_OP_N;
+import static jcuda.jcublas.cublasOperation.CUBLAS_OP_T;
 import static jcuda.runtime.JCuda.*;
 import static org.jocl.CL.*;
 import static org.jocl.blast.CLBlast.CLBlastClearCache;
@@ -391,11 +393,12 @@ public abstract class Matrix implements Iterable<Vector> {
     }
 
     public StatMatrix mulCUDA (Matrix b, double alpha, double beta) {
+        JCublas.setExceptionsEnabled(true);
         JCublas2.setExceptionsEnabled(true);
 
-        double[] A = toVector().toArray();
-        double[] B = b.toVector().toArray();
-        double[] C = new double[rows * b.cols];
+        float[] A = transposed().toVector().toFloatArray();
+        float[] B = b.transposed().toVector().toFloatArray();
+        float[] C = new float[rows * b.cols];
 
         cublasHandle handle = new cublasHandle();
         cublasCreate(handle);
@@ -404,20 +407,20 @@ public abstract class Matrix implements Iterable<Vector> {
         jcuda.Pointer dB = new jcuda.Pointer();
         jcuda.Pointer dC = new jcuda.Pointer();
 
-        cudaMalloc(dA, A.length * jcuda.Sizeof.DOUBLE);
-        cudaMalloc(dB, B.length * jcuda.Sizeof.DOUBLE);
-        cudaMalloc(dC, C.length * jcuda.Sizeof.DOUBLE);
+        cudaMalloc(dA, A.length * jcuda.Sizeof.FLOAT);
+        cudaMalloc(dB, B.length * jcuda.Sizeof.FLOAT);
+        cudaMalloc(dC, C.length * jcuda.Sizeof.FLOAT);
 
-        cudaMemcpy(dA, jcuda.Pointer.to(A), jcuda.Sizeof.DOUBLE * A.length, cudaMemcpyKind.cudaMemcpyHostToDevice);
-        cudaMemcpy(dB, jcuda.Pointer.to(B), jcuda.Sizeof.DOUBLE * B.length, cudaMemcpyKind.cudaMemcpyHostToDevice);
+        cudaMemcpy(dA, jcuda.Pointer.to(A), jcuda.Sizeof.FLOAT * A.length, cudaMemcpyKind.cudaMemcpyHostToDevice);
+        cudaMemcpy(dB, jcuda.Pointer.to(B), jcuda.Sizeof.FLOAT * B.length, cudaMemcpyKind.cudaMemcpyHostToDevice);
 
-        jcuda.Pointer pAlpha = jcuda.Pointer.to(new double[]{ alpha });
-        jcuda.Pointer pBeta = jcuda.Pointer.to(new double[]{ beta });
+        jcuda.Pointer pAlpha = jcuda.Pointer.to(new float[]{ (float) alpha });
+        jcuda.Pointer pBeta = jcuda.Pointer.to(new float[]{ (float) beta });
 
-        cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, rows, b.cols, cols, pAlpha, dA, rows, dB, cols, pBeta, dC, rows);
+        cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, rows, b.rows, cols, pAlpha, dA, rows, dB, b.rows, pBeta, dC, rows);
         cudaDeviceSynchronize();
 
-        cudaMemcpy(jcuda.Pointer.to(C), dC, jcuda.Sizeof.DOUBLE * C.length, cudaMemcpyKind.cudaMemcpyDeviceToHost);
+        cudaMemcpy(jcuda.Pointer.to(C), dC, jcuda.Sizeof.FLOAT * C.length, cudaMemcpyKind.cudaMemcpyDeviceToHost);
 
         cudaFree(dA);
         cudaFree(dB);
@@ -425,24 +428,6 @@ public abstract class Matrix implements Iterable<Vector> {
         cublasDestroy(handle);
 
         return new StatVector(C).toMatrix(b.cols).toStatic();
-    }
-
-    public Matrix smartMul (Matrix b, float alpha, float beta) {
-        int size = rows * cols + (b.rows * b.cols);
-        if (size > 30000) {
-            return mulGPU(b, alpha, beta);
-        } else {
-            return toStatic().mul(b.toStatic()).scalarMul(alpha).sum(beta);
-        }
-    }
-
-    public Matrix smartMul (Matrix b) {
-        int size = rows * cols + (b.rows * b.cols);
-        if (size > 30000) {
-            return mulGPU(b, 1, 0);
-        } else {
-            return toStatic().mul(b.toStatic());
-        }
     }
 
     // Scalar mul

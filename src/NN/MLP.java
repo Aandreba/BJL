@@ -39,6 +39,14 @@ public class MLP {
         return output;
     }
 
+    public Vector forward (Vector input) {
+        return forward(input.toMatrix(input.length)).get(0);
+    }
+
+    public Vector forward (double... input) {
+        return forward(new StatVector(input));
+    }
+
     public void backprop (LossFunction loss, Matrix input, Matrix target) {
         StatMatrix[] net = new StatMatrix[layers.length + 1];
         StatMatrix[] out = new StatMatrix[layers.length + 1];
@@ -68,6 +76,46 @@ public class MLP {
             Matrix dNETdO = weights.transposed();
 
             dEdO = dEkdNET.mul(dNETdO);
+        }
+    }
+
+    public void backprop (LossFunction loss, Vector input, Vector target) {
+        backprop(loss, input.toMatrix(input.length), target.toMatrix(target.length));
+    }
+
+    public void backprop (LossFunction loss, double[] input, double... target) {
+        backprop(loss, new StatVector(input), new StatVector(target));
+    }
+
+    public void backpropCUDA (LossFunction loss, Matrix input, Matrix target) {
+        StatMatrix[] net = new StatMatrix[layers.length + 1];
+        StatMatrix[] out = new StatMatrix[layers.length + 1];
+
+        net[0] = input.toStatic();
+        out[0] = net[0];
+
+        for (int i=0;i<layers.length;i++) {
+            net[i+1] = layers[i].unactivatedForwardCUDA(out[i]);
+            out[i+1] = layers[i].activation.activate(net[i+1]).toStatic();
+        }
+
+        Matrix dEdO = loss.derivative(out[layers.length], target);
+        for (int i=layers.length-1;i>=0;i--) {
+            RelMatrix weights = layers[i].weights;
+            RelVector biases = layers[i].biases;
+
+            Matrix dOdNET = layers[i].activation.derivative(net[i+1]);
+            StatMatrix dEdNET = dEdO.scalarMul(dOdNET).toStatic();
+            Matrix dEdW = out[i].transposed().mulCUDA(dEdNET, 1, 0);
+
+            weights.add(dEdW.scalarMul(-lRate));
+            biases.add(dEdNET.transposed().getRowMean().mul(-lRate));
+
+            // Update error
+            Matrix dEkdNET = dEdO.scalarMul(dOdNET);
+            Matrix dNETdO = weights.transposed();
+
+            dEdO = dEkdNET.mulCUDA(dNETdO, 1, 0);
         }
     }
 }

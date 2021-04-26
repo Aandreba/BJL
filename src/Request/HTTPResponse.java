@@ -1,12 +1,14 @@
 package Request;
 
 import Extras.CSV;
+import Extras.Files;
 import JSON.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpCookie;
 import java.net.HttpURLConnection;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,22 +17,26 @@ public class HTTPResponse {
     final public int status;
     final public HashMap<String, String> headers;
     final public HashMap<String, String> cookies;
+    final public ByteBuffer body;
     final public String response;
     final public String error;
 
     public HTTPResponse (HttpURLConnection conn) throws IOException {
         this.status = conn.getResponseCode();
 
-        InputStream input = conn.getInputStream();
-        InputStream error = conn.getErrorStream();
+        InputStream inputStream = conn.getInputStream();
+        InputStream errorStream = conn.getErrorStream();
 
-        if (input == null) {
+        if (inputStream == null) {
             this.response = null;
+            this.body = null;
         } else {
-            this.response = new String(conn.getInputStream().readAllBytes());
+            byte[] bytes = inputStream.readAllBytes();
+            this.body = ByteBuffer.wrap(bytes);
+            this.response = new String(bytes);
         }
 
-        if (error == null) {
+        if (errorStream == null) {
             this.error = null;
         } else {
             this.error = new String(conn.getErrorStream().readAllBytes());

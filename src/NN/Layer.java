@@ -22,6 +22,10 @@ public class Layer {
         return input.mul(weights).sum(biases).toStatic();
     }
 
+    protected StatMatrix unactivatedForwardCUDA (Matrix input) {
+        return input.mulCUDA(weights, 1, 0).sum(biases).toStatic();
+    }
+
     public StatMatrix forward (Matrix input) {
         return activation.activate(unactivatedForward(input)).toStatic();
     }
