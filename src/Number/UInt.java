@@ -1,7 +1,7 @@
 package Number;
 
 public class UInt extends Number implements Comparable<UInt> {
-    final private boolean classLoaded = false;
+    private boolean classLoaded = false;
 
     final public static UInt MIN_VALUE = new UInt(0);
     final public static UInt MAX_VALUE = new UInt(0xFFFFFFFF);
@@ -11,6 +11,7 @@ public class UInt extends Number implements Comparable<UInt> {
     public UInt (int bits) {
         if (!classLoaded) {
             System.loadLibrary("uint");
+            classLoaded = true;
         }
         this.raw = bits;
     }
@@ -48,6 +49,9 @@ public class UInt extends Number implements Comparable<UInt> {
         return new UInt((long) value);
     }
 
-    private static native long toLong (int raw);
-    private static native int toUint (long val);
+    public static native long toLong (int raw);
+    public static native int sum (int a, int b);
+    public static native int subtr (int a, int b);
+    public static native int mul (int a, int b);
+    public static native int div (int a, int b);
 }
