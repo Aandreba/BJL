@@ -6,6 +6,7 @@ import jcuda.Sizeof;
 import jcuda.jcurand.curandGenerator;
 import jcuda.runtime.cudaMemcpyKind;
 
+import java.io.Serializable;
 import java.nio.ByteBuffer;
 
 import static jcuda.jcurand.JCurand.*;
@@ -13,7 +14,7 @@ import static jcuda.jcurand.curandRngType.CURAND_RNG_PSEUDO_DEFAULT;
 import static jcuda.runtime.JCuda.cudaMalloc;
 import static jcuda.runtime.JCuda.cudaMemcpy;
 
-public class StatVector extends RelVector {
+public class StatVector extends RelVector implements Serializable {
     protected double[] values;
 
     public StatVector (int length) {

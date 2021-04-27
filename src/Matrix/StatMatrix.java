@@ -2,9 +2,11 @@ package Matrix;
 
 import Vector.StatVector;
 import Vector.Vector;
+
+import java.io.Serializable;
 import java.nio.ByteBuffer;
 
-public class StatMatrix extends RelMatrix {
+public class StatMatrix extends RelMatrix implements Serializable {
     protected double[][] values;
 
     public StatMatrix (int rows, int cols) {

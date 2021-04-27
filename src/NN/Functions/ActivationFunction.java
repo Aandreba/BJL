@@ -3,7 +3,9 @@ package NN.Functions;
 import Matrix.Matrix;
 import Vector.Vector;
 
-public interface ActivationFunction {
+import java.io.Serializable;
+
+public interface ActivationFunction extends Serializable {
     double activate (double input);
     double derivative (double input);
 

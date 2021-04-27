@@ -10,7 +10,10 @@ import Vector.StatVector;
 import Vector.RelVector;
 import Vector.Vector;
 
-public class MLP {
+import java.io.Serializable;
+import java.util.Arrays;
+
+public class MLP implements Serializable {
     final private Layer[] layers;
     double lRate = 0.01;
 
@@ -47,7 +50,14 @@ public class MLP {
         return forward(new StatVector(input));
     }
 
-    public void backprop (LossFunction loss, Matrix input, Matrix target) {
+    /**
+     * Backpropagate through specified inputs
+     * @param loss Loss function to apply
+     * @param input Input values
+     * @param target Target values
+     * @return Loss matrix
+     */
+    public Matrix backprop (LossFunction loss, Matrix input, Matrix target) {
         StatMatrix[] net = new StatMatrix[layers.length + 1];
         StatMatrix[] out = new StatMatrix[layers.length + 1];
 
@@ -77,17 +87,19 @@ public class MLP {
 
             dEdO = dEkdNET.mul(dNETdO);
         }
+
+        return loss.loss(out[layers.length], target);
     }
 
-    public void backprop (LossFunction loss, Vector input, Vector target) {
-        backprop(loss, input.toMatrix(input.length), target.toMatrix(target.length));
+    public Matrix backprop (LossFunction loss, Vector input, Vector target) {
+        return backprop(loss, input.toMatrix(input.length), target.toMatrix(target.length));
     }
 
-    public void backprop (LossFunction loss, double[] input, double... target) {
-        backprop(loss, new StatVector(input), new StatVector(target));
+    public Matrix backprop (LossFunction loss, double[] input, double... target) {
+        return backprop(loss, new StatVector(input), new StatVector(target));
     }
 
-    public void backpropCUDA (LossFunction loss, Matrix input, Matrix target) {
+    public Matrix backpropCUDA (LossFunction loss, Matrix input, Matrix target) {
         StatMatrix[] net = new StatMatrix[layers.length + 1];
         StatMatrix[] out = new StatMatrix[layers.length + 1];
 
@@ -117,5 +129,7 @@ public class MLP {
 
             dEdO = dEkdNET.mulCUDA(dNETdO, 1, 0);
         }
+
+        return loss.loss(out[layers.length], target);
     }
 }

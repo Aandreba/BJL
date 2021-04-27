@@ -5,7 +5,6 @@ import OpenCL.Device.Device;
 import Extras.Rand;
 import Vector.Vector;
 import Vector.StatVector;
-import jcuda.jcublas.JCublas;
 import jcuda.jcublas.JCublas2;
 import jcuda.jcublas.cublasHandle;
 import jcuda.runtime.cudaMemcpyKind;
@@ -14,20 +13,13 @@ import org.jocl.Sizeof;
 import org.jocl.blast.CLBlast;
 import org.jocl.cl_event;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Array;
+import java.io.Serializable;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.Iterator;
-import java.util.Objects;
 import java.util.function.Function;
 
 import static jcuda.jcublas.JCublas2.*;
 import static jcuda.jcublas.cublasOperation.CUBLAS_OP_N;
-import static jcuda.jcublas.cublasOperation.CUBLAS_OP_T;
 import static jcuda.runtime.JCuda.*;
 import static org.jocl.CL.*;
 import static org.jocl.blast.CLBlast.CLBlastClearCache;
@@ -340,7 +332,7 @@ public abstract class Matrix implements Iterable<Vector> {
         };
     }
 
-    public StatMatrix mulGPU (Matrix b, Device device, double alpha, double beta) {
+    public StatMatrix mulGPU (Matrix b, Device device, float alpha, float beta) {
         if (device.isCudaCapable()) {
             return mulCUDA(b, alpha, beta);
         }
@@ -348,7 +340,7 @@ public abstract class Matrix implements Iterable<Vector> {
         return mulCL(b, device, (float)alpha, (float)beta);
     }
 
-    public StatMatrix mulGPU (Matrix b, double alpha, double beta) {
+    public StatMatrix mulGPU (Matrix b, float alpha, float beta) {
         if (Device.isCudaAvailable) {
             return mulCUDA(b, alpha, beta);
         }
@@ -392,8 +384,8 @@ public abstract class Matrix implements Iterable<Vector> {
         return new StatVector(r).toMatrix(b.cols).toStatic();
     }
 
-    public StatMatrix mulCUDA (Matrix b, double alpha, double beta) {
-        JCublas.setExceptionsEnabled(true);
+    public StatMatrix mulCUDA (Matrix b, float alpha, float beta) {
+        JCublas2.initialize();
         JCublas2.setExceptionsEnabled(true);
 
         float[] A = transposed().toVector().toFloatArray();
@@ -414,8 +406,8 @@ public abstract class Matrix implements Iterable<Vector> {
         cudaMemcpy(dA, jcuda.Pointer.to(A), jcuda.Sizeof.FLOAT * A.length, cudaMemcpyKind.cudaMemcpyHostToDevice);
         cudaMemcpy(dB, jcuda.Pointer.to(B), jcuda.Sizeof.FLOAT * B.length, cudaMemcpyKind.cudaMemcpyHostToDevice);
 
-        jcuda.Pointer pAlpha = jcuda.Pointer.to(new float[]{ (float) alpha });
-        jcuda.Pointer pBeta = jcuda.Pointer.to(new float[]{ (float) beta });
+        jcuda.Pointer pAlpha = jcuda.Pointer.to(new float[]{ alpha });
+        jcuda.Pointer pBeta = jcuda.Pointer.to(new float[]{ beta });
 
         cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, rows, b.rows, cols, pAlpha, dA, rows, dB, b.rows, pBeta, dC, rows);
         cudaDeviceSynchronize();

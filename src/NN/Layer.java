@@ -1,15 +1,15 @@
 package NN;
 
 import Matrix.Matrix;
-import Matrix.RelMatrix;
 import Matrix.StatMatrix;
 import NN.Functions.ActivationFunction;
-import Vector.RelVector;
 import Vector.StatVector;
 
-public class Layer {
-    final public RelMatrix weights;
-    final public RelVector biases;
+import java.io.Serializable;
+
+public class Layer implements Serializable {
+    final public StatMatrix weights;
+    final public StatVector biases;
     final public ActivationFunction activation;
 
     protected Layer (int from, int to, ActivationFunction activation) {
