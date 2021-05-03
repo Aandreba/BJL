@@ -12,5 +12,6 @@
     <orderEntry type="library" name="jcurand-11.1.1" level="project" />
     <orderEntry type="library" name="jocl-2.0.0" level="project" />
     <orderEntry type="library" name="LWJGL" level="project" />
+    <orderEntry type="library" name="C" level="project" />
   </component>
 </module>

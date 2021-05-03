@@ -23,6 +23,10 @@ public class Mathx {
         double apply (double value);
     }
 
+    public interface SimpleFloatFunction {
+        float apply (float value);
+    }
+
     public interface IntegerFunction {
         double apply (int position);
     }
@@ -89,12 +93,12 @@ public class Mathx {
         return (long) Math.floor(value);
     }
 
-    public static int getExponent (float value) {
-        final ByteSize size = new ByteSize(4);
-        final BitBuffer buffer = new BitBuffer(size).set(0, value).flipped();
-        byte exp = buffer.getByte(23);
+    public static float derivative (double x, SimpleFunction function) {
+        double delta = 0x1.0p-14f;
+        double A = function.apply(x);
+        double B = function.apply(x + delta);
 
-        return Byte.toUnsignedInt(exp) - 127;
+        return (float) ((B - A) / delta);
     }
 
     public static double integral (double a, double b, SimpleFunction function) {
