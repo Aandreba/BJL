@@ -1,15 +1,15 @@
-import Number.UBigInteger;
-import Number.UInt;
+import Number.UInteger;
+
 import java.io.IOException;
 
 public class TestRand {
     public static void main (String[] args) throws IOException {
-        UBigInteger a = new UBigInteger(2000);
-        UBigInteger b = new UBigInteger(53);
-        UBigInteger c = a.sum(b);
+        UInteger a = new UInteger(2000);
+        UInteger b = new UInteger(52);
+        UInteger pow = a.pow(b);
 
-        System.out.println(a+", "+b+", "+c);
-        System.out.println(a.intValue()+", "+b.intValue()+", "+c.intValue());
-
+        //System.out.println(a.intValue()+", "+b.intValue());
+        System.out.println(a.gcd(b).intValue());
+        System.out.println(a.lcm(b).intValue());
     }
 }
